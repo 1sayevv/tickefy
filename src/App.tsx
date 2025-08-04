@@ -11,6 +11,7 @@ import AdminTickets from '@/pages/AdminTickets'
 import Test from '@/pages/Test'
 import TestFileUpload from '@/pages/TestFileUpload'
 import LanguageTest from '@/components/LanguageTest'
+import NotFound from '@/pages/NotFound'
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
       } />
       <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/admin/tickets" element={<AdminRoute><AdminTickets /></AdminRoute>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
