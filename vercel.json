@@ -12,9 +12,6 @@
   "functions": {
     "api/upload-image.ts": {
       "maxDuration": 30
-    },
-    "api/tickets.ts": {
-      "maxDuration": 10
     }
   }
 } 

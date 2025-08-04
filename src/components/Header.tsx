@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useState } from 'react'
 import { clearMockAuth } from '@/lib/mockAuth'
+import { clearTicketsStorage } from '@/lib/vercelStorage'
 
 export default function Header() {
   const { user, signOut, getUserDisplayName, loading } = useAuth()
@@ -18,6 +19,11 @@ export default function Header() {
 
   const handleClearAuth = () => {
     clearMockAuth()
+    window.location.reload()
+  }
+
+  const handleClearTickets = () => {
+    clearTicketsStorage()
     window.location.reload()
   }
 
@@ -96,6 +102,9 @@ export default function Header() {
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleClearAuth} className="text-xs">
                   Clear Auth
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleClearTickets} className="text-xs">
+                  Clear Tickets
                 </Button>
               </>
             ) : (

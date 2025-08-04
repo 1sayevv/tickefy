@@ -25,29 +25,35 @@ export const uploadImageToVercel = async (file: File): Promise<string> => {
   }
 }
 
-// Получить все тикеты из Vercel KV
-export const getTicketsFromVercel = async (company?: string, status?: string): Promise<any[]> => {
-  try {
-    const params = new URLSearchParams()
-    if (company) params.append('company', company)
-    if (status) params.append('status', status)
+// localStorage для тикетов (альтернатива KV)
+const TICKETS_STORAGE_KEY = 'tickefy_tickets'
 
-    const response = await fetch(`/api/tickets?${params.toString()}`)
+// Получить все тикеты из localStorage
+export const getTicketsFromStorage = async (company?: string, status?: string): Promise<any[]> => {
+  try {
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
+    const tickets = stored ? JSON.parse(stored) : []
     
-    if (!response.ok) {
-      throw new Error('Ошибка получения тикетов')
+    let filteredTickets = tickets
+
+    if (company) {
+      filteredTickets = filteredTickets.filter((ticket: any) => ticket.company === company)
     }
 
-    return await response.json()
+    if (status) {
+      filteredTickets = filteredTickets.filter((ticket: any) => ticket.status === status)
+    }
+
+    return filteredTickets
 
   } catch (error) {
-    console.error('Error fetching tickets from Vercel:', error)
+    console.error('Error fetching tickets from storage:', error)
     return []
   }
 }
 
-// Создать новый тикет в Vercel KV
-export const createTicketInVercel = async (ticketData: {
+// Создать новый тикет в localStorage
+export const createTicketInStorage = async (ticketData: {
   title: string
   description: string
   image_url?: string
@@ -55,47 +61,56 @@ export const createTicketInVercel = async (ticketData: {
   company: string
 }): Promise<any> => {
   try {
-    const response = await fetch('/api/tickets', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(ticketData)
-    })
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
+    const tickets = stored ? JSON.parse(stored) : []
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Ошибка создания тикета')
+    const newTicket = {
+      id: Date.now().toString(),
+      title: ticketData.title,
+      description: ticketData.description,
+      image_url: ticketData.image_url,
+      user_id: ticketData.user_id,
+      company: ticketData.company,
+      status: 'open',
+      created_at: new Date().toISOString()
     }
 
-    return await response.json()
+    tickets.push(newTicket)
+    localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(tickets))
+
+    return newTicket
 
   } catch (error) {
-    console.error('Error creating ticket in Vercel:', error)
+    console.error('Error creating ticket in storage:', error)
     throw error
   }
 }
 
-// Обновить статус тикета в Vercel KV
-export const updateTicketStatusInVercel = async (id: string, status: string): Promise<any> => {
+// Обновить статус тикета в localStorage
+export const updateTicketStatusInStorage = async (id: string, status: string): Promise<any> => {
   try {
-    const response = await fetch('/api/tickets', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ id, status })
-    })
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
+    const tickets = stored ? JSON.parse(stored) : []
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Ошибка обновления тикета')
+    const ticketIndex = tickets.findIndex((ticket: any) => ticket.id === id)
+    
+    if (ticketIndex === -1) {
+      throw new Error('Тикет не найден')
     }
 
-    return await response.json()
+    tickets[ticketIndex].status = status
+    localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify(tickets))
+
+    return tickets[ticketIndex]
 
   } catch (error) {
-    console.error('Error updating ticket status in Vercel:', error)
+    console.error('Error updating ticket status in storage:', error)
     throw error
   }
+}
+
+// Очистить все тикеты (для отладки)
+export const clearTicketsStorage = () => {
+  localStorage.removeItem(TICKETS_STORAGE_KEY)
+  console.log('Tickets storage cleared')
 } 

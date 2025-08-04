@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { createTicket } from '@/lib/mockTickets'
-import { uploadImageToVercel, createTicketInVercel } from '@/lib/vercelStorage'
+import { uploadImageToVercel, createTicketInStorage } from '@/lib/vercelStorage'
 
 interface CreateTicketFormProps {
   onTicketCreated?: () => void
@@ -168,11 +168,11 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       console.log('Creating ticket with data:', ticketData)
 
       try {
-        // Пробуем создать тикет в Vercel KV
-        await createTicketInVercel(ticketData)
-        console.log('Ticket created in Vercel KV')
+        // Пробуем создать тикет в localStorage
+        await createTicketInStorage(ticketData)
+        console.log('Ticket created in localStorage')
       } catch (error) {
-        console.log('Vercel KV failed, falling back to local storage')
+        console.log('localStorage failed, falling back to mock storage')
         
         // Проверяем, настроен ли Supabase
         const isSupabaseConfigured = () => {
