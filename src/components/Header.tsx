@@ -3,13 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
+import { useState } from 'react'
 
 export default function Header() {
   const { user, signOut, getUserDisplayName, loading } = useAuth()
   const { t } = useTranslation()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
+    setIsMobileMenuOpen(false)
   }
 
   // Проверяем, является ли пользователь админом
@@ -47,7 +50,8 @@ export default function Header() {
             <span className="text-xl font-bold">Tickefy</span>
           </Link>
           
-          <div className="flex items-center space-x-4">
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-4">
             <LanguageSwitcher />
             
             {user ? (
@@ -56,7 +60,6 @@ export default function Header() {
                   {t('hello')}, {getUserDisplayName()}
                 </span>
                 
-                {/* Показываем кнопку "Панель управления" только обычным пользователям */}
                 {!isAdmin && (
                   <Link to="/dashboard">
                     <Button variant="outline" size="sm">
@@ -65,7 +68,6 @@ export default function Header() {
                   </Link>
                 )}
                 
-                {/* Показываем кнопку "Админ панель" только админам */}
                 {isAdmin && (
                   <Link to="/admin">
                     <Button variant="outline" size="sm" className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
@@ -86,7 +88,72 @@ export default function Header() {
               </Link>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </Button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t pt-4">
+            <div className="flex flex-col space-y-3">
+              <div className="flex justify-center">
+                <LanguageSwitcher />
+              </div>
+              
+              {user ? (
+                <>
+                  <div className="text-center">
+                    <span className="text-sm text-muted-foreground">
+                      {t('hello')}, {getUserDisplayName()}
+                    </span>
+                  </div>
+                  
+                  {!isAdmin && (
+                    <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        {t('dashboard')}
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+                        {t('adminPanel')}
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  <Button variant="outline" size="sm" onClick={handleSignOut} className="w-full">
+                    {t('logout')}
+                  </Button>
+                </>
+              ) : (
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="default" size="sm" className="w-full">
+                    {t('login')}
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
@@ -13,9 +13,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useTranslation()
   const { signOut, getUserDisplayName } = useAuth()
   const location = useLocation()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     await signOut()
+    setIsMobileMenuOpen(false)
   }
 
   const menuItems = [
@@ -44,31 +46,76 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Top Header */}
       <header className="bg-white border-b border-gray-200">
-        <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">T</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{t('adminPanelTitle')}</h1>
-              <p className="text-sm text-gray-500">{t('systemManagement')}</p>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">{t('adminPanelTitle')}</h1>
+              <p className="text-xs sm:text-sm text-gray-500">{t('systemManagement')}</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <span className="text-xs sm:text-sm text-gray-600 hidden sm:block">
               {t('hello')}, {getUserDisplayName()}!
             </span>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="text-xs sm:text-sm">
               {t('logout')}
+            </Button>
+            
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
             </Button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 px-4 py-4">
+            <div className="flex flex-col space-y-3">
+              <div className="text-center">
+                <span className="text-sm text-gray-600">
+                  {t('hello')}, {getUserDisplayName()}!
+                </span>
+              </div>
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                    location.pathname === item.href
+                      ? "bg-purple-50 text-purple-700 border border-purple-200"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                >
+                  {item.icon}
+                  <span>{item.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
+      <div className="flex flex-col md:flex-row">
+        {/* Sidebar - Desktop */}
+        <aside className="hidden md:block w-64 bg-white border-r border-gray-200 min-h-screen">
           <nav className="mt-8">
             <div className="px-4 space-y-2">
               {menuItems.map((item) => (
@@ -91,7 +138,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

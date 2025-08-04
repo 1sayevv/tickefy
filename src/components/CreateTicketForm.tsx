@@ -192,10 +192,10 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('createTicket')}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">{t('createTicket')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
               {t('title')} *
@@ -242,7 +242,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
                 <img
                   src={imagePreview}
                   alt={t('preview')}
-                  className="w-32 h-32 object-cover rounded border"
+                  className="w-full sm:w-32 h-48 sm:h-32 object-cover rounded border"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   {t('selectedImagePreview')}
@@ -257,13 +257,13 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             </div>
           )}
 
-          <div className="flex justify-end space-x-3">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
                 {t('cancel')}
               </Button>
             )}
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
               {loading ? t('creating') : t('create')}
             </Button>
           </div>
