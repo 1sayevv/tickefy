@@ -123,14 +123,16 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       let imageUrl: string
 
       if (selectedFile) {
-        console.log('Processing selected file:', selectedFile.name)
+        console.log('Processing selected file:', selectedFile.name, selectedFile.type, selectedFile.size)
         
         try {
           // Пробуем загрузить в Vercel Blob Storage
+          console.log('Attempting to upload to Vercel Blob Storage...')
           imageUrl = await uploadImageToVercel(selectedFile)
-          console.log('Image uploaded to Vercel:', imageUrl)
+          console.log('✅ Image uploaded to Vercel:', imageUrl)
         } catch (error) {
-          console.log('Vercel upload failed, falling back to local storage')
+          console.log('❌ Vercel upload failed:', error)
+          console.log('Falling back to local storage...')
           
           // Проверяем, настроен ли Supabase
           const isSupabaseConfigured = () => {
@@ -139,14 +141,18 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
 
           if (isSupabaseConfigured()) {
             // Если Supabase настроен, загружаем в Storage
+            console.log('Trying Supabase upload...')
             const uploadedUrl = await uploadImageToStorage(selectedFile)
             if (!uploadedUrl) {
               throw new Error(t('errorUploadingImage'))
             }
             imageUrl = uploadedUrl
+            console.log('✅ Image uploaded to Supabase:', imageUrl)
           } else {
             // Если Supabase не настроен, используем object URL
+            console.log('Using object URL as fallback...')
             imageUrl = imagePreview || `https://httpbin.org/image/png?width=400&height=300&seed=${Math.floor(Math.random() * 1000)}`
+            console.log('✅ Using fallback image URL:', imageUrl)
           }
         }
       } else {
@@ -169,10 +175,12 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
 
       try {
         // Пробуем создать тикет в localStorage
+        console.log('Attempting to create ticket in localStorage...')
         await createTicketInStorage(ticketData)
-        console.log('Ticket created in localStorage')
+        console.log('✅ Ticket created in localStorage')
       } catch (error) {
-        console.log('localStorage failed, falling back to mock storage')
+        console.log('❌ localStorage failed:', error)
+        console.log('Falling back to mock storage...')
         
         // Проверяем, настроен ли Supabase
         const isSupabaseConfigured = () => {
@@ -187,6 +195,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             company: ticketData.company,
             status: 'open'
           })
+          console.log('✅ Ticket saved to Supabase database')
         } else {
           await createTicket({
             title: ticketData.title,
@@ -195,6 +204,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             company: ticketData.company,
             status: 'open'
           })
+          console.log('✅ Ticket created in mock storage')
         }
       }
 
@@ -212,6 +222,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
 
       onTicketCreated?.()
     } catch (error) {
+      console.error('❌ Error in handleSubmit:', error)
       setError(error instanceof Error ? error.message : t('errorCreatingTicket'))
     } finally {
       setLoading(false)
