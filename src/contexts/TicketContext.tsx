@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getAllTickets, getTicketsByCompany, type Ticket } from '@/lib/mockTickets'
 import { useAuth } from './AuthContext'
+import { getTicketsFromVercel } from '@/lib/vercelStorage'
 
 interface TicketContextType {
   tickets: Ticket[]
@@ -31,15 +32,36 @@ export function TicketProvider({ children }: TicketProviderProps) {
       const isAdmin = user?.email === 'admin@example.com' || 
                       user?.user_metadata?.role === 'admin'
       
-      if (isAdmin) {
-        allTickets = await getAllTickets()
-      } else {
-        // Если обычный пользователь, загружаем только тикеты его компании
-        const company = getUserCompany()
-        if (company) {
-          allTickets = await getTicketsByCompany(company)
+      try {
+        // Пробуем загрузить из Vercel KV
+        const vercelTickets = await getTicketsFromVercel()
+        console.log('Tickets loaded from Vercel KV:', vercelTickets.length)
+        
+        if (isAdmin) {
+          allTickets = vercelTickets as Ticket[]
         } else {
-          allTickets = []
+          // Если обычный пользователь, загружаем только тикеты его компании
+          const company = getUserCompany()
+          if (company) {
+            allTickets = vercelTickets.filter((ticket: any) => ticket.company === company) as Ticket[]
+          } else {
+            allTickets = []
+          }
+        }
+      } catch (error) {
+        console.log('Vercel KV failed, falling back to local storage')
+        
+        // Fallback к локальному хранилищу
+        if (isAdmin) {
+          allTickets = await getAllTickets()
+        } else {
+          // Если обычный пользователь, загружаем только тикеты его компании
+          const company = getUserCompany()
+          if (company) {
+            allTickets = await getTicketsByCompany(company)
+          } else {
+            allTickets = []
+          }
         }
       }
       

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { createTicket } from '@/lib/mockTickets'
+import { uploadImageToVercel, createTicketInVercel } from '@/lib/vercelStorage'
 
 interface CreateTicketFormProps {
   onTicketCreated?: () => void
@@ -124,21 +125,29 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       if (selectedFile) {
         console.log('Processing selected file:', selectedFile.name)
         
-        // Проверяем, настроен ли Supabase
-        const isSupabaseConfigured = () => {
-          return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
-        }
-
-        if (isSupabaseConfigured()) {
-          // Если Supabase настроен, загружаем в Storage
-          const uploadedUrl = await uploadImageToStorage(selectedFile)
-          if (!uploadedUrl) {
-            throw new Error(t('errorUploadingImage'))
+        try {
+          // Пробуем загрузить в Vercel Blob Storage
+          imageUrl = await uploadImageToVercel(selectedFile)
+          console.log('Image uploaded to Vercel:', imageUrl)
+        } catch (error) {
+          console.log('Vercel upload failed, falling back to local storage')
+          
+          // Проверяем, настроен ли Supabase
+          const isSupabaseConfigured = () => {
+            return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
           }
-          imageUrl = uploadedUrl
-        } else {
-          // Если Supabase не настроен, используем object URL
-          imageUrl = imagePreview || `https://httpbin.org/image/png?width=400&height=300&seed=${Math.floor(Math.random() * 1000)}`
+
+          if (isSupabaseConfigured()) {
+            // Если Supabase настроен, загружаем в Storage
+            const uploadedUrl = await uploadImageToStorage(selectedFile)
+            if (!uploadedUrl) {
+              throw new Error(t('errorUploadingImage'))
+            }
+            imageUrl = uploadedUrl
+          } else {
+            // Если Supabase не настроен, используем object URL
+            imageUrl = imagePreview || `https://httpbin.org/image/png?width=400&height=300&seed=${Math.floor(Math.random() * 1000)}`
+          }
         }
       } else {
         // Если изображение не выбрано, используем заглушку
@@ -151,22 +160,42 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       const ticketData = {
         title,
         description,
-        image: imageUrl,
-        company: company as "Nike" | "Adidas",
-        status: 'open' as const
+        image_url: imageUrl,
+        user_id: user.id,
+        company: company as "Nike" | "Adidas"
       }
 
       console.log('Creating ticket with data:', ticketData)
 
-      // Проверяем, настроен ли Supabase
-      const isSupabaseConfigured = () => {
-        return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
-      }
+      try {
+        // Пробуем создать тикет в Vercel KV
+        await createTicketInVercel(ticketData)
+        console.log('Ticket created in Vercel KV')
+      } catch (error) {
+        console.log('Vercel KV failed, falling back to local storage')
+        
+        // Проверяем, настроен ли Supabase
+        const isSupabaseConfigured = () => {
+          return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
+        }
 
-      if (isSupabaseConfigured()) {
-        await saveTicketToDatabase(ticketData)
-      } else {
-        await createTicket(ticketData)
+        if (isSupabaseConfigured()) {
+          await saveTicketToDatabase({
+            title: ticketData.title,
+            description: ticketData.description,
+            image: ticketData.image_url,
+            company: ticketData.company,
+            status: 'open'
+          })
+        } else {
+          await createTicket({
+            title: ticketData.title,
+            description: ticketData.description,
+            image: ticketData.image_url,
+            company: ticketData.company,
+            status: 'open'
+          })
+        }
       }
 
       // Обновляем список тикетов в контексте

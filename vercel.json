@@ -8,5 +8,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "functions": {
+    "api/upload-image.ts": {
+      "maxDuration": 30
+    },
+    "api/tickets.ts": {
+      "maxDuration": 10
+    }
+  }
 } 
