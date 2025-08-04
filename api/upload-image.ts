@@ -9,6 +9,10 @@ const isBlobStorageAvailable = () => {
 export async function POST(request: NextRequest) {
   try {
     console.log('📤 API upload-image called')
+    console.log('🔧 Environment check:', {
+      hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN,
+      tokenLength: process.env.BLOB_READ_WRITE_TOKEN?.length || 0
+    })
     
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -85,9 +89,13 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error uploading file:', error)
+    console.error('❌ Error uploading file:', error)
+    console.error('❌ Error details:', {
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    })
     return NextResponse.json(
-      { error: 'Ошибка загрузки файла' },
+      { error: 'Ошибка загрузки файла: ' + (error as Error).message },
       { status: 500 }
     )
   }

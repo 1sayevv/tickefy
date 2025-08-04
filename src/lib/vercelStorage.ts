@@ -21,9 +21,8 @@ export const uploadImageToVercel = async (file: File): Promise<string> => {
         errorMessage = errorData.error || errorMessage
       } catch (parseError) {
         console.log('Could not parse error response:', parseError)
-        const textResponse = await response.text()
-        console.log('Raw error response:', textResponse)
-        errorMessage = `HTTP ${response.status}: ${textResponse}`
+        // Не пытаемся читать тело ответа дважды
+        errorMessage = `HTTP ${response.status}: Server Error`
       }
       throw new Error(errorMessage)
     }
