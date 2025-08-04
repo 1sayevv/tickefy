@@ -47,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const checkUser = async () => {
       try {
         const currentUser = await getCurrentUser()
+        console.log('AuthContext - Current user:', currentUser)
         setUser(currentUser)
         
         if (currentUser) {

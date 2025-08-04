@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
 import { useState } from 'react'
+import { clearMockAuth } from '@/lib/mockAuth'
 
 export default function Header() {
   const { user, signOut, getUserDisplayName, loading } = useAuth()
@@ -15,9 +16,23 @@ export default function Header() {
     setIsMobileMenuOpen(false)
   }
 
+  const handleClearAuth = () => {
+    clearMockAuth()
+    window.location.reload()
+  }
+
   // Проверяем, является ли пользователь админом
   const isAdmin = user?.user_metadata?.role === 'admin' || 
                   user?.email === 'admin@example.com'
+
+  // Отладочная информация
+  console.log('Header Debug:', {
+    user: user,
+    userEmail: user?.email,
+    userRole: user?.user_metadata?.role,
+    isAdmin: isAdmin,
+    loading: loading
+  })
 
   if (loading) {
     return (
@@ -78,6 +93,9 @@ export default function Header() {
                 
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   {t('logout')}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleClearAuth} className="text-xs">
+                  Clear Auth
                 </Button>
               </>
             ) : (

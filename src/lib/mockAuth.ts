@@ -139,7 +139,14 @@ export const mockSignUp = async (email: string, password: string, fullName?: str
 export const mockSignOut = async () => {
   await new Promise(resolve => setTimeout(resolve, 200))
   removeStoredUser()
+  console.log('mockSignOut - User removed from localStorage')
   return { error: null }
+}
+
+// Функция для принудительной очистки localStorage (для отладки)
+export const clearMockAuth = () => {
+  removeStoredUser()
+  console.log('clearMockAuth - localStorage cleared')
 }
 
 export const mockGetCurrentUser = async () => {
@@ -147,6 +154,7 @@ export const mockGetCurrentUser = async () => {
   
   // Проверяем localStorage для сохраненной сессии
   const storedUser = getStoredUser()
+  console.log('mockGetCurrentUser - Stored user:', storedUser)
   return storedUser
 }
 
