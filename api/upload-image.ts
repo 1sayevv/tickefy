@@ -1,6 +1,11 @@
 import { put } from '@vercel/blob'
 import { NextRequest, NextResponse } from 'next/server'
 
+// Проверяем, доступен ли Blob Storage
+const isBlobStorageAvailable = () => {
+  return process.env.BLOB_READ_WRITE_TOKEN
+}
+
 export async function POST(request: NextRequest) {
   try {
     console.log('📤 API upload-image called')
@@ -43,24 +48,41 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ File validation passed')
 
+    // Проверяем доступность Blob Storage
+    if (!isBlobStorageAvailable()) {
+      console.log('❌ Blob Storage not available - missing BLOB_READ_WRITE_TOKEN')
+      return NextResponse.json(
+        { error: 'Blob Storage не настроен. Добавьте переменную BLOB_READ_WRITE_TOKEN' },
+        { status: 500 }
+      )
+    }
+
     // Создаем уникальное имя файла
     const timestamp = Date.now()
     const fileName = `tickets/${timestamp}-${file.name}`
     console.log('📝 File name:', fileName)
 
-    // Загружаем файл в Vercel Blob Storage
-    console.log('🚀 Uploading to Vercel Blob Storage...')
-    const blob = await put(fileName, file, {
-      access: 'public',
-      addRandomSuffix: false
-    })
+    try {
+      // Загружаем файл в Vercel Blob Storage
+      console.log('🚀 Uploading to Vercel Blob Storage...')
+      const blob = await put(fileName, file, {
+        access: 'public',
+        addRandomSuffix: false
+      })
 
-    console.log('✅ Upload successful:', blob.url)
+      console.log('✅ Upload successful:', blob.url)
 
-    return NextResponse.json({
-      url: blob.url,
-      success: true
-    })
+      return NextResponse.json({
+        url: blob.url,
+        success: true
+      })
+    } catch (error) {
+      console.error('❌ Blob upload error:', error)
+      return NextResponse.json(
+        { error: 'Ошибка загрузки в Blob Storage: ' + (error as Error).message },
+        { status: 500 }
+      )
+    }
 
   } catch (error) {
     console.error('Error uploading file:', error)

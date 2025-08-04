@@ -6,21 +6,34 @@ export const uploadImageToVercel = async (file: File): Promise<string> => {
     const formData = new FormData()
     formData.append('file', file)
 
+    console.log('📤 Sending request to /api/upload-image')
     const response = await fetch('/api/upload-image', {
       method: 'POST',
       body: formData
     })
 
+    console.log('📥 Response status:', response.status)
+
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Ошибка загрузки изображения')
+      let errorMessage = 'Ошибка загрузки изображения'
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.error || errorMessage
+      } catch (parseError) {
+        console.log('Could not parse error response:', parseError)
+        const textResponse = await response.text()
+        console.log('Raw error response:', textResponse)
+        errorMessage = `HTTP ${response.status}: ${textResponse}`
+      }
+      throw new Error(errorMessage)
     }
 
     const result = await response.json()
+    console.log('✅ Upload successful, URL:', result.url)
     return result.url
 
   } catch (error) {
-    console.error('Error uploading image to Vercel:', error)
+    console.error('❌ Error uploading image to Vercel:', error)
     throw error
   }
 }
