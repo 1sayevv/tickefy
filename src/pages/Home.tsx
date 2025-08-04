@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import MainLayout from '@/layouts/MainLayout'
 
 export default function Home() {
-  const { user, loading } = useAuth()
+  const { user } = useAuth()
 
   return (
     <MainLayout>

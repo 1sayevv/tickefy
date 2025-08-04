@@ -53,7 +53,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
   const uploadImageToStorage = async (file: File): Promise<string | null> => {
     try {
       const fileName = `${Date.now()}-${file.name}`
-      const { data, error } = await supabase.storage
+      const { data: uploadData, error } = await supabase.storage
         .from('ticket-images')
         .upload(fileName, file)
 
@@ -126,7 +126,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
         
         // Проверяем, настроен ли Supabase
         const isSupabaseConfigured = () => {
-          return import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+          return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
         }
 
         if (isSupabaseConfigured()) {
@@ -152,7 +152,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
         title,
         description,
         image: imageUrl,
-        company,
+        company: company as "Nike" | "Adidas",
         status: 'open' as const
       }
 
@@ -160,7 +160,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
 
       // Проверяем, настроен ли Supabase
       const isSupabaseConfigured = () => {
-        return import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY
+        return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
       }
 
       if (isSupabaseConfigured()) {

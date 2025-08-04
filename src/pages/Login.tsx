@@ -33,7 +33,7 @@ export default function Login() {
       }
 
       if (result.error) {
-        setError(result.error.message)
+        setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
       } else if (result.user) {
         // Проверяем, является ли пользователь админом
         const isAdmin = result.user.email === 'admin@example.com' || 

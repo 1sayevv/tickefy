@@ -64,9 +64,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Слушаем изменения в авторизации (только для Supabase)
     try {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
+        async (_event, session) => {
           const currentUser = session?.user ?? null
-          setUser(currentUser)
+          setUser(currentUser as any)
           
           if (currentUser) {
             await loadProfile(currentUser.id)
@@ -87,12 +87,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      const result = await signIn(email, password)
+      const result = await signIn(email, password) as any
       if (result.user) {
-        setUser(result.user)
+        setUser(result.user as any)
         await loadProfile(result.user.id)
       }
-      return result
+      return {
+        user: result.user,
+        error: result.error ? (typeof result.error === 'string' ? result.error : result.error.message) : null
+      }
     } catch (error) {
       return { user: null, error: 'Ошибка входа. Попробуйте еще раз.' }
     }
@@ -100,12 +103,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleSignUp = async (email: string, password: string, fullName?: string, company?: string) => {
     try {
-      const result = await signUp(email, password, fullName, company)
+      const result = await signUp(email, password, fullName, company) as any
       if (result.user) {
-        setUser(result.user)
+        setUser(result.user as any)
         await loadProfile(result.user.id)
       }
-      return result
+      return {
+        user: result.user,
+        error: result.error ? (typeof result.error === 'string' ? result.error : result.error.message) : null
+      }
     } catch (error) {
       return { user: null, error: 'Ошибка регистрации. Попробуйте еще раз.' }
     }

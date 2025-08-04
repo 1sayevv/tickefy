@@ -1,11 +1,11 @@
 import { supabase } from './supabase'
 import { mockSignIn, mockSignUp, mockSignOut, mockGetCurrentUser, mockGetProfile } from './mockAuth'
-import type { User, AuthError, LoginCredentials, SignUpCredentials, Profile } from './supabase'
+import type { User, Profile } from './supabase'
 
 // Проверяем, настроен ли Supabase
 const isSupabaseConfigured = () => {
-  const url = import.meta.env.VITE_SUPABASE_URL
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+  const url = import.meta.env.VITE_SUPABASE_URL as string
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string
   return url && key && 
          url !== 'https://your-project.supabase.co' && 
          key !== 'your_anon_key_here'
@@ -81,7 +81,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
   try {
     if (isSupabaseConfigured()) {
       const { data: { user } } = await supabase.auth.getUser()
-      return user
+      return user as any
     } else {
       return await mockGetCurrentUser()
     }

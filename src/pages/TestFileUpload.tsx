@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import MainLayout from '@/layouts/MainLayout'
 
 export default function TestFileUpload() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [_selectedFile, setSelectedFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<string>('')
 
