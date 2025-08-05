@@ -94,6 +94,8 @@
     "manageAllTickets": "Управление всеми тикетами в системе",
     "createTicketDescription": "Создайте новый тикет для вашей команды",
     "ticketsByStatus": "Тикеты по статусу",
-    "ticketsByDate": "Тикеты по датам (последние 14 дней)"
+    "ticketsByDate": "Тикеты по датам (последние 14 дней)",
+    "recentTickets": "Последние тикеты",
+    "noRecentTickets": "Нет последних тикетов"
   }
 } 

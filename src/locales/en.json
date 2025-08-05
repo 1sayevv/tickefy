@@ -94,6 +94,8 @@
     "manageAllTickets": "Manage all tickets in the system",
     "createTicketDescription": "Create a new ticket for your team",
     "ticketsByStatus": "Tickets by Status",
-    "ticketsByDate": "Tickets by Date (Last 14 Days)"
+    "ticketsByDate": "Tickets by Date (Last 14 Days)",
+    "recentTickets": "Recent Tickets",
+    "noRecentTickets": "No recent tickets"
   }
 } 

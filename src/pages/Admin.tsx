@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/layouts/AdminLayout'
 import AdminCharts from '@/components/AdminCharts'
+import RecentTickets from '@/components/RecentTickets'
 
 export default function Admin() {
   const { t } = useTranslation()
@@ -32,8 +33,18 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Графики */}
-        <AdminCharts />
+        {/* Графики и последние тикеты */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Графики */}
+          <div className="lg:col-span-2">
+            <AdminCharts />
+          </div>
+          
+          {/* Последние тикеты */}
+          <div className="lg:col-span-1">
+            <RecentTickets />
+          </div>
+        </div>
       </div>
     </AdminLayout>
   )
