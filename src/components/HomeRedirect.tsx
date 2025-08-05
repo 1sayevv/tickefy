@@ -1,8 +1,15 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { clearMockAuth } from '@/lib/mockAuth'
 
 export default function HomeRedirect() {
   const { user, loading } = useAuth()
+  const location = useLocation()
+
+  // Если пользователь находится на странице логина, очищаем localStorage
+  if (location.pathname === '/login') {
+    clearMockAuth()
+  }
 
   if (loading) {
     return (

@@ -3,12 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import LanguageSwitcher from './LanguageSwitcher'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { clearMockAuth } from '@/lib/mockAuth'
 
 export default function Header() {
   const { user, signOut, getUserDisplayName, loading } = useAuth()
   const { t } = useTranslation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Очищаем localStorage если пользователь не авторизован
+  useEffect(() => {
+    if (!loading && !user) {
+      clearMockAuth()
+    }
+  }, [user, loading])
 
   const handleSignOut = async () => {
     await signOut()

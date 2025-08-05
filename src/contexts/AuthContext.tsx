@@ -123,6 +123,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await signOut()
       setUser(null)
       setProfile(null)
+      // Очищаем localStorage при выходе
+      localStorage.removeItem('tickefy_user')
     } catch (error) {
       console.error('Error signing out:', error)
     }
