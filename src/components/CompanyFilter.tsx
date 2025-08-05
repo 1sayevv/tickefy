@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDownIcon } from '@heroicons/react/24/outline'
+import { ChevronDown } from 'lucide-react'
 
 interface CompanyFilterProps {
   selectedCompany: string
@@ -26,7 +26,7 @@ export default function CompanyFilter({ selectedCompany, onCompanyChange }: Comp
         className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
       >
         <span>{selectedCompanyData.label}</span>
-        <ChevronDownIcon className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
