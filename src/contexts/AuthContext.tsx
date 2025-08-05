@@ -32,13 +32,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Принудительно очищаем localStorage при инициализации
-  useEffect(() => {
-    // Очищаем localStorage при загрузке приложения
-    localStorage.removeItem('tickefy_user')
-    console.log('AuthContext - localStorage cleared on init')
-  }, [])
-
   // Загрузка профиля пользователя
   const loadProfile = async (userId: string) => {
     try {
@@ -130,8 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await signOut()
       setUser(null)
       setProfile(null)
-      // Очищаем localStorage при выходе
-      localStorage.removeItem('tickefy_user')
     } catch (error) {
       console.error('Error signing out:', error)
     }

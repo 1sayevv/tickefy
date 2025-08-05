@@ -1,4 +1,4 @@
-// Мок-пользователи для тестирования
+// Мок-пользователи
 export const mockUsers = [
   {
     id: '1',
@@ -29,33 +29,22 @@ export const mockUsers = [
   }
 ]
 
-// Проверяем, есть ли сохраненная сессия в localStorage
-const getStoredUser = () => {
-  try {
-    const stored = localStorage.getItem('tickefy_user')
-    return stored ? JSON.parse(stored) : null
-  } catch (error) {
-    console.error('Error reading from localStorage:', error)
-    return null
-  }
+// Храним текущего пользователя только в памяти
+let currentUserInMemory: any = null
+
+// Получаем пользователя из памяти
+const getCurrentUserFromMemory = () => {
+  return currentUserInMemory
 }
 
-// Сохраняем пользователя в localStorage
-const storeUser = (user: any) => {
-  try {
-    localStorage.setItem('tickefy_user', JSON.stringify(user))
-  } catch (error) {
-    console.error('Error writing to localStorage:', error)
-  }
+// Сохраняем пользователя в память
+const storeUserInMemory = (user: any) => {
+  currentUserInMemory = user
 }
 
-// Удаляем пользователя из localStorage
-const removeStoredUser = () => {
-  try {
-    localStorage.removeItem('tickefy_user')
-  } catch (error) {
-    console.error('Error removing from localStorage:', error)
-  }
+// Удаляем пользователя из памяти
+const removeUserFromMemory = () => {
+  currentUserInMemory = null
 }
 
 // Мок-функции авторизации
@@ -76,8 +65,8 @@ export const mockSignIn = async (email: string, password: string) => {
       }
     }
     
-    // Сохраняем в localStorage
-    storeUser(userData)
+    // Сохраняем в память
+    storeUserInMemory(userData)
     
     return {
       user: userData,
@@ -127,8 +116,8 @@ export const mockSignUp = async (email: string, password: string, fullName?: str
     }
   }
   
-  // Сохраняем в localStorage
-  storeUser(userData)
+  // Сохраняем в память
+  storeUserInMemory(userData)
   
   return {
     user: userData,
@@ -138,25 +127,25 @@ export const mockSignUp = async (email: string, password: string, fullName?: str
 
 export const mockSignOut = async () => {
   await new Promise(resolve => setTimeout(resolve, 200))
-  removeStoredUser()
-  console.log('mockSignOut - User removed from localStorage')
+  removeUserFromMemory()
+  console.log('mockSignOut - User removed from memory')
   return { error: null }
 }
 
 // Функция для принудительной очистки localStorage (для отладки)
 export const clearMockAuth = () => {
-  removeStoredUser()
-  console.log('clearMockAuth - localStorage cleared')
+  removeUserFromMemory()
+  console.log('clearMockAuth - memory cleared')
 }
 
 export const mockGetCurrentUser = async () => {
   await new Promise(resolve => setTimeout(resolve, 200))
   
-  // Проверяем localStorage для сохраненной сессии
-  const storedUser = getStoredUser()
+  // Проверяем память для сохраненной сессии
+  const storedUser = getCurrentUserFromMemory()
   console.log('mockGetCurrentUser - Stored user:', storedUser)
   
-  // Если localStorage пустой или поврежден, возвращаем null
+  // Если память пустая или поврежден, возвращаем null
   if (!storedUser || !storedUser.id || !storedUser.email) {
     console.log('mockGetCurrentUser - No valid user found, returning null')
     return null

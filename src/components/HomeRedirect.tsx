@@ -1,22 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { clearMockAuth } from '@/lib/mockAuth'
-import { useEffect } from 'react'
 
 export default function HomeRedirect() {
   const { user, loading } = useAuth()
   const location = useLocation()
-
-  // Принудительно очищаем localStorage при загрузке
-  useEffect(() => {
-    clearMockAuth()
-    console.log('HomeRedirect - localStorage cleared')
-  }, [])
-
-  // Если пользователь находится на странице логина, очищаем localStorage
-  if (location.pathname === '/login') {
-    clearMockAuth()
-  }
 
   if (loading) {
     return (
