@@ -92,6 +92,8 @@
     "systemManagement": "System Management",
     "systemOverview": "System overview and statistics",
     "manageAllTickets": "Manage all tickets in the system",
-    "createTicketDescription": "Create a new ticket for your team"
+    "createTicketDescription": "Create a new ticket for your team",
+    "ticketsByStatus": "Tickets by Status",
+    "ticketsByDate": "Tickets by Date (Last 14 Days)"
   }
 } 
