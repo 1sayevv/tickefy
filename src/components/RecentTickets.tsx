@@ -47,7 +47,12 @@ export default function RecentTickets({ selectedCompany }: RecentTicketsProps) {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date for ticket:', dateString)
+      return 'Invalid date'
+    }
+    return date.toLocaleDateString('ru-RU', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
