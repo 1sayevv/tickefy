@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import MainLayout from '@/layouts/MainLayout'
+import { clearMockAuth } from '@/lib/mockAuth'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -17,6 +18,11 @@ export default function Login() {
   const [company, setCompany] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Очищаем localStorage при загрузке страницы логина
+  useEffect(() => {
+    clearMockAuth()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
