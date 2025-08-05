@@ -96,6 +96,7 @@
     "ticketsByStatus": "Тикеты по статусу",
     "ticketsByDate": "Тикеты по датам (последние 14 дней)",
     "recentTickets": "Последние тикеты",
-    "noRecentTickets": "Нет последних тикетов"
+    "noRecentTickets": "Нет последних тикетов",
+    "filterByCompany": "Фильтр по компании"
   }
 } 

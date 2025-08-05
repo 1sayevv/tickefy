@@ -2,12 +2,21 @@ import { useTranslation } from 'react-i18next'
 import { useTickets } from '@/contexts/TicketContext'
 import { Badge } from '@/components/ui/badge'
 
-export default function RecentTickets() {
+interface RecentTicketsProps {
+  selectedCompany: string
+}
+
+export default function RecentTickets({ selectedCompany }: RecentTicketsProps) {
   const { t } = useTranslation()
   const { tickets } = useTickets()
 
+  // Фильтруем тикеты по выбранной компании
+  const filteredTickets = selectedCompany === 'all' 
+    ? tickets 
+    : tickets.filter(ticket => ticket.company === selectedCompany)
+
   // Получаем последние 5 тикетов, отсортированных по дате создания
-  const recentTickets = tickets
+  const recentTickets = filteredTickets
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5)
 
@@ -52,9 +61,14 @@ export default function RecentTickets() {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-gray-900">
           {t('recentTickets')}
+          {selectedCompany !== 'all' && (
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              ({t(selectedCompany.toLowerCase())})
+            </span>
+          )}
         </h3>
         <span className="text-sm text-gray-500">
-          {t('showing')} {recentTickets.length} {t('of')} {tickets.length}
+          {t('showing')} {recentTickets.length} {t('of')} {filteredTickets.length}
         </span>
       </div>
 

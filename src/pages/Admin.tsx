@@ -1,19 +1,35 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AdminLayout from '@/layouts/AdminLayout'
 import AdminCharts from '@/components/AdminCharts'
 import RecentTickets from '@/components/RecentTickets'
+import CompanyFilter from '@/components/CompanyFilter'
 
 export default function Admin() {
   const { t } = useTranslation()
+  const [selectedCompany, setSelectedCompany] = useState('all')
 
   return (
     <AdminLayout>
       <div className="max-w-6xl">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">{t('dashboard')}</h2>
-          <p className="text-gray-600 mt-2">
-            {t('systemOverview')}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">{t('dashboard')}</h2>
+              <p className="text-gray-600 mt-2">
+                {t('systemOverview')}
+              </p>
+            </div>
+            
+            {/* Фильтр компаний */}
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium text-gray-700">{t('filterByCompany')}:</span>
+              <CompanyFilter 
+                selectedCompany={selectedCompany}
+                onCompanyChange={setSelectedCompany}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Приветственный блок */}
@@ -37,12 +53,12 @@ export default function Admin() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Графики */}
           <div className="lg:col-span-2">
-            <AdminCharts />
+            <AdminCharts selectedCompany={selectedCompany} />
           </div>
           
           {/* Последние тикеты */}
           <div className="lg:col-span-1">
-            <RecentTickets />
+            <RecentTickets selectedCompany={selectedCompany} />
           </div>
         </div>
       </div>

@@ -4,13 +4,22 @@ import { useTickets } from '@/contexts/TicketContext'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-export default function AdminCharts() {
+interface AdminChartsProps {
+  selectedCompany: string
+}
+
+export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
   const { t } = useTranslation()
   const { tickets } = useTickets()
 
+  // Фильтруем тикеты по выбранной компании
+  const filteredTickets = selectedCompany === 'all' 
+    ? tickets 
+    : tickets.filter(ticket => ticket.company === selectedCompany)
+
   // Подготовка данных для Pie Chart (статусы тикетов)
   const getStatusData = () => {
-    const statusCount = tickets.reduce((acc, ticket) => {
+    const statusCount = filteredTickets.reduce((acc, ticket) => {
       const status = ticket.status
       acc[status] = (acc[status] || 0) + 1
       return acc
@@ -31,7 +40,7 @@ export default function AdminCharts() {
       return date.toISOString().split('T')[0]
     }).reverse()
 
-    const ticketsByDate = tickets.reduce((acc, ticket) => {
+    const ticketsByDate = filteredTickets.reduce((acc, ticket) => {
       const date = new Date(ticket.createdAt).toISOString().split('T')[0]
       acc[date] = (acc[date] || 0) + 1
       return acc
@@ -55,6 +64,11 @@ export default function AdminCharts() {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">
           {t('ticketsByStatus')}
+          {selectedCompany !== 'all' && (
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              ({t(selectedCompany.toLowerCase())})
+            </span>
+          )}
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -84,6 +98,11 @@ export default function AdminCharts() {
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">
           {t('ticketsByDate')}
+          {selectedCompany !== 'all' && (
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              ({t(selectedCompany.toLowerCase())})
+            </span>
+          )}
         </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">

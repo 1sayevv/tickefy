@@ -96,6 +96,7 @@
     "ticketsByStatus": "Tickets by Status",
     "ticketsByDate": "Tickets by Date (Last 14 Days)",
     "recentTickets": "Recent Tickets",
-    "noRecentTickets": "No recent tickets"
+    "noRecentTickets": "No recent tickets",
+    "filterByCompany": "Filter by Company"
   }
 } 
