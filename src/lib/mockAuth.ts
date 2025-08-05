@@ -155,6 +155,13 @@ export const mockGetCurrentUser = async () => {
   // Проверяем localStorage для сохраненной сессии
   const storedUser = getStoredUser()
   console.log('mockGetCurrentUser - Stored user:', storedUser)
+  
+  // Если localStorage пустой или поврежден, возвращаем null
+  if (!storedUser || !storedUser.id || !storedUser.email) {
+    console.log('mockGetCurrentUser - No valid user found, returning null')
+    return null
+  }
+  
   return storedUser
 }
 

@@ -32,6 +32,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Принудительно очищаем localStorage при инициализации
+  useEffect(() => {
+    // Очищаем localStorage при загрузке приложения
+    localStorage.removeItem('tickefy_user')
+    console.log('AuthContext - localStorage cleared on init')
+  }, [])
+
   // Загрузка профиля пользователя
   const loadProfile = async (userId: string) => {
     try {
