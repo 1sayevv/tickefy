@@ -58,7 +58,8 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
         month: 'short', 
         day: 'numeric' 
       }),
-      tickets: ticketsByDate[date] || 0
+      tickets: ticketsByDate[date] || 0,
+      fullDate: date // Добавляем полную дату для отладки
     }))
   }
 

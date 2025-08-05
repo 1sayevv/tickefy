@@ -19,7 +19,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
-    createdAt: "2024-08-01T10:00:00Z",
+    createdAt: "2024-08-03T10:00:00Z",
     user_email: "user1@examplemail.com"
   },
   {
@@ -29,7 +29,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=2",
-    createdAt: "2024-08-02T09:15:00Z",
+    createdAt: "2024-08-04T09:15:00Z",
     user_email: "user1@examplemail.com"
   },
   {
@@ -39,7 +39,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
-    createdAt: "2024-08-03T11:00:00Z",
+    createdAt: "2024-08-05T11:00:00Z",
     user_email: "user1@examplemail.com"
   },
   {
@@ -49,7 +49,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=4",
-    createdAt: "2024-08-04T13:20:00Z",
+    createdAt: "2024-08-05T13:20:00Z",
     user_email: "user1@examplemail.com"
   },
   // Adidas tickets
@@ -60,7 +60,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
-    createdAt: "2024-08-05T08:30:00Z",
+    createdAt: "2024-08-04T08:30:00Z",
     user_email: "user2@examplemail.com"
   },
   {
@@ -70,7 +70,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
-    createdAt: "2024-08-06T12:00:00Z",
+    createdAt: "2024-08-05T12:00:00Z",
     user_email: "user2@examplemail.com"
   },
   {
@@ -80,7 +80,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
-    createdAt: "2024-08-07T14:15:00Z",
+    createdAt: "2024-08-03T14:15:00Z",
     user_email: "user2@examplemail.com"
   },
   {
@@ -90,7 +90,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
-    createdAt: "2024-08-08T09:45:00Z",
+    createdAt: "2024-08-05T09:45:00Z",
     user_email: "user2@examplemail.com"
   }
 ]
