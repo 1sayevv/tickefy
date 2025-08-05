@@ -88,7 +88,7 @@ let mockTickets: Ticket[] = [
     title: "Аналитика продаж",
     description: "Создание дашборда для анализа продаж и отчетности с интеграцией с CRM системой",
     company: "Adidas",
-    status: "open",
+    status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
     createdAt: "2024-08-08T09:45:00Z",
     user_email: "user2@examplemail.com"

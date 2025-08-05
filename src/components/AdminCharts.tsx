@@ -83,10 +83,10 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
               <Pie
                 data={statusData}
                 cx="50%"
-                cy="50%"
+                cy="40%"
                 labelLine={false}
                 label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                outerRadius={80}
+                outerRadius={60}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -106,7 +106,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
                 layout="horizontal" 
                 verticalAlign="bottom" 
                 align="center"
-                wrapperStyle={{ paddingTop: '20px' }}
+                wrapperStyle={{ paddingTop: '40px' }}
               />
             </PieChart>
           </ResponsiveContainer>
