@@ -6,6 +6,7 @@ export interface Ticket {
   status: "open" | "in progress" | "done"
   image: string
   createdAt: string
+  user_email: string
 }
 
 // Глобальный массив тикетов
@@ -18,7 +19,8 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
-    createdAt: "2024-01-15T10:00:00Z"
+    createdAt: "2024-01-15T10:00:00Z",
+    user_email: "user1@examplemail.com"
   },
   {
     id: "2",
@@ -27,7 +29,8 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=2",
-    createdAt: "2024-01-18T09:15:00Z"
+    createdAt: "2024-01-18T09:15:00Z",
+    user_email: "user1@examplemail.com"
   },
   {
     id: "3",
@@ -36,7 +39,8 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
-    createdAt: "2024-01-10T11:00:00Z"
+    createdAt: "2024-01-10T11:00:00Z",
+    user_email: "user1@examplemail.com"
   },
   {
     id: "4",
@@ -45,7 +49,8 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=4",
-    createdAt: "2024-01-22T13:20:00Z"
+    createdAt: "2024-01-22T13:20:00Z",
+    user_email: "user1@examplemail.com"
   },
   // Adidas tickets
   {
@@ -55,7 +60,8 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
-    createdAt: "2024-01-16T08:30:00Z"
+    createdAt: "2024-01-16T08:30:00Z",
+    user_email: "user2@examplemail.com"
   },
   {
     id: "6",
@@ -64,7 +70,8 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
-    createdAt: "2024-01-19T12:00:00Z"
+    createdAt: "2024-01-19T12:00:00Z",
+    user_email: "user2@examplemail.com"
   },
   {
     id: "7",
@@ -73,7 +80,8 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
-    createdAt: "2024-01-08T14:15:00Z"
+    createdAt: "2024-01-08T14:15:00Z",
+    user_email: "user2@examplemail.com"
   },
   {
     id: "8",
@@ -82,7 +90,8 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
-    createdAt: "2024-01-23T09:45:00Z"
+    createdAt: "2024-01-23T09:45:00Z",
+    user_email: "user2@examplemail.com"
   }
 ]
 
