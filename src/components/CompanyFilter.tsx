@@ -30,7 +30,7 @@ export default function CompanyFilter({ selectedCompany, onCompanyChange }: Comp
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+        <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
           <div className="py-1">
             {companies.map((company) => (
               <button
@@ -53,7 +53,7 @@ export default function CompanyFilter({ selectedCompany, onCompanyChange }: Comp
       {/* Overlay для закрытия dropdown при клике вне */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-0"
+          className="fixed inset-0 z-40"
           onClick={() => setIsOpen(false)}
         />
       )}

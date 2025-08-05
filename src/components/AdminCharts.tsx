@@ -77,7 +77,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
             </span>
           )}
         </h3>
-        <div className="h-80">
+        <div className="h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -94,8 +94,20 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
-              <Legend />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  zIndex: 1000
+                }}
+              />
+              <Legend 
+                layout="horizontal" 
+                verticalAlign="bottom" 
+                align="center"
+                wrapperStyle={{ paddingTop: '20px' }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -111,7 +123,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
             </span>
           )}
         </h3>
-        <div className="h-80">
+        <div className="h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={dateData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -121,16 +133,23 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
                 angle={-45}
                 textAnchor="end"
                 height={80}
+                interval={0}
               />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'white', 
                   border: '1px solid #ccc',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
+                  zIndex: 1000
                 }}
               />
-              <Legend />
+              <Legend 
+                layout="horizontal" 
+                verticalAlign="bottom" 
+                align="center"
+                wrapperStyle={{ paddingTop: '20px' }}
+              />
               <Line 
                 type="monotone" 
                 dataKey="tickets" 
