@@ -12,6 +12,11 @@ export default function LanguageSwitcher() {
     if (savedLanguage && (savedLanguage === 'ru' || savedLanguage === 'en')) {
       i18n.changeLanguage(savedLanguage)
       setCurrentLanguage(savedLanguage)
+    } else {
+      // Если нет сохраненного языка, устанавливаем английский по умолчанию
+      i18n.changeLanguage('en')
+      localStorage.setItem('i18nextLng', 'en')
+      setCurrentLanguage('en')
     }
   }, [i18n])
 
