@@ -187,23 +187,24 @@ export default function SuperAdminPanel() {
 
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Управление мини-админами</h1>
-        <p className="text-muted-foreground">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Управление мини-админами</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Создавайте и управляйте мини-админами для различных компаний
         </p>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 w-full sm:w-auto">
               <Plus className="w-4 h-4" />
-              Создать мини-админа
+              <span className="hidden sm:inline">Создать мини-админа</span>
+              <span className="sm:hidden">Создать</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle>Создать мини-админа</DialogTitle>
             </DialogHeader>
@@ -306,34 +307,34 @@ export default function SuperAdminPanel() {
             <div className="text-center py-8">Загрузка...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="border-b bg-gray-50">
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Имя</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Email</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Назначенные компании</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Уровень доступа</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Статус</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Дата создания</th>
-                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Действия</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Имя</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Email</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Компании</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Уровень</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Статус</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm hidden lg:table-cell">Дата</th>
+                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                   {miniAdmins.map((admin, index) => (
                     <tr key={admin.id} className={`border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="py-4 px-6 font-medium text-gray-900">{admin.name}</td>
-                      <td className="py-4 px-6 text-gray-700">{admin.email}</td>
-                      <td className="py-4 px-6">
+                      <td className="py-3 sm:py-4 px-3 sm:px-6 font-medium text-gray-900 text-xs sm:text-sm">{admin.name}</td>
+                      <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-700 text-xs sm:text-sm">{admin.email}</td>
+                      <td className="py-3 sm:py-4 px-3 sm:px-6">
                         <div className="flex flex-wrap gap-1">
                           {admin.companies.map(company => (
-                            <span key={company} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                            <span key={company} className="px-1 sm:px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
                               {company}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      <td className="py-3 sm:py-4 px-3 sm:px-6">
+                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
                           admin.accessLevel === 'senior_admin' 
                             ? 'bg-purple-100 text-purple-800' 
                             : 'bg-blue-100 text-blue-800'
@@ -341,47 +342,53 @@ export default function SuperAdminPanel() {
                           {formatAccessLevel(admin.accessLevel)}
                         </span>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-3 sm:py-4 px-3 sm:px-6">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${
                             admin.status === 'active' ? 'bg-green-500' : 'bg-red-500'
                           }`}></div>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(admin.status)}`}>
+                          <span className={`px-1 sm:px-2 py-1 rounded text-xs font-medium ${getStatusColor(admin.status)}`}>
                             {admin.status === 'active' ? 'Активен' : 'Неактивен'}
                           </span>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-gray-600 text-sm">
+                      <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-600 text-xs sm:text-sm hidden lg:table-cell">
                         {formatDate(admin.created_at)}
                       </td>
-                      <td className="py-4 px-6">
-                        <div className="flex gap-2">
+                      <td className="py-3 sm:py-4 px-3 sm:px-6">
+                        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => openEditModal(admin)}
-                            className="text-blue-600 hover:text-blue-700"
+                            className="text-blue-600 hover:text-blue-700 text-xs"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleToggleStatus(admin)}
-                            className={admin.status === 'active' 
-                              ? 'text-orange-600 hover:text-orange-700' 
-                              : 'text-green-600 hover:text-green-700'
-                            }
+                            className={`text-xs ${
+                              admin.status === 'active' 
+                                ? 'text-orange-600 hover:text-orange-700' 
+                                : 'text-green-600 hover:text-green-700'
+                            }`}
                           >
-                            {admin.status === 'active' ? 'Деактивировать' : 'Активировать'}
+                            <span className="hidden sm:inline">
+                              {admin.status === 'active' ? 'Деактивировать' : 'Активировать'}
+                            </span>
+                            <span className="sm:hidden">
+                              {admin.status === 'active' ? 'Деакт.' : 'Акт.'}
+                            </span>
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleDeleteAdmin(admin.id, admin.name)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 text-xs"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
                         </div>
                       </td>
@@ -396,11 +403,11 @@ export default function SuperAdminPanel() {
 
       {/* Модалка редактирования */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Редактировать мини-админа</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditAdmin} className="space-y-4">
+                  <DialogContent className="max-w-md w-[95vw] sm:w-full">
+            <DialogHeader>
+              <DialogTitle>Редактировать мини-админа</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditAdmin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Имя</label>
               <input
@@ -491,7 +498,7 @@ export default function SuperAdminPanel() {
 
       {/* Модальное окно подтверждения удаления */}
       <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle>Подтверждение удаления</DialogTitle>
           </DialogHeader>

@@ -67,10 +67,10 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
   const dateData = getDateData()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Pie Chart - Статусы тикетов */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
           {t('ticketsByStatus')}
           {selectedCompany !== 'all' && (
             <span className="text-sm font-normal text-gray-500 ml-2">
@@ -78,7 +78,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
             </span>
           )}
         </h3>
-        <div className="h-80 relative">
+        <div className="h-60 sm:h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -115,8 +115,8 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
       </div>
 
       {/* Line Chart - Тикеты по датам */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
           {t('ticketsByDate')}
           {selectedCompany !== 'all' && (
             <span className="text-sm font-normal text-gray-500 ml-2">
@@ -124,7 +124,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
             </span>
           )}
         </h3>
-        <div className="h-80 relative">
+        <div className="h-60 sm:h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={dateData}>
               <CartesianGrid strokeDasharray="3 3" />

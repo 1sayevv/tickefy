@@ -235,7 +235,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       <CardHeader>
         <CardTitle className="text-lg sm:text-xl">{t('createTicket')}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
