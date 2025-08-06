@@ -64,6 +64,7 @@ export default function Home() {
                     <p className="text-purple-700">Password: 1234</p>
                     <p className="text-purple-700">Company: Tickefy</p>
                     <p className="text-purple-700">Role: Super Admin</p>
+                    <p className="text-purple-700 text-sm mt-1">Доступ: Админ-панель + Управление мини-админами</p>
                   </div>
               </div>
               <p className="text-blue-600 text-xs sm:text-sm mt-4">💡 Используйте эти аккаунты для тестирования системы авторизации</p>

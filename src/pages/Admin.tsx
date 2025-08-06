@@ -1,13 +1,22 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import AdminLayout from '@/layouts/AdminLayout'
 import AdminCharts from '@/components/AdminCharts'
 import RecentTickets from '@/components/RecentTickets'
 import CompanyFilter from '@/components/CompanyFilter'
+import { Button } from '@/components/ui/button'
+import { Users } from 'lucide-react'
 
 export default function Admin() {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [selectedCompany, setSelectedCompany] = useState('all')
+
+  // Проверяем, является ли пользователь супер-админом
+  const isSuperAdmin = user?.email === 'admin@examplemail.com' || user?.user_metadata?.role === 'super_admin'
 
   return (
     <AdminLayout>
@@ -21,13 +30,24 @@ export default function Admin() {
               </p>
             </div>
             
-            {/* Фильтр компаний */}
+            {/* Фильтр компаний и кнопка управления мини-админами */}
             <div className="flex items-center space-x-3">
               <span className="text-sm font-medium text-gray-700">{t('filterByCompany')}:</span>
               <CompanyFilter 
                 selectedCompany={selectedCompany}
                 onCompanyChange={setSelectedCompany}
               />
+              
+              {/* Кнопка управления мини-админами (только для супер-админа) */}
+              {isSuperAdmin && (
+                <Button
+                  onClick={() => navigate('/super-admin')}
+                  className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Users className="w-4 h-4" />
+                  Управление мини-админами
+                </Button>
+              )}
             </div>
           </div>
         </div>
