@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { getMiniAdmins, createMiniAdmin, updateMiniAdmin, deleteMiniAdmin, MiniAdmin } from '@/lib/mockAuth'
 import { decryptPassword } from '@/lib/encryption'
 import { Edit, Trash2, Plus, UserCheck, UserX, CheckCircle, AlertCircle } from 'lucide-react'
+import AdminLayout from '@/layouts/AdminLayout'
 
 export default function SuperAdminPanel() {
   const { t } = useTranslation()
@@ -108,9 +109,9 @@ export default function SuperAdminPanel() {
     
     try {
       await deleteMiniAdmin(deleteConfirmModal.adminId)
-      loadMiniAdmins()
       setDeleteConfirmModal({ show: false, adminId: null, adminName: '' })
-      showNotification('success', '🗑️ Мини-админ удалён')
+      loadMiniAdmins()
+      showNotification('success', '✅ Мини-админ удален')
     } catch (error) {
       console.error('Error deleting mini admin:', error)
       showNotification('error', '❌ Ошибка при удалении мини-админа')
@@ -118,15 +119,13 @@ export default function SuperAdminPanel() {
   }
 
   const handleToggleStatus = async (admin: MiniAdmin) => {
-    const newStatus = admin.status === 'active' ? 'inactive' : 'active'
-    const action = newStatus === 'active' ? 'активировать' : 'деактивировать'
-    
     try {
+      const newStatus = admin.status === 'active' ? 'inactive' : 'active'
       await updateMiniAdmin(admin.id, { status: newStatus })
       loadMiniAdmins()
-      showNotification('success', `✅ Мини-админ ${action === 'активировать' ? 'активирован' : 'деактивирован'}`)
+      showNotification('success', `✅ Статус изменен на ${newStatus === 'active' ? 'активный' : 'неактивный'}`)
     } catch (error) {
-      console.error('Error updating mini admin status:', error)
+      console.error('Error toggling status:', error)
       showNotification('error', '❌ Ошибка при изменении статуса')
     }
   }
@@ -136,7 +135,7 @@ export default function SuperAdminPanel() {
     setFormData({
       name: admin.name,
       email: admin.email,
-      password: decryptPassword(admin.password), // Расшифровываем пароль для отображения
+      password: decryptPassword(admin.password),
       phone: admin.phone,
       companies: admin.companies,
       accessLevel: admin.accessLevel,
@@ -146,37 +145,34 @@ export default function SuperAdminPanel() {
   }
 
   const handleCompanyChange = (company: string, checked: boolean) => {
-    if (checked) {
-      setFormData(prev => ({
-        ...prev,
-        companies: [...prev.companies, company]
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        companies: prev.companies.filter(c => c !== company)
-      }))
-    }
+    setFormData(prev => ({
+      ...prev,
+      companies: checked 
+        ? [...prev.companies, company]
+        : prev.companies.filter(c => c !== company)
+    }))
   }
 
-  // Вспомогательные функции для форматирования
   const formatAccessLevel = (level: string) => {
-    return level === 'senior_admin' ? 'Старший админ' : 'Менеджер'
+    return level === 'manager' ? 'Менеджер' : 'Старший админ'
   }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     })
   }
 
   const getStatusColor = (status: string) => {
-    return status === 'active' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+    return status === 'active' 
+      ? 'bg-green-100 text-green-800 border-green-200' 
+      : 'bg-red-100 text-red-800 border-red-200'
   }
 
-  // Функция для показа уведомлений
   const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ type, message, show: true })
     setTimeout(() => {
@@ -184,31 +180,237 @@ export default function SuperAdminPanel() {
     }, 3000)
   }
 
-
-
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Управление мини-админами</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">
-          Создавайте и управляйте мини-админами для различных компаний
-        </p>
-      </div>
+    <AdminLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Управление мини-админами</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Создавайте и управляйте мини-админами для различных компаний
+          </p>
+        </div>
 
-      <div className="mb-4 sm:mb-6">
-        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 w-full sm:w-auto">
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Создать мини-админа</span>
-              <span className="sm:hidden">Создать</span>
-            </Button>
-          </DialogTrigger>
+        <div className="mb-4 sm:mb-6">
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 w-full sm:w-auto">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Создать мини-админа</span>
+                <span className="sm:hidden">Создать</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md w-[95vw] sm:w-full">
+              <DialogHeader>
+                <DialogTitle>Создать мини-админа</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Имя</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Пароль</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Телефон</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                    placeholder="+7 (999) 123-45-67"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Компании</label>
+                  <div className="space-y-2">
+                    {['Nike', 'Adidas'].map(company => (
+                      <label key={company} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.companies.includes(company)}
+                          onChange={(e) => handleCompanyChange(company, e.target.checked)}
+                          className="mr-2"
+                        />
+                        {company}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Уровень доступа</label>
+                  <select
+                    value={formData.accessLevel}
+                    onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="manager">Менеджер</option>
+                    <option value="senior_admin">Старший админ</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Статус</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="active">Активный</option>
+                    <option value="inactive">Неактивный</option>
+                  </select>
+                </div>
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
+                    Отмена
+                  </Button>
+                  <Button type="submit">
+                    Создать
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Уведомления */}
+        {notification.show && (
+          <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+            notification.type === 'success' ? 'bg-green-500 text-white' :
+            notification.type === 'error' ? 'bg-red-500 text-white' :
+            'bg-blue-500 text-white'
+          }`}>
+            {notification.message}
+          </div>
+        )}
+
+        {/* Таблица мини-админов */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserCheck className="w-5 h-5" />
+              Мини-админы ({miniAdmins.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Загрузка...</p>
+              </div>
+            ) : miniAdmins.length === 0 ? (
+              <div className="text-center py-8">
+                <UserX className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Нет мини-админов</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-4 font-medium">Имя</th>
+                      <th className="text-left py-3 px-4 font-medium">Email</th>
+                      <th className="text-left py-3 px-4 font-medium">Телефон</th>
+                      <th className="text-left py-3 px-4 font-medium">Компании</th>
+                      <th className="text-left py-3 px-4 font-medium">Уровень</th>
+                      <th className="text-left py-3 px-4 font-medium">Статус</th>
+                      <th className="text-left py-3 px-4 font-medium">Дата создания</th>
+                      <th className="text-left py-3 px-4 font-medium">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {miniAdmins.map((admin) => (
+                      <tr key={admin.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{admin.name}</td>
+                        <td className="py-3 px-4">{admin.email}</td>
+                        <td className="py-3 px-4">{admin.phone}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {admin.companies.map(company => (
+                              <span key={company} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                                {company}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                            {formatAccessLevel(admin.accessLevel)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(admin.status)}`}>
+                            {admin.status === 'active' ? 'Активный' : 'Неактивный'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {formatDate(admin.created_at)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openEditModal(admin)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleToggleStatus(admin)}
+                              className={admin.status === 'active' ? 'text-red-600' : 'text-green-600'}
+                            >
+                              {admin.status === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteAdmin(admin.id, admin.name)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Модальное окно редактирования */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="max-w-md w-[95vw] sm:w-full">
             <DialogHeader>
-              <DialogTitle>Создать мини-админа</DialogTitle>
+              <DialogTitle>Редактировать мини-админа</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
+            <form onSubmit={handleEditAdmin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Имя</label>
                 <input
@@ -283,271 +485,47 @@ export default function SuperAdminPanel() {
                   onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="active">Активен</option>
-                  <option value="inactive">Неактивен</option>
+                  <option value="active">Активный</option>
+                  <option value="inactive">Неактивный</option>
                 </select>
               </div>
-              <div className="flex gap-2">
-                <Button type="submit" className="flex-1">Создать</Button>
-                <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
                   Отмена
+                </Button>
+                <Button type="submit">
+                  Сохранить
                 </Button>
               </div>
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Список мини-админов</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8">Загрузка...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
-                <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Имя</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Email</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Компании</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Уровень</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Статус</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm hidden lg:table-cell">Дата</th>
-                    <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-semibold text-gray-700 text-xs sm:text-sm">Действия</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {miniAdmins.map((admin, index) => (
-                    <tr key={admin.id} className={`border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6 font-medium text-gray-900 text-xs sm:text-sm">{admin.name}</td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-700 text-xs sm:text-sm">{admin.email}</td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6">
-                        <div className="flex flex-wrap gap-1">
-                          {admin.companies.map(company => (
-                            <span key={company} className="px-1 sm:px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                              {company}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6">
-                        <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
-                          admin.accessLevel === 'senior_admin' 
-                            ? 'bg-purple-100 text-purple-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {formatAccessLevel(admin.accessLevel)}
-                        </span>
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            admin.status === 'active' ? 'bg-green-500' : 'bg-red-500'
-                          }`}></div>
-                          <span className={`px-1 sm:px-2 py-1 rounded text-xs font-medium ${getStatusColor(admin.status)}`}>
-                            {admin.status === 'active' ? 'Активен' : 'Неактивен'}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6 text-gray-600 text-xs sm:text-sm hidden lg:table-cell">
-                        {formatDate(admin.created_at)}
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-6">
-                        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openEditModal(admin)}
-                            className="text-blue-600 hover:text-blue-700 text-xs"
-                          >
-                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleToggleStatus(admin)}
-                            className={`text-xs ${
-                              admin.status === 'active' 
-                                ? 'text-orange-600 hover:text-orange-700' 
-                                : 'text-green-600 hover:text-green-700'
-                            }`}
-                          >
-                            <span className="hidden sm:inline">
-                              {admin.status === 'active' ? 'Деактивировать' : 'Активировать'}
-                            </span>
-                            <span className="sm:hidden">
-                              {admin.status === 'active' ? 'Деакт.' : 'Акт.'}
-                            </span>
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteAdmin(admin.id, admin.name)}
-                            className="text-red-600 hover:text-red-700 text-xs"
-                          >
-                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Модалка редактирования */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                  <DialogContent className="max-w-md w-[95vw] sm:w-full">
+        {/* Модальное окно подтверждения удаления */}
+        <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
+          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Редактировать мини-админа</DialogTitle>
+              <DialogTitle>Подтверждение удаления</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleEditAdmin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Имя</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Пароль</label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Телефон</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="+7 (999) 123-45-67"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Компании</label>
-              <div className="space-y-2">
-                {['Nike', 'Adidas'].map(company => (
-                  <label key={company} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.companies.includes(company)}
-                      onChange={(e) => handleCompanyChange(company, e.target.checked)}
-                      className="mr-2"
-                    />
-                    {company}
-                  </label>
-                ))}
+            <div className="space-y-4">
+              <p>
+                Вы уверены, что хотите удалить мини-админа <strong>{deleteConfirmModal.adminName}</strong>?
+              </p>
+              <p className="text-sm text-gray-600">
+                Это действие нельзя отменить.
+              </p>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
+                  Отмена
+                </Button>
+                <Button variant="destructive" onClick={confirmDelete}>
+                  Удалить
+                </Button>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Уровень доступа</label>
-              <select
-                value={formData.accessLevel}
-                onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
-                className="w-full px-3 py-2 border rounded-md"
-              >
-                <option value="manager">Менеджер</option>
-                <option value="senior_admin">Старший админ</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Статус</label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
-                className="w-full px-3 py-2 border rounded-md"
-              >
-                <option value="active">Активен</option>
-                <option value="inactive">Неактивен</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <Button type="submit" className="flex-1">Сохранить</Button>
-              <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                Отмена
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Модальное окно подтверждения удаления */}
-      <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
-        <DialogContent className="max-w-md w-[95vw] sm:w-full">
-          <DialogHeader>
-            <DialogTitle>Подтверждение удаления</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-gray-700">
-              Вы уверены, что хотите удалить мини-админа <strong>{deleteConfirmModal.adminName}</strong>?
-            </p>
-            <p className="text-sm text-red-600">
-              Это действие нельзя отменить.
-            </p>
-            <div className="flex gap-2">
-              <Button 
-                onClick={confirmDelete}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Удалить
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => setDeleteConfirmModal(prev => ({ ...prev, show: false }))}
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Уведомления */}
-      {notification.show && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
-          notification.type === 'success' 
-            ? 'bg-green-100 border border-green-300 text-green-800' 
-            : notification.type === 'error'
-            ? 'bg-red-100 border border-red-300 text-red-800'
-            : 'bg-blue-100 border border-blue-300 text-blue-800'
-        }`}>
-          <div className="flex items-center gap-2">
-            {notification.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            ) : notification.type === 'error' ? (
-              <AlertCircle className="w-5 h-5 text-red-600" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-blue-600" />
-            )}
-            <span className="font-medium">{notification.message}</span>
-          </div>
-        </div>
-      )}
-    </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </AdminLayout>
   )
 } 

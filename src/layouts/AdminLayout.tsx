@@ -11,9 +11,12 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useTranslation()
-  const { signOut, getUserDisplayName } = useAuth()
+  const { signOut, getUserDisplayName, user } = useAuth()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Проверяем, является ли пользователь супер-админом
+  const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
 
   const handleSignOut = async () => {
     await signOut()
@@ -41,6 +44,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )
     }
   ]
+
+  // Добавляем пункт меню для супер-админа
+  if (isSuperAdmin) {
+    menuItems.push({
+      title: 'Управление мини-админами',
+      href: '/super-admin',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+        </svg>
+      )
+    })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
