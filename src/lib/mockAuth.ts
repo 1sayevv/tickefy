@@ -75,7 +75,7 @@ export const mockSignIn = async (email: string, password: string) => {
   } else {
     return {
       user: null,
-      error: { message: 'Неверный email или пароль' }
+      error: { message: 'Неверный логин или пароль' }
     }
   }
 }
