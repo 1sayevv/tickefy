@@ -72,10 +72,10 @@ export default function SuperAdminPanel() {
       setIsCreateModalOpen(false)
       setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
-      showNotification('success', '✅ Мини-админ успешно создан')
+      showNotification('success', '✅ Mini-admin created successfully')
     } catch (error) {
       console.error('Error creating mini admin:', error)
-      showNotification('error', '❌ Ошибка при создании мини-админа')
+      showNotification('error', '❌ Error creating mini-admin')
     }
   }
 
@@ -89,10 +89,10 @@ export default function SuperAdminPanel() {
       setEditingAdmin(null)
       setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
-      showNotification('success', '✅ Изменения сохранены')
+      showNotification('success', '✅ Changes saved')
     } catch (error) {
       console.error('Error updating mini admin:', error)
-      showNotification('error', '❌ Ошибка при сохранении изменений')
+      showNotification('error', '❌ Error saving changes')
     }
   }
 
@@ -111,10 +111,10 @@ export default function SuperAdminPanel() {
       await deleteMiniAdmin(deleteConfirmModal.adminId)
       setDeleteConfirmModal({ show: false, adminId: null, adminName: '' })
       loadMiniAdmins()
-      showNotification('success', '✅ Мини-админ удален')
+      showNotification('success', '✅ Mini-admin deleted')
     } catch (error) {
       console.error('Error deleting mini admin:', error)
-      showNotification('error', '❌ Ошибка при удалении мини-админа')
+      showNotification('error', '❌ Error deleting mini-admin')
     }
   }
 
@@ -123,10 +123,10 @@ export default function SuperAdminPanel() {
       const newStatus = admin.status === 'active' ? 'inactive' : 'active'
       await updateMiniAdmin(admin.id, { status: newStatus })
       loadMiniAdmins()
-      showNotification('success', `✅ Статус изменен на ${newStatus === 'active' ? 'активный' : 'неактивный'}`)
+      showNotification('success', `✅ Status changed to ${newStatus === 'active' ? 'active' : 'inactive'}`)
     } catch (error) {
       console.error('Error toggling status:', error)
-      showNotification('error', '❌ Ошибка при изменении статуса')
+      showNotification('error', '❌ Error changing status')
     }
   }
 
@@ -154,11 +154,11 @@ export default function SuperAdminPanel() {
   }
 
   const formatAccessLevel = (level: string) => {
-    return level === 'manager' ? 'Менеджер' : 'Старший админ'
+    return level === 'manager' ? 'Manager' : 'Senior Admin'
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -184,9 +184,9 @@ export default function SuperAdminPanel() {
     <AdminLayout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Управление мини-админами</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Manage Mini-Admins</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Создавайте и управляйте мини-админами для различных компаний
+            Create and manage mini-admins for various companies
           </p>
         </div>
 
@@ -195,17 +195,17 @@ export default function SuperAdminPanel() {
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2 w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Создать мини-админа</span>
-                <span className="sm:hidden">Создать</span>
+                <span className="hidden sm:inline">Create Mini-Admin</span>
+                <span className="sm:hidden">Create</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md w-[95vw] sm:w-full">
               <DialogHeader>
-                <DialogTitle>Создать мини-админа</DialogTitle>
+                <DialogTitle>Create Mini-Admin</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateAdmin} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Имя</label>
+                  <label className="block text-sm font-medium mb-1">Name</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -225,7 +225,7 @@ export default function SuperAdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Пароль</label>
+                  <label className="block text-sm font-medium mb-1">Password</label>
                   <input
                     type="password"
                     value={formData.password}
@@ -235,7 +235,7 @@ export default function SuperAdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Телефон</label>
+                  <label className="block text-sm font-medium mb-1">Phone</label>
                   <input
                     type="tel"
                     value={formData.phone}
@@ -245,7 +245,7 @@ export default function SuperAdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Компании</label>
+                  <label className="block text-sm font-medium mb-1">Companies</label>
                   <div className="space-y-2">
                     {['Nike', 'Adidas'].map(company => (
                       <label key={company} className="flex items-center">
@@ -261,33 +261,33 @@ export default function SuperAdminPanel() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Уровень доступа</label>
+                  <label className="block text-sm font-medium mb-1">Access Level</label>
                   <select
                     value={formData.accessLevel}
                     onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="manager">Менеджер</option>
-                    <option value="senior_admin">Старший админ</option>
+                    <option value="manager">Manager</option>
+                    <option value="senior_admin">Senior Admin</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Статус</label>
+                  <label className="block text-sm font-medium mb-1">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="active">Активный</option>
-                    <option value="inactive">Неактивный</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                   </select>
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                    Отмена
+                    Cancel
                   </Button>
                   <Button type="submit">
-                    Создать
+                    Create
                   </Button>
                 </div>
               </form>
@@ -311,33 +311,33 @@ export default function SuperAdminPanel() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserCheck className="w-5 h-5" />
-              Мини-админы ({miniAdmins.length})
+              Mini-Admins ({miniAdmins.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-                <p className="mt-2 text-gray-600">Загрузка...</p>
+                <p className="mt-2 text-gray-600">Loading...</p>
               </div>
             ) : miniAdmins.length === 0 ? (
               <div className="text-center py-8">
                 <UserX className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">Нет мини-админов</p>
+                <p className="text-gray-600">No mini-admins</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium">Имя</th>
+                      <th className="text-left py-3 px-4 font-medium">Name</th>
                       <th className="text-left py-3 px-4 font-medium">Email</th>
-                      <th className="text-left py-3 px-4 font-medium">Телефон</th>
-                      <th className="text-left py-3 px-4 font-medium">Компании</th>
-                      <th className="text-left py-3 px-4 font-medium">Уровень</th>
-                      <th className="text-left py-3 px-4 font-medium">Статус</th>
-                      <th className="text-left py-3 px-4 font-medium">Дата создания</th>
-                      <th className="text-left py-3 px-4 font-medium">Действия</th>
+                      <th className="text-left py-3 px-4 font-medium">Phone</th>
+                      <th className="text-left py-3 px-4 font-medium">Companies</th>
+                      <th className="text-left py-3 px-4 font-medium">Level</th>
+                      <th className="text-left py-3 px-4 font-medium">Status</th>
+                      <th className="text-left py-3 px-4 font-medium">Created</th>
+                      <th className="text-left py-3 px-4 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -362,7 +362,7 @@ export default function SuperAdminPanel() {
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(admin.status)}`}>
-                            {admin.status === 'active' ? 'Активный' : 'Неактивный'}
+                            {admin.status === 'active' ? 'Active' : 'Inactive'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
@@ -408,11 +408,11 @@ export default function SuperAdminPanel() {
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="max-w-md w-[95vw] sm:w-full">
             <DialogHeader>
-              <DialogTitle>Редактировать мини-админа</DialogTitle>
+              <DialogTitle>Edit Mini-Admin</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleEditAdmin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Имя</label>
+                <label className="block text-sm font-medium mb-1">Name</label>
                 <input
                   type="text"
                   value={formData.name}
@@ -432,7 +432,7 @@ export default function SuperAdminPanel() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Пароль</label>
+                <label className="block text-sm font-medium mb-1">Password</label>
                 <input
                   type="password"
                   value={formData.password}
@@ -442,7 +442,7 @@ export default function SuperAdminPanel() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Телефон</label>
+                <label className="block text-sm font-medium mb-1">Phone</label>
                 <input
                   type="tel"
                   value={formData.phone}
@@ -452,7 +452,7 @@ export default function SuperAdminPanel() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Компании</label>
+                <label className="block text-sm font-medium mb-1">Companies</label>
                 <div className="space-y-2">
                   {['Nike', 'Adidas'].map(company => (
                     <label key={company} className="flex items-center">
@@ -468,33 +468,33 @@ export default function SuperAdminPanel() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Уровень доступа</label>
+                <label className="block text-sm font-medium mb-1">Access Level</label>
                 <select
                   value={formData.accessLevel}
                   onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="manager">Менеджер</option>
-                  <option value="senior_admin">Старший админ</option>
+                  <option value="manager">Manager</option>
+                  <option value="senior_admin">Senior Admin</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Статус</label>
+                <label className="block text-sm font-medium mb-1">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
                   className="w-full px-3 py-2 border rounded-md"
                 >
-                  <option value="active">Активный</option>
-                  <option value="inactive">Неактивный</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                  Отмена
+                  Cancel
                 </Button>
                 <Button type="submit">
-                  Сохранить
+                  Save
                 </Button>
               </div>
             </form>
@@ -505,21 +505,21 @@ export default function SuperAdminPanel() {
         <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Подтверждение удаления</DialogTitle>
+              <DialogTitle>Confirm Deletion</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <p>
-                Вы уверены, что хотите удалить мини-админа <strong>{deleteConfirmModal.adminName}</strong>?
+                Are you sure you want to delete mini-admin <strong>{deleteConfirmModal.adminName}</strong>?
               </p>
               <p className="text-sm text-gray-600">
-                Это действие нельзя отменить.
+                This action cannot be undone.
               </p>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
-                  Отмена
+                  Cancel
                 </Button>
                 <Button variant="destructive" onClick={confirmDelete}>
-                  Удалить
+                  Delete
                 </Button>
               </div>
             </div>
