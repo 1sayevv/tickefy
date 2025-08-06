@@ -35,12 +35,17 @@ export default function Login() {
       if (result.error) {
         setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
       } else if (result.user) {
-        // Проверяем, является ли пользователь админом
-        const isAdmin = result.user.email === 'admin' || 
-                       result.user.user_metadata?.role === 'admin'
+        // Проверяем, является ли пользователь супер-админом
+        const isSuperAdmin = result.user.email === 'admin@examplemail.com' || 
+                            result.user.user_metadata?.role === 'super_admin'
         
-        // Перенаправляем админа на админ панель, обычных пользователей на dashboard
-        if (isAdmin) {
+        // Проверяем, является ли пользователь обычным админом
+        const isAdmin = result.user.user_metadata?.role === 'admin'
+        
+        // Перенаправляем супер-админа на панель управления мини-админами, обычного админа на админ панель, пользователей на dashboard
+        if (isSuperAdmin) {
+          navigate('/super-admin')
+        } else if (isAdmin) {
           navigate('/admin')
         } else {
           navigate('/dashboard')

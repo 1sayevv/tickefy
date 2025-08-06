@@ -8,6 +8,7 @@ import Dashboard from '@/pages/Dashboard'
 import CreateTicket from '@/pages/CreateTicket'
 import Admin from '@/pages/Admin'
 import AdminTickets from '@/pages/AdminTickets'
+import SuperAdminPanel from '@/pages/SuperAdminPanel'
 import Test from '@/pages/Test'
 import TestFileUpload from '@/pages/TestFileUpload'
 import LanguageTest from '@/components/LanguageTest'
@@ -37,6 +38,7 @@ function App() {
       } />
       <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/admin/tickets" element={<AdminRoute><AdminTickets /></AdminRoute>} />
+      <Route path="/super-admin" element={<SuperAdminPanel />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

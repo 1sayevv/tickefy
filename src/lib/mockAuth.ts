@@ -20,12 +20,42 @@ export const mockUsers = [
   },
   {
     id: '3',
-    email: 'admin',
+    email: 'admin@examplemail.com',
     password: '1234',
-    full_name: 'Administrator',
+    full_name: 'Super Administrator',
     company: 'Tickefy',
-    role: 'admin',
+    role: 'super_admin',
     created_at: '2024-01-01T00:00:00Z'
+  }
+]
+
+// Интерфейс для мини-админа
+export interface MiniAdmin {
+  id: string
+  name: string
+  email: string
+  companies: string[]
+  status: 'active' | 'inactive'
+  created_at: string
+}
+
+// Массив мини-админов
+export let mockMiniAdmins: MiniAdmin[] = [
+  {
+    id: '1',
+    name: 'Nike Manager',
+    email: 'nike.admin@example.com',
+    companies: ['Nike'],
+    status: 'active',
+    created_at: '2024-01-15T00:00:00Z'
+  },
+  {
+    id: '2',
+    name: 'Adidas Manager',
+    email: 'adidas.admin@example.com',
+    companies: ['Adidas'],
+    status: 'active',
+    created_at: '2024-01-16T00:00:00Z'
   }
 ]
 
@@ -170,4 +200,47 @@ export const mockGetProfile = async (userId: string) => {
   }
   
   return null
+}
+
+// Функции для управления мини-админами
+export const getMiniAdmins = async (): Promise<MiniAdmin[]> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  return mockMiniAdmins
+}
+
+export const createMiniAdmin = async (miniAdminData: Omit<MiniAdmin, 'id' | 'created_at'>): Promise<MiniAdmin> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+  
+  const newMiniAdmin: MiniAdmin = {
+    id: String(mockMiniAdmins.length + 1),
+    ...miniAdminData,
+    created_at: new Date().toISOString()
+  }
+  
+  mockMiniAdmins.push(newMiniAdmin)
+  return newMiniAdmin
+}
+
+export const updateMiniAdmin = async (id: string, miniAdminData: Partial<MiniAdmin>): Promise<MiniAdmin | null> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  const index = mockMiniAdmins.findIndex(admin => admin.id === id)
+  if (index !== -1) {
+    mockMiniAdmins[index] = { ...mockMiniAdmins[index], ...miniAdminData }
+    return mockMiniAdmins[index]
+  }
+  
+  return null
+}
+
+export const deleteMiniAdmin = async (id: string): Promise<boolean> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  const index = mockMiniAdmins.findIndex(admin => admin.id === id)
+  if (index !== -1) {
+    mockMiniAdmins.splice(index, 1)
+    return true
+  }
+  
+  return false
 } 
