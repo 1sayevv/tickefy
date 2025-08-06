@@ -202,7 +202,8 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             description: ticketData.description,
             image: ticketData.image_url,
             company: ticketData.company,
-            status: 'open'
+            status: 'open',
+            user_email: 'user@example.com' // Добавляем user_email
           })
           console.log('✅ Ticket created in mock storage')
         }
