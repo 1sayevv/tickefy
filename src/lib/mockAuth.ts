@@ -1,9 +1,11 @@
-// Мок-пользователи
+import { hashPassword, verifyPassword } from './encryption'
+
+// Мок-пользователи с зашифрованными паролями
 export const mockUsers = [
   {
     id: '1',
     email: 'user1',
-    password: '1234',
+    password: hashPassword('1234'),
     full_name: 'User One',
     company: 'Nike',
     role: 'user',
@@ -12,7 +14,7 @@ export const mockUsers = [
   {
     id: '2',
     email: 'user2',
-    password: '1234',
+    password: hashPassword('1234'),
     full_name: 'User Two',
     company: 'Adidas',
     role: 'user',
@@ -21,7 +23,7 @@ export const mockUsers = [
   {
     id: '3',
     email: 'admin',
-    password: '1234',
+    password: hashPassword('1234'),
     full_name: 'Super Administrator',
     company: 'Tickefy',
     role: 'super_admin',
@@ -42,13 +44,13 @@ export interface MiniAdmin {
   created_at: string
 }
 
-// Массив мини-админов
+// Массив мини-админов с зашифрованными паролями
 export let mockMiniAdmins: MiniAdmin[] = [
   {
     id: '1',
     name: 'Nike Manager',
     email: 'nike.admin@example.com',
-    password: 'nike123',
+    password: hashPassword('nike123'),
     phone: '+7 (999) 123-45-67',
     companies: ['Nike'],
     accessLevel: 'manager',
@@ -59,7 +61,7 @@ export let mockMiniAdmins: MiniAdmin[] = [
     id: '2',
     name: 'Adidas Manager',
     email: 'adidas.admin@example.com',
-    password: 'adidas123',
+    password: hashPassword('adidas123'),
     phone: '+7 (999) 234-56-78',
     companies: ['Adidas'],
     accessLevel: 'manager',
@@ -70,7 +72,7 @@ export let mockMiniAdmins: MiniAdmin[] = [
     id: '3',
     name: 'Senior Admin',
     email: 'senior.admin@example.com',
-    password: 'senior123',
+    password: hashPassword('senior123'),
     phone: '+7 (999) 345-67-89',
     companies: ['Nike', 'Adidas'],
     accessLevel: 'senior_admin',
@@ -101,9 +103,9 @@ const removeUserFromMemory = () => {
 export const mockSignIn = async (email: string, password: string) => {
   await new Promise(resolve => setTimeout(resolve, 500))
   
-  const user = mockUsers.find(u => u.email === email && u.password === password)
+  const user = mockUsers.find(u => u.email === email)
   
-  if (user) {
+  if (user && verifyPassword(password, user.password)) {
     const userData = {
       id: user.id,
       email: user.email,
@@ -234,6 +236,7 @@ export const createMiniAdmin = async (miniAdminData: Omit<MiniAdmin, 'id' | 'cre
   const newMiniAdmin: MiniAdmin = {
     id: String(mockMiniAdmins.length + 1),
     ...miniAdminData,
+    password: hashPassword(miniAdminData.password), // Шифруем пароль
     created_at: new Date().toISOString()
   }
   

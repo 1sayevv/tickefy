@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { getMiniAdmins, createMiniAdmin, updateMiniAdmin, deleteMiniAdmin, MiniAdmin } from '@/lib/mockAuth'
+import { decryptPassword } from '@/lib/encryption'
 import { Edit, Trash2, Plus, UserCheck, UserX, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function SuperAdminPanel() {
@@ -47,14 +48,9 @@ export default function SuperAdminPanel() {
     adminName: ''
   })
 
-  // Проверяем, является ли пользователь супер-админом
-  const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
-
   useEffect(() => {
-    if (isSuperAdmin) {
-      loadMiniAdmins()
-    }
-  }, [isSuperAdmin])
+    loadMiniAdmins()
+  }, [])
 
   const loadMiniAdmins = async () => {
     try {
@@ -140,7 +136,7 @@ export default function SuperAdminPanel() {
     setFormData({
       name: admin.name,
       email: admin.email,
-      password: admin.password,
+      password: decryptPassword(admin.password), // Расшифровываем пароль для отображения
       phone: admin.phone,
       companies: admin.companies,
       accessLevel: admin.accessLevel,
@@ -188,20 +184,7 @@ export default function SuperAdminPanel() {
     }, 3000)
   }
 
-  if (!isSuperAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold text-center mb-4">Доступ запрещен</h2>
-            <p className="text-center text-muted-foreground">
-              У вас нет прав для доступа к этой странице.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+
 
   return (
     <div className="container mx-auto px-4 py-8">

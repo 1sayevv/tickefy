@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AdminRoute from '@/components/AdminRoute'
 import AdminRedirect from '@/components/AdminRedirect'
+import SuperAdminRoute from '@/components/SuperAdminRoute'
 import HomeRedirect from '@/components/HomeRedirect'
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
@@ -38,7 +39,7 @@ function App() {
       } />
       <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       <Route path="/admin/tickets" element={<AdminRoute><AdminTickets /></AdminRoute>} />
-      <Route path="/super-admin" element={<SuperAdminPanel />} />
+      <Route path="/super-admin" element={<SuperAdminRoute><SuperAdminPanel /></SuperAdminRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
