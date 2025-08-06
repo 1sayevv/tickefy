@@ -53,33 +53,54 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
 
   // Подготовка данных для Line Chart (тикеты по датам)
   const getDateData = () => {
+    // Получаем последние 14 дней, включая сегодня
+    const today = new Date()
     const last14Days = Array.from({ length: 14 }, (_, i) => {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      return date.toISOString().split('T')[0]
-    }).reverse()
+      const date = new Date(today)
+      date.setDate(today.getDate() - (13 - i)) // Начинаем с 14 дней назад и идем до сегодня
+      return date
+    })
 
+    console.log('📅 Generated date range:', last14Days.map(d => d.toISOString().split('T')[0]))
+
+    // Группируем тикеты по дате создания
     const ticketsByDate = filteredTickets.reduce((acc, ticket) => {
       // Проверяем валидность даты
       const ticketDate = new Date(ticket.createdAt)
       if (isNaN(ticketDate.getTime())) {
-        console.warn('Invalid date for ticket:', ticket.id, ticket.createdAt)
+        console.warn('❌ Invalid date for ticket:', ticket.id, ticket.createdAt)
         return acc
       }
       
-      const date = ticketDate.toISOString().split('T')[0]
-      acc[date] = (acc[date] || 0) + 1
+      // Нормализуем дату до YYYY-MM-DD формата
+      const dateKey = ticketDate.toISOString().split('T')[0]
+      acc[dateKey] = (acc[dateKey] || 0) + 1
+      console.log(`📊 Ticket ${ticket.id} created on ${dateKey}, count: ${acc[dateKey]}`)
       return acc
     }, {} as Record<string, number>)
 
-    return last14Days.map(date => ({
-      date: new Date(date).toLocaleDateString('ru-RU', { 
-        month: 'short', 
-        day: 'numeric' 
-      }),
-      tickets: ticketsByDate[date] || 0,
-      fullDate: date // Добавляем полную дату для отладки
-    }))
+    console.log('📊 Tickets by date:', ticketsByDate)
+
+    // Создаем данные для графика
+    const chartData = last14Days.map(date => {
+      const dateKey = date.toISOString().split('T')[0]
+      const ticketCount = ticketsByDate[dateKey] || 0
+      
+      console.log(`📈 Chart data for ${dateKey}: ${ticketCount} tickets`)
+      
+      return {
+        date: date.toLocaleDateString('ru-RU', { 
+          month: 'short', 
+          day: 'numeric' 
+        }),
+        tickets: ticketCount,
+        fullDate: dateKey,
+        isToday: dateKey === today.toISOString().split('T')[0]
+      }
+    })
+
+    console.log('📈 Final chart data:', chartData)
+    return chartData
   }
 
   const statusData = getStatusData()
@@ -158,11 +179,25 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
               />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  zIndex: 1000
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0]?.payload
+                    return (
+                      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                        <p className="font-semibold text-gray-900">
+                          {label}
+                          {data?.isToday && <span className="text-blue-600 ml-2">(Сегодня)</span>}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {data?.fullDate}
+                        </p>
+                        <p className="text-sm" style={{ color: payload[0]?.color }}>
+                          {t('tickets')}: {payload[0]?.value}
+                        </p>
+                      </div>
+                    )
+                  }
+                  return null
                 }}
               />
               <Legend 

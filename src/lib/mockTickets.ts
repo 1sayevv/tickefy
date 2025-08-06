@@ -19,7 +19,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
-    createdAt: "2024-08-03T10:00:00Z",
+    createdAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), // 13 дней назад
     user_email: "user1"
   },
   {
@@ -29,7 +29,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=2",
-    createdAt: "2024-08-04T09:15:00Z",
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 дней назад
     user_email: "user1"
   },
   {
@@ -39,7 +39,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
-    createdAt: "2024-08-05T11:00:00Z",
+    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 дней назад
     user_email: "user1"
   },
   {
@@ -49,7 +49,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=4",
-    createdAt: "2024-08-05T13:20:00Z",
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 дней назад
     user_email: "user1"
   },
   {
@@ -59,7 +59,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
-    createdAt: "2024-08-06T08:30:00Z",
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 дня назад
     user_email: "user1"
   },
   {
@@ -69,7 +69,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
-    createdAt: "2024-08-07T14:45:00Z",
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 день назад
     user_email: "user1"
   },
   {
@@ -79,7 +79,7 @@ let mockTickets: Ticket[] = [
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
-    createdAt: "2024-08-08T11:20:00Z",
+    createdAt: new Date().toISOString(), // Сегодня
     user_email: "user1"
   },
   // Adidas tickets (7 тикетов)
@@ -90,7 +90,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
-    createdAt: "2024-08-04T08:30:00Z",
+    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 дней назад
     user_email: "user2"
   },
   {
@@ -100,7 +100,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=9",
-    createdAt: "2024-08-05T12:00:00Z",
+    createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 дней назад
     user_email: "user2"
   },
   {
@@ -110,7 +110,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=10",
-    createdAt: "2024-08-03T14:15:00Z",
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 дней назад
     user_email: "user2"
   },
   {
@@ -120,7 +120,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=11",
-    createdAt: "2024-08-05T09:45:00Z",
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 дня назад
     user_email: "user2"
   },
   {
@@ -130,7 +130,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=12",
-    createdAt: "2024-08-06T16:20:00Z",
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 дня назад
     user_email: "user2"
   },
   {
@@ -140,7 +140,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=13",
-    createdAt: "2024-08-07T10:30:00Z",
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 день назад
     user_email: "user2"
   },
   {
@@ -150,7 +150,7 @@ let mockTickets: Ticket[] = [
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=14",
-    createdAt: "2024-08-08T13:15:00Z",
+    createdAt: new Date().toISOString(), // Сегодня
     user_email: "user2"
   }
 ]
