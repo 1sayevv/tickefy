@@ -1,11 +1,30 @@
 import { useTranslation } from 'react-i18next'
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from 'recharts'
 import { useTickets } from '@/contexts/TicketContext'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
 interface AdminChartsProps {
   selectedCompany: string
+}
+
+// Кастомный компонент для тултипа
+const CustomTooltip = ({ active, payload, label }: TooltipProps<any, any>) => {
+  const { t } = useTranslation()
+  
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+        <p className="font-semibold text-gray-900">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={index} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: {entry.value} {t('tickets')} ({((entry.value / payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(0)}%)
+          </p>
+        ))}
+      </div>
+    )
+  }
+  return null
 }
 
 export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
@@ -84,10 +103,10 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
               <Pie
                 data={statusData}
                 cx="50%"
-                cy="40%"
+                cy="45%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                outerRadius={60}
+                label={false} // Убираем лейблы с круга
+                outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -95,19 +114,20 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  zIndex: 1000
-                }}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend 
                 layout="horizontal" 
                 verticalAlign="bottom" 
                 align="center"
-                wrapperStyle={{ paddingTop: '40px' }}
+                wrapperStyle={{ 
+                  paddingTop: '30px',
+                  fontSize: '13px',
+                  fontWeight: '500'
+                }}
+                formatter={(value, entry) => [
+                  `${value} (${((entry.payload?.value || 0) / statusData.reduce((sum, item) => sum + item.value, 0) * 100).toFixed(0)}%)`,
+                  value
+                ]}
               />
             </PieChart>
           </ResponsiveContainer>
