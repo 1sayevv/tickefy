@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { getMiniAdmins, createMiniAdmin, updateMiniAdmin, deleteMiniAdmin, MiniAdmin } from '@/lib/mockAuth'
-import { Edit, Trash2, Plus, UserCheck, UserX } from 'lucide-react'
+import { Edit, Trash2, Plus, UserCheck, UserX, CheckCircle, AlertCircle } from 'lucide-react'
 
 export default function SuperAdminPanel() {
   const { t } = useTranslation()
@@ -18,9 +18,33 @@ export default function SuperAdminPanel() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    phone: '',
     companies: [] as string[],
     accessLevel: 'manager' as 'manager' | 'senior_admin',
     status: 'active' as 'active' | 'inactive'
+  })
+
+  // Состояния для уведомлений
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error' | 'info'
+    message: string
+    show: boolean
+  }>({
+    type: 'success',
+    message: '',
+    show: false
+  })
+
+  // Состояние для модального окна подтверждения удаления
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
+    show: boolean
+    adminId: string | null
+    adminName: string
+  }>({
+    show: false,
+    adminId: null,
+    adminName: ''
   })
 
   // Проверяем, является ли пользователь супер-админом
@@ -49,10 +73,12 @@ export default function SuperAdminPanel() {
     try {
       await createMiniAdmin(formData)
       setIsCreateModalOpen(false)
-      setFormData({ name: '', email: '', companies: [], accessLevel: 'manager', status: 'active' })
+      setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
+      showNotification('success', '✅ Мини-админ успешно создан')
     } catch (error) {
       console.error('Error creating mini admin:', error)
+      showNotification('error', '❌ Ошибка при создании мини-админа')
     }
   }
 
@@ -64,21 +90,34 @@ export default function SuperAdminPanel() {
       await updateMiniAdmin(editingAdmin.id, formData)
       setIsEditModalOpen(false)
       setEditingAdmin(null)
-      setFormData({ name: '', email: '', companies: [], accessLevel: 'manager', status: 'active' })
+      setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
+      showNotification('success', '✅ Изменения сохранены')
     } catch (error) {
       console.error('Error updating mini admin:', error)
+      showNotification('error', '❌ Ошибка при сохранении изменений')
     }
   }
 
-  const handleDeleteAdmin = async (id: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить этого мини-админа?')) {
-      try {
-        await deleteMiniAdmin(id)
-        loadMiniAdmins()
-      } catch (error) {
-        console.error('Error deleting mini admin:', error)
-      }
+  const handleDeleteAdmin = async (id: string, name: string) => {
+    setDeleteConfirmModal({
+      show: true,
+      adminId: id,
+      adminName: name
+    })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmModal.adminId) return
+    
+    try {
+      await deleteMiniAdmin(deleteConfirmModal.adminId)
+      loadMiniAdmins()
+      setDeleteConfirmModal({ show: false, adminId: null, adminName: '' })
+      showNotification('success', '🗑️ Мини-админ удалён')
+    } catch (error) {
+      console.error('Error deleting mini admin:', error)
+      showNotification('error', '❌ Ошибка при удалении мини-админа')
     }
   }
 
@@ -86,13 +125,13 @@ export default function SuperAdminPanel() {
     const newStatus = admin.status === 'active' ? 'inactive' : 'active'
     const action = newStatus === 'active' ? 'активировать' : 'деактивировать'
     
-    if (window.confirm(`Вы уверены, что хотите ${action} этого мини-админа?`)) {
-      try {
-        await updateMiniAdmin(admin.id, { status: newStatus })
-        loadMiniAdmins()
-      } catch (error) {
-        console.error('Error updating mini admin status:', error)
-      }
+    try {
+      await updateMiniAdmin(admin.id, { status: newStatus })
+      loadMiniAdmins()
+      showNotification('success', `✅ Мини-админ ${action === 'активировать' ? 'активирован' : 'деактивирован'}`)
+    } catch (error) {
+      console.error('Error updating mini admin status:', error)
+      showNotification('error', '❌ Ошибка при изменении статуса')
     }
   }
 
@@ -101,6 +140,8 @@ export default function SuperAdminPanel() {
     setFormData({
       name: admin.name,
       email: admin.email,
+      password: admin.password,
+      phone: admin.phone,
       companies: admin.companies,
       accessLevel: admin.accessLevel,
       status: admin.status
@@ -137,6 +178,14 @@ export default function SuperAdminPanel() {
 
   const getStatusColor = (status: string) => {
     return status === 'active' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+  }
+
+  // Функция для показа уведомлений
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message, show: true })
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }))
+    }, 3000)
   }
 
   if (!isSuperAdmin) {
@@ -194,6 +243,26 @@ export default function SuperAdminPanel() {
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   className="w-full px-3 py-2 border rounded-md"
                   required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Пароль</label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-md"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Телефон</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-md"
+                  placeholder="+7 (999) 123-45-67"
                 />
               </div>
               <div>
@@ -326,7 +395,7 @@ export default function SuperAdminPanel() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDeleteAdmin(admin.id)}
+                            onClick={() => handleDeleteAdmin(admin.id, admin.name)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -367,6 +436,26 @@ export default function SuperAdminPanel() {
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-3 py-2 border rounded-md"
                 required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Пароль</label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Телефон</label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="+7 (999) 123-45-67"
               />
             </div>
             <div>
@@ -416,6 +505,59 @@ export default function SuperAdminPanel() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Модальное окно подтверждения удаления */}
+      <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Подтверждение удаления</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-gray-700">
+              Вы уверены, что хотите удалить мини-админа <strong>{deleteConfirmModal.adminName}</strong>?
+            </p>
+            <p className="text-sm text-red-600">
+              Это действие нельзя отменить.
+            </p>
+            <div className="flex gap-2">
+              <Button 
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Удалить
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setDeleteConfirmModal(prev => ({ ...prev, show: false }))}
+              >
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Уведомления */}
+      {notification.show && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+          notification.type === 'success' 
+            ? 'bg-green-100 border border-green-300 text-green-800' 
+            : notification.type === 'error'
+            ? 'bg-red-100 border border-red-300 text-red-800'
+            : 'bg-blue-100 border border-blue-300 text-blue-800'
+        }`}>
+          <div className="flex items-center gap-2">
+            {notification.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            ) : notification.type === 'error' ? (
+              <AlertCircle className="w-5 h-5 text-red-600" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-blue-600" />
+            )}
+            <span className="font-medium">{notification.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 
