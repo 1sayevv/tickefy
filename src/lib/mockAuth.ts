@@ -20,7 +20,7 @@ export const mockUsers = [
   },
   {
     id: '3',
-    email: 'admin@examplemail.com',
+    email: 'admin',
     password: '1234',
     full_name: 'Super Administrator',
     company: 'Tickefy',

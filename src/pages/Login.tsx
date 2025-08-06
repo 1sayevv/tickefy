@@ -36,7 +36,7 @@ export default function Login() {
         setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
       } else if (result.user) {
         // Проверяем, является ли пользователь админом (включая супер-админа)
-        const isAdmin = result.user.email === 'admin@examplemail.com' || 
+        const isAdmin = result.user.email === 'admin' || 
                        result.user.user_metadata?.role === 'admin' ||
                        result.user.user_metadata?.role === 'super_admin'
         

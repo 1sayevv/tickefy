@@ -16,7 +16,7 @@ export default function Admin() {
   const [selectedCompany, setSelectedCompany] = useState('all')
 
   // Проверяем, является ли пользователь супер-админом
-  const isSuperAdmin = user?.email === 'admin@examplemail.com' || user?.user_metadata?.role === 'super_admin'
+  const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
 
   return (
     <AdminLayout>

@@ -60,7 +60,7 @@ export default function Home() {
                 </div>
                                   <div className="bg-white p-3 sm:p-4 rounded border border-purple-200 bg-purple-50 sm:col-span-2 lg:col-span-1">
                     <h4 className="font-medium text-purple-800 mb-2">Super Admin</h4>
-                    <p className="text-purple-700">Email: admin@examplemail.com</p>
+                    <p className="text-purple-700">Email: admin</p>
                     <p className="text-purple-700">Password: 1234</p>
                     <p className="text-purple-700">Company: Tickefy</p>
                     <p className="text-purple-700">Role: Super Admin</p>
