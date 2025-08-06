@@ -16,5 +16,6 @@
   },
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "devCommand": "npm run dev"
 } 

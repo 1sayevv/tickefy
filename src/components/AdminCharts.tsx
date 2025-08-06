@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, TooltipProps } from 'recharts'
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useTickets } from '@/contexts/TicketContext'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
@@ -9,18 +9,37 @@ interface AdminChartsProps {
 }
 
 // Кастомный компонент для тултипа
-const CustomTooltip = ({ active, payload, label }: TooltipProps<any, any>) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   const { t } = useTranslation()
   
   if (active && payload && payload.length) {
+    // Для Pie Chart тултипа
+    if (payload[0]?.name === t('open') || payload[0]?.name === t('inProgress') || payload[0]?.name === t('done')) {
+      return (
+        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+          <p className="font-semibold text-gray-900">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {entry.value} {t('tickets')} ({((entry.value / payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(0)}%)
+            </p>
+          ))}
+        </div>
+      )
+    }
+    // Для Line Chart тултипа
+    const data = payload[0]?.payload
     return (
       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-        <p className="font-semibold text-gray-900">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {entry.name}: {entry.value} {t('tickets')} ({((entry.value / payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(0)}%)
-          </p>
-        ))}
+        <p className="font-semibold text-gray-900">
+          {label}
+          {data?.isToday && <span className="text-blue-600 ml-2">({t('today')})</span>}
+        </p>
+        <p className="text-sm text-gray-600">
+          {data?.fullDate}
+        </p>
+        <p className="text-sm" style={{ color: payload[0]?.color }}>
+          {t('tickets')}: {payload[0]?.value}
+        </p>
       </div>
     )
   }
