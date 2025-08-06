@@ -11,7 +11,7 @@ export interface Ticket {
 
 // Глобальный массив тикетов
 let mockTickets: Ticket[] = [
-  // Nike tickets
+  // Nike tickets (7 тикетов)
   {
     id: "1",
     title: "Обновление дизайна главной страницы",
@@ -52,45 +52,105 @@ let mockTickets: Ticket[] = [
     createdAt: "2024-08-05T13:20:00Z",
     user_email: "user1"
   },
-  // Adidas tickets
   {
     id: "5",
+    title: "Интеграция с системой лояльности",
+    description: "Разработка системы бонусных баллов и скидок для постоянных клиентов с интеграцией в личный кабинет",
+    company: "Nike",
+    status: "in progress",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
+    createdAt: "2024-08-06T08:30:00Z",
+    user_email: "user1"
+  },
+  {
+    id: "6",
+    title: "Создание системы отзывов",
+    description: "Реализация системы отзывов и рейтингов для товаров с модерацией и фильтрацией спама",
+    company: "Nike",
+    status: "done",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
+    createdAt: "2024-08-07T14:45:00Z",
+    user_email: "user1"
+  },
+  {
+    id: "7",
+    title: "Улучшение поиска товаров",
+    description: "Добавление умного поиска с автодополнением, фильтрами по размеру, цвету и цене для удобства покупателей",
+    company: "Nike",
+    status: "open",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
+    createdAt: "2024-08-08T11:20:00Z",
+    user_email: "user1"
+  },
+  // Adidas tickets (7 тикетов)
+  {
+    id: "8",
     title: "Интеграция с платежной системой",
     description: "Необходимо интегрировать новую платежную систему для обработки заказов и улучшения безопасности транзакций",
     company: "Adidas",
     status: "in progress",
-    image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
     createdAt: "2024-08-04T08:30:00Z",
     user_email: "user2"
   },
   {
-    id: "6",
+    id: "9",
     title: "Создание мобильного приложения",
     description: "Разработка мобильного приложения для iOS и Android с полным функционалом интернет-магазина",
     company: "Adidas",
     status: "open",
-    image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=9",
     createdAt: "2024-08-05T12:00:00Z",
     user_email: "user2"
   },
   {
-    id: "7",
+    id: "10",
     title: "Обновление системы уведомлений",
     description: "Улучшение системы email-уведомлений для клиентов с персонализированным контентом и автоматизацией",
     company: "Adidas",
     status: "done",
-    image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=10",
     createdAt: "2024-08-03T14:15:00Z",
     user_email: "user2"
   },
   {
-    id: "8",
+    id: "11",
     title: "Аналитика продаж",
     description: "Создание дашборда для анализа продаж и отчетности с интеграцией с CRM системой",
     company: "Adidas",
     status: "done",
-    image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=11",
     createdAt: "2024-08-05T09:45:00Z",
+    user_email: "user2"
+  },
+  {
+    id: "12",
+    title: "Система управления складом",
+    description: "Разработка системы учета товаров на складе с автоматическим обновлением остатков и уведомлениями о низком количестве",
+    company: "Adidas",
+    status: "in progress",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=12",
+    createdAt: "2024-08-06T16:20:00Z",
+    user_email: "user2"
+  },
+  {
+    id: "13",
+    title: "Интеграция с социальными сетями",
+    description: "Добавление возможности авторизации через социальные сети и шаринга товаров в социальных сетях",
+    company: "Adidas",
+    status: "open",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=13",
+    createdAt: "2024-08-07T10:30:00Z",
+    user_email: "user2"
+  },
+  {
+    id: "14",
+    title: "Система персональных рекомендаций",
+    description: "Внедрение алгоритма машинного обучения для персональных рекомендаций товаров на основе истории покупок",
+    company: "Adidas",
+    status: "done",
+    image: "https://httpbin.org/image/png?width=400&height=300&seed=14",
+    createdAt: "2024-08-08T13:15:00Z",
     user_email: "user2"
   }
 ]
