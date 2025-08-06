@@ -26,36 +26,38 @@ export function TicketProvider({ children }: TicketProviderProps) {
   const loadTickets = async () => {
     setLoading(true)
     try {
-      let allTickets: Ticket[]
+      let allTickets: Ticket[] = []
       
-      // Если пользователь админ, загружаем все тикеты
+      // Проверяем, является ли пользователь админом
       const isAdmin = user?.email === 'admin' || 
-                      user?.user_metadata?.role === 'admin'
+                      user?.user_metadata?.role === 'admin' ||
+                      user?.user_metadata?.role === 'super_admin'
       
-      try {
-        // Пробуем загрузить из localStorage
-        const storageTickets = await getTicketsFromStorage()
-        console.log('Tickets loaded from localStorage:', storageTickets.length)
-        
-        if (isAdmin) {
-          allTickets = storageTickets as Ticket[]
-        } else {
-          // Если обычный пользователь, загружаем только тикеты его компании
+      console.log('🔍 User info:', { 
+        email: user?.email, 
+        role: user?.user_metadata?.role, 
+        isAdmin 
+      })
+      
+      if (isAdmin) {
+        // Для админов всегда используем mockTickets для корректного отображения графиков
+        console.log('👑 Loading all tickets for admin')
+        allTickets = await getAllTickets()
+      } else {
+        // Для обычных пользователей пробуем localStorage, затем fallback
+        try {
+          const storageTickets = await getTicketsFromStorage()
+          console.log('📦 Tickets loaded from localStorage:', storageTickets.length)
+          
           const company = getUserCompany()
           if (company) {
             allTickets = storageTickets.filter((ticket: any) => ticket.company === company) as Ticket[]
           } else {
             allTickets = []
           }
-        }
-      } catch (error) {
-        console.log('localStorage failed, falling back to mock storage')
-        
-        // Fallback к локальному хранилищу
-        if (isAdmin) {
-          allTickets = await getAllTickets()
-        } else {
-          // Если обычный пользователь, загружаем только тикеты его компании
+        } catch (error) {
+          console.log('❌ localStorage failed, falling back to mock storage')
+          
           const company = getUserCompany()
           if (company) {
             allTickets = await getTicketsByCompany(company)
@@ -65,11 +67,17 @@ export function TicketProvider({ children }: TicketProviderProps) {
         }
       }
       
-      console.log('TicketContext - Loaded tickets:', allTickets.length)
-      console.log('TicketContext - Sample ticket images:', allTickets.slice(0, 3).map(t => ({ id: t.id, image: t.image })))
+      console.log('✅ TicketContext - Loaded tickets:', allTickets.length)
+      console.log('📊 Sample tickets:', allTickets.slice(0, 3).map(t => ({ 
+        id: t.id, 
+        title: t.title,
+        createdAt: t.createdAt,
+        company: t.company 
+      })))
+      
       setTickets(allTickets)
     } catch (error) {
-      console.error('Ошибка загрузки тикетов:', error)
+      console.error('❌ Error loading tickets:', error)
       setTickets([])
     } finally {
       setLoading(false)
@@ -93,7 +101,7 @@ export function TicketProvider({ children }: TicketProviderProps) {
   }
 
   const refreshTickets = async () => {
-    console.log('Refreshing tickets...')
+    console.log('🔄 Refreshing tickets...')
     await loadTickets()
   }
 

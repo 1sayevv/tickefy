@@ -7,16 +7,35 @@ import AdminCharts from '@/components/AdminCharts'
 import RecentTickets from '@/components/RecentTickets'
 import CompanyFilter from '@/components/CompanyFilter'
 import { Button } from '@/components/ui/button'
-import { Users } from 'lucide-react'
+import { Users, RefreshCw } from 'lucide-react'
+import { clearTicketsStorage } from '@/lib/vercelStorage'
+import { useTickets } from '@/contexts/TicketContext'
 
 export default function Admin() {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const { refreshTickets } = useTickets()
   const navigate = useNavigate()
   const [selectedCompany, setSelectedCompany] = useState('all')
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Проверяем, является ли пользователь супер-админом
   const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
+
+  const handleRefreshData = async () => {
+    setIsRefreshing(true)
+    try {
+      // Очищаем localStorage
+      clearTicketsStorage()
+      // Обновляем данные
+      await refreshTickets()
+      console.log('✅ Data refreshed successfully')
+    } catch (error) {
+      console.error('❌ Error refreshing data:', error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   return (
     <AdminLayout>
@@ -30,7 +49,7 @@ export default function Admin() {
               </p>
             </div>
             
-            {/* Фильтр компаний и кнопка управления мини-админами */}
+            {/* Фильтр компаний и кнопки управления */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-gray-700">{t('filterByCompany')}:</span>
@@ -39,6 +58,18 @@ export default function Admin() {
                   onCompanyChange={setSelectedCompany}
                 />
               </div>
+              
+              {/* Кнопка обновления данных */}
+              <Button
+                onClick={handleRefreshData}
+                disabled={isRefreshing}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Обновить данные</span>
+                <span className="sm:hidden">Обновить</span>
+              </Button>
               
               {/* Кнопка управления мини-админами (только для супер-админа) */}
               {isSuperAdmin && (

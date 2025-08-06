@@ -41,25 +41,18 @@ export const uploadImageToVercel = async (file: File): Promise<string> => {
 const TICKETS_STORAGE_KEY = 'tickefy_tickets'
 
 // Получить все тикеты из localStorage
-export const getTicketsFromStorage = async (company?: string, status?: string): Promise<any[]> => {
+export const getTicketsFromStorage = async (): Promise<any[]> => {
   try {
-    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
-    const tickets = stored ? JSON.parse(stored) : []
-    
-    let filteredTickets = tickets
-
-    if (company) {
-      filteredTickets = filteredTickets.filter((ticket: any) => ticket.company === company)
+    const stored = localStorage.getItem('tickets')
+    if (stored) {
+      const tickets = JSON.parse(stored)
+      console.log('📦 Retrieved tickets from localStorage:', tickets.length)
+      return tickets
     }
-
-    if (status) {
-      filteredTickets = filteredTickets.filter((ticket: any) => ticket.status === status)
-    }
-
-    return filteredTickets
-
+    console.log('📦 No tickets found in localStorage')
+    return []
   } catch (error) {
-    console.error('Error fetching tickets from storage:', error)
+    console.error('❌ Error reading tickets from localStorage:', error)
     return []
   }
 }
@@ -123,6 +116,10 @@ export const updateTicketStatusInStorage = async (id: string, status: string): P
 
 // Очистить все тикеты (для отладки)
 export const clearTicketsStorage = () => {
-  localStorage.removeItem(TICKETS_STORAGE_KEY)
-  console.log('Tickets storage cleared')
+  try {
+    localStorage.removeItem('tickets')
+    console.log('🗑️ Cleared tickets from localStorage')
+  } catch (error) {
+    console.error('❌ Error clearing tickets from localStorage:', error)
+  }
 } 
