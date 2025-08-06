@@ -101,30 +101,51 @@ const removeUserFromMemory = () => {
 
 // Мок-функции авторизации
 export const mockSignIn = async (email: string, password: string) => {
+  console.log('🔍 mockSignIn called with:', { email, password })
   await new Promise(resolve => setTimeout(resolve, 500))
   
   const user = mockUsers.find(u => u.email === email)
+  console.log('🔍 Found user:', user)
   
-  if (user && verifyPassword(password, user.password)) {
-    const userData = {
-      id: user.id,
-      email: user.email,
-      created_at: user.created_at,
-      user_metadata: {
-        full_name: user.full_name,
-        company: user.company,
-        role: user.role
+  if (user) {
+    const isPasswordValid = verifyPassword(password, user.password)
+    console.log('🔍 Password verification:', { 
+      providedPassword: password, 
+      hashedPassword: user.password, 
+      isValid: isPasswordValid 
+    })
+    
+    if (isPasswordValid) {
+      const userData = {
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        user_metadata: {
+          full_name: user.full_name,
+          company: user.company,
+          role: user.role
+        }
+      }
+      
+      console.log('✅ Creating user data:', userData)
+      
+      // Сохраняем в память
+      storeUserInMemory(userData)
+      console.log('💾 User stored in memory')
+      
+      return {
+        user: userData,
+        error: null
+      }
+    } else {
+      console.log('❌ Password verification failed')
+      return {
+        user: null,
+        error: { message: 'Неверный логин или пароль' }
       }
     }
-    
-    // Сохраняем в память
-    storeUserInMemory(userData)
-    
-    return {
-      user: userData,
-      error: null
-    }
   } else {
+    console.log('❌ User not found')
     return {
       user: null,
       error: { message: 'Неверный логин или пароль' }

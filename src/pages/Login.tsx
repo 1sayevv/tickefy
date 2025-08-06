@@ -23,31 +23,50 @@ export default function Login() {
     setLoading(true)
     setError('')
 
+    console.log('🔐 Login attempt:', { email, password, isLogin })
+
     try {
       let result
       
       if (isLogin) {
         result = await signIn(email, password)
+        console.log('📝 SignIn result:', result)
       } else {
         result = await signUp(email, password, fullName, company)
+        console.log('📝 SignUp result:', result)
       }
 
       if (result.error) {
+        console.error('❌ Auth error:', result.error)
         setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
       } else if (result.user) {
+        console.log('✅ Auth successful:', result.user)
+        
         // Проверяем, является ли пользователь админом (включая супер-админа)
         const isAdmin = result.user.email === 'admin' || 
                        result.user.user_metadata?.role === 'admin' ||
                        result.user.user_metadata?.role === 'super_admin'
         
+        console.log('👤 User role check:', {
+          email: result.user.email,
+          role: result.user.user_metadata?.role,
+          isAdmin
+        })
+        
         // Перенаправляем админа на админ панель, обычных пользователей на dashboard
         if (isAdmin) {
+          console.log('🚀 Redirecting to admin panel')
           navigate('/admin')
         } else {
+          console.log('🚀 Redirecting to dashboard')
           navigate('/dashboard')
         }
+      } else {
+        console.error('❌ No user in result:', result)
+        setError('Неизвестная ошибка авторизации')
       }
     } catch (error) {
+      console.error('💥 Exception during auth:', error)
       setError(t('authError'))
     } finally {
       setLoading(false)
@@ -65,6 +84,18 @@ export default function Login() {
             <p className="mt-2 text-sm text-muted-foreground">
               {isLogin ? t('loginToAccount') : t('createNewAccount')}
             </p>
+          </div>
+
+          {/* Тестовые аккаунты */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">
+              {t('testAccounts')}:
+            </h3>
+            <div className="space-y-1 text-xs text-blue-800">
+              <div><strong>user1</strong> / 1234 (Nike)</div>
+              <div><strong>user2</strong> / 1234 (Adidas)</div>
+              <div><strong>admin</strong> / 1234 (Super Admin)</div>
+            </div>
           </div>
 
           <Card>
