@@ -14,143 +14,143 @@ let mockTickets: Ticket[] = [
   // Nike tickets (7 тикетов)
   {
     id: "1",
-    title: "Обновление дизайна главной страницы",
-    description: "Необходимо обновить дизайн главной страницы сайта Nike с учетом новых брендинговых требований и улучшить пользовательский опыт",
+    title: "Update main page design",
+    description: "Need to update the main page design of the Nike website taking into account new branding requirements and improve user experience",
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
-    createdAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), // 13 дней назад
+    createdAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), // 13 days ago
     user_email: "user1"
   },
   {
     id: "2",
-    title: "Исправление бага в корзине",
-    description: "Пользователи не могут добавить товары в корзину на мобильных устройствах. Требуется срочное исправление для улучшения конверсии",
+    title: "Fix shopping cart bug",
+    description: "Users cannot add items to cart on mobile devices. Urgent fix needed to improve conversion",
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=2",
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 дней назад
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
     user_email: "user1"
   },
   {
     id: "3",
-    title: "Оптимизация загрузки изображений",
-    description: "Необходимо оптимизировать загрузку изображений товаров для улучшения производительности сайта и ускорения загрузки страниц",
+    title: "Optimize image loading",
+    description: "Need to optimize product image loading to improve site performance and speed up page loading",
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 дней назад
+    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     user_email: "user1"
   },
   {
     id: "4",
-    title: "Добавление новых категорий товаров",
-    description: "Требуется добавить новые категории товаров в каталог и настроить фильтрацию для улучшения навигации пользователей",
+    title: "Add new product categories",
+    description: "Need to add new product categories to catalog and configure filtering to improve user navigation",
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=4",
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 дней назад
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
     user_email: "user1"
   },
   {
     id: "5",
-    title: "Интеграция с системой лояльности",
-    description: "Разработка системы бонусных баллов и скидок для постоянных клиентов с интеграцией в личный кабинет",
+    title: "Integrate loyalty system",
+    description: "Development of bonus points and discount system for regular customers with integration into personal account",
     company: "Nike",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 дня назад
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
     user_email: "user1"
   },
   {
     id: "6",
-    title: "Создание системы отзывов",
-    description: "Реализация системы отзывов и рейтингов для товаров с модерацией и фильтрацией спама",
+    title: "Create review system",
+    description: "Implementation of product review and rating system with moderation and spam filtering",
     company: "Nike",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 день назад
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
     user_email: "user1"
   },
   {
     id: "7",
-    title: "Улучшение поиска товаров",
-    description: "Добавление умного поиска с автодополнением, фильтрами по размеру, цвету и цене для удобства покупателей",
+    title: "Improve product search",
+    description: "Adding smart search with autocomplete, filters by size, color and price for customer convenience",
     company: "Nike",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
-    createdAt: new Date().toISOString(), // Сегодня
+    createdAt: new Date().toISOString(), // Today
     user_email: "user1"
   },
   // Adidas tickets (7 тикетов)
   {
     id: "8",
-    title: "Интеграция с платежной системой",
-    description: "Необходимо интегрировать новую платежную систему для обработки заказов и улучшения безопасности транзакций",
+    title: "Integrate payment system",
+    description: "Need to integrate new payment system for order processing and improve transaction security",
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
-    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 дней назад
+    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(), // 12 days ago
     user_email: "user2"
   },
   {
     id: "9",
-    title: "Создание мобильного приложения",
-    description: "Разработка мобильного приложения для iOS и Android с полным функционалом интернет-магазина",
+    title: "Create mobile application",
+    description: "Development of mobile application for iOS and Android with full e-commerce functionality",
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=9",
-    createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 дней назад
+    createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(), // 9 days ago
     user_email: "user2"
   },
   {
     id: "10",
-    title: "Обновление системы уведомлений",
-    description: "Улучшение системы email-уведомлений для клиентов с персонализированным контентом и автоматизацией",
+    title: "Update notification system",
+    description: "Improving email notification system for customers with personalized content and automation",
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=10",
-    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 дней назад
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), // 6 days ago
     user_email: "user2"
   },
   {
     id: "11",
-    title: "Аналитика продаж",
-    description: "Создание дашборда для анализа продаж и отчетности с интеграцией с CRM системой",
+    title: "Sales analytics",
+    description: "Creating dashboard for sales analysis and reporting with CRM system integration",
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=11",
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 дня назад
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
     user_email: "user2"
   },
   {
     id: "12",
-    title: "Система управления складом",
-    description: "Разработка системы учета товаров на складе с автоматическим обновлением остатков и уведомлениями о низком количестве",
+    title: "Warehouse management system",
+    description: "Development of warehouse inventory system with automatic stock updates and low quantity notifications",
     company: "Adidas",
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=12",
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 дня назад
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
     user_email: "user2"
   },
   {
     id: "13",
-    title: "Интеграция с социальными сетями",
-    description: "Добавление возможности авторизации через социальные сети и шаринга товаров в социальных сетях",
+    title: "Social media integration",
+    description: "Adding social media login capability and product sharing in social networks",
     company: "Adidas",
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=13",
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 день назад
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
     user_email: "user2"
   },
   {
     id: "14",
-    title: "Система персональных рекомендаций",
-    description: "Внедрение алгоритма машинного обучения для персональных рекомендаций товаров на основе истории покупок",
+    title: "Personal recommendation system",
+    description: "Implementing machine learning algorithm for personal product recommendations based on purchase history",
     company: "Adidas",
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=14",
-    createdAt: new Date().toISOString(), // Сегодня
+    createdAt: new Date().toISOString(), // Today
     user_email: "user2"
   }
 ]

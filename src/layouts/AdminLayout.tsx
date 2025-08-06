@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   // Добавляем пункт меню для супер-админа
   if (isSuperAdmin) {
     menuItems.push({
-      title: 'Управление мини-админами',
+      title: t('manageMiniAdmins'),
       href: '/super-admin',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

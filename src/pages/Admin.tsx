@@ -67,8 +67,8 @@ export default function Admin() {
                 className="flex items-center gap-2"
               >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Обновить данные</span>
-                <span className="sm:hidden">Обновить</span>
+                <span className="hidden sm:inline">{t('refreshData')}</span>
+                <span className="sm:hidden">{t('refreshData')}</span>
               </Button>
               
               {/* Кнопка управления мини-админами (только для супер-админа) */}
@@ -78,8 +78,8 @@ export default function Admin() {
                   className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
                 >
                   <Users className="w-4 h-4" />
-                  <span className="hidden sm:inline">Управление мини-админами</span>
-                  <span className="sm:hidden">Мини-админы</span>
+                  <span className="hidden sm:inline">{t('manageMiniAdmins')}</span>
+                  <span className="sm:hidden">{t('manageMiniAdmins')}</span>
                 </Button>
               )}
             </div>

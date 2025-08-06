@@ -97,6 +97,14 @@
     "ticketsByDate": "Tickets by Date (Last 14 Days)",
     "recentTickets": "Recent Tickets",
     "noRecentTickets": "No recent tickets",
-    "filterByCompany": "Filter by Company"
+    "filterByCompany": "Filter by Company",
+    "manageMiniAdmins": "Manage Mini-Admins",
+    "refreshData": "Refresh Data",
+    "improveProductSearch": "Improve product search",
+    "addSmartSearch": "Adding smart search with autocomplete, filters by size, color and price for customer convenience",
+    "personalRecommendationSystem": "Personal recommendation system",
+    "implementMLAlgorithm": "Implementing machine learning algorithm for personal product recommendations based on purchase history",
+    "createSystem": "Creating a system",
+    "today": "Today"
   }
 } 
