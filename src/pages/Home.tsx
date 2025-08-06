@@ -46,22 +46,22 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
                 <div className="bg-white p-3 sm:p-4 rounded border">
                   <h4 className="font-medium text-blue-800 mb-2">User 1 (Nike)</h4>
-                  <p className="text-blue-700">Email: user1@examplemail.com</p>
-                  <p className="text-blue-700">Password: user123</p>
+                  <p className="text-blue-700">Email: user1</p>
+                  <p className="text-blue-700">Password: 1234</p>
                   <p className="text-blue-700">Company: Nike</p>
                   <p className="text-blue-700">Role: User</p>
                 </div>
                 <div className="bg-white p-3 sm:p-4 rounded border">
                   <h4 className="font-medium text-blue-800 mb-2">User 2 (Adidas)</h4>
-                  <p className="text-blue-700">Email: user2@examplemail.com</p>
-                  <p className="text-blue-700">Password: user213</p>
+                  <p className="text-blue-700">Email: user2</p>
+                  <p className="text-blue-700">Password: 1234</p>
                   <p className="text-blue-700">Company: Adidas</p>
                   <p className="text-blue-700">Role: User</p>
                 </div>
                 <div className="bg-white p-3 sm:p-4 rounded border border-purple-200 bg-purple-50 sm:col-span-2 lg:col-span-1">
                   <h4 className="font-medium text-purple-800 mb-2">Admin</h4>
-                  <p className="text-purple-700">Email: admin@example.com</p>
-                  <p className="text-purple-700">Password: admin123</p>
+                  <p className="text-purple-700">Email: admin</p>
+                  <p className="text-purple-700">Password: 1234</p>
                   <p className="text-purple-700">Company: Tickefy</p>
                   <p className="text-purple-700">Role: Admin</p>
                 </div>

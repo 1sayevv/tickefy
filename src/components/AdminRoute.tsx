@@ -25,7 +25,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
 
   // Проверяем роль пользователя (админ или нет)
   const isAdmin = user.user_metadata?.role === 'admin' || 
-                  user.email === 'admin@example.com'
+                  user.email === 'admin'
 
   // Если пользователь не админ, показываем сообщение об отсутствии доступа
   if (!isAdmin) {
@@ -47,8 +47,8 @@ export default function AdminRoute({ children }: AdminRouteProps) {
               Для доступа к админ панели используйте:
             </p>
             <div className="bg-gray-50 rounded-lg p-4 text-sm">
-              <p><strong>Email:</strong> admin@example.com</p>
-              <p><strong>Пароль:</strong> admin123</p>
+              <p><strong>Email:</strong> admin</p>
+                              <p><strong>Пароль:</strong> 1234</p>
             </div>
           </div>
         </div>

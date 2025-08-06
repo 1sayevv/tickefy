@@ -15,7 +15,7 @@ export default function Dashboard() {
 
   // Проверяем, является ли пользователь админом
   const isAdmin = user?.user_metadata?.role === 'admin' || 
-                  user?.email === 'admin@example.com'
+                  user?.email === 'admin'
 
   const handleSignOut = async () => {
     await signOut()

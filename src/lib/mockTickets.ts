@@ -20,7 +20,7 @@ let mockTickets: Ticket[] = [
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
     createdAt: "2024-08-03T10:00:00Z",
-    user_email: "user1@examplemail.com"
+    user_email: "user1"
   },
   {
     id: "2",
@@ -30,7 +30,7 @@ let mockTickets: Ticket[] = [
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=2",
     createdAt: "2024-08-04T09:15:00Z",
-    user_email: "user1@examplemail.com"
+    user_email: "user1"
   },
   {
     id: "3",
@@ -40,7 +40,7 @@ let mockTickets: Ticket[] = [
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
     createdAt: "2024-08-05T11:00:00Z",
-    user_email: "user1@examplemail.com"
+    user_email: "user1"
   },
   {
     id: "4",
@@ -50,7 +50,7 @@ let mockTickets: Ticket[] = [
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=4",
     createdAt: "2024-08-05T13:20:00Z",
-    user_email: "user1@examplemail.com"
+    user_email: "user1"
   },
   // Adidas tickets
   {
@@ -61,7 +61,7 @@ let mockTickets: Ticket[] = [
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=5",
     createdAt: "2024-08-04T08:30:00Z",
-    user_email: "user2@examplemail.com"
+    user_email: "user2"
   },
   {
     id: "6",
@@ -71,7 +71,7 @@ let mockTickets: Ticket[] = [
     status: "open",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=6",
     createdAt: "2024-08-05T12:00:00Z",
-    user_email: "user2@examplemail.com"
+    user_email: "user2"
   },
   {
     id: "7",
@@ -81,7 +81,7 @@ let mockTickets: Ticket[] = [
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=7",
     createdAt: "2024-08-03T14:15:00Z",
-    user_email: "user2@examplemail.com"
+    user_email: "user2"
   },
   {
     id: "8",
@@ -91,7 +91,7 @@ let mockTickets: Ticket[] = [
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=8",
     createdAt: "2024-08-05T09:45:00Z",
-    user_email: "user2@examplemail.com"
+    user_email: "user2"
   }
 ]
 

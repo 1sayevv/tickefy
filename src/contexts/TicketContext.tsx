@@ -29,7 +29,7 @@ export function TicketProvider({ children }: TicketProviderProps) {
       let allTickets: Ticket[]
       
       // Если пользователь админ, загружаем все тикеты
-      const isAdmin = user?.email === 'admin@example.com' || 
+      const isAdmin = user?.email === 'admin' || 
                       user?.user_metadata?.role === 'admin'
       
       try {

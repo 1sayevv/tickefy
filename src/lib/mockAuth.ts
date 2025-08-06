@@ -2,8 +2,8 @@
 export const mockUsers = [
   {
     id: '1',
-    email: 'user1@examplemail.com',
-    password: 'user123',
+    email: 'user1',
+    password: '1234',
     full_name: 'User One',
     company: 'Nike',
     role: 'user',
@@ -11,8 +11,8 @@ export const mockUsers = [
   },
   {
     id: '2',
-    email: 'user2@examplemail.com',
-    password: 'user213',
+    email: 'user2',
+    password: '1234',
     full_name: 'User Two',
     company: 'Adidas',
     role: 'user',
@@ -20,8 +20,8 @@ export const mockUsers = [
   },
   {
     id: '3',
-    email: 'admin@example.com',
-    password: 'admin123',
+    email: 'admin',
+    password: '1234',
     full_name: 'Administrator',
     company: 'Tickefy',
     role: 'admin',

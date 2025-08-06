@@ -17,7 +17,7 @@ export default function Header() {
 
   // Проверяем, является ли пользователь админом
   const isAdmin = user?.user_metadata?.role === 'admin' || 
-                  user?.email === 'admin@example.com'
+                  user?.email === 'admin'
 
   if (loading) {
     return (

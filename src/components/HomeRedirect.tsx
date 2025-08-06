@@ -16,7 +16,7 @@ export default function HomeRedirect() {
 
   if (user) {
     // Проверяем, является ли пользователь админом
-    const isAdmin = user.email === 'admin@example.com' || 
+    const isAdmin = user.email === 'admin' || 
                     user.user_metadata?.role === 'admin'
     
     // Перенаправляем админа на админ панель, обычных пользователей на dashboard

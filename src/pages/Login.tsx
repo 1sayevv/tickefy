@@ -36,7 +36,7 @@ export default function Login() {
         setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
       } else if (result.user) {
         // Проверяем, является ли пользователь админом
-        const isAdmin = result.user.email === 'admin@example.com' || 
+        const isAdmin = result.user.email === 'admin' || 
                        result.user.user_metadata?.role === 'admin'
         
         // Перенаправляем админа на админ панель, обычных пользователей на dashboard

@@ -24,7 +24,7 @@ export default function AdminRedirect({ children }: AdminRedirectProps) {
   }
 
   // Проверяем, является ли пользователь админом
-  const isAdmin = user.email === 'admin@example.com' || 
+  const isAdmin = user.email === 'admin' || 
                   user.user_metadata?.role === 'admin'
 
   // Если пользователь админ, перенаправляем на админ панель
