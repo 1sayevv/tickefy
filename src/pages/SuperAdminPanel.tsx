@@ -19,6 +19,7 @@ export default function SuperAdminPanel() {
     name: '',
     email: '',
     companies: [] as string[],
+    accessLevel: 'manager' as 'manager' | 'senior_admin',
     status: 'active' as 'active' | 'inactive'
   })
 
@@ -48,7 +49,7 @@ export default function SuperAdminPanel() {
     try {
       await createMiniAdmin(formData)
       setIsCreateModalOpen(false)
-      setFormData({ name: '', email: '', companies: [], status: 'active' })
+      setFormData({ name: '', email: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
     } catch (error) {
       console.error('Error creating mini admin:', error)
@@ -63,7 +64,7 @@ export default function SuperAdminPanel() {
       await updateMiniAdmin(editingAdmin.id, formData)
       setIsEditModalOpen(false)
       setEditingAdmin(null)
-      setFormData({ name: '', email: '', companies: [], status: 'active' })
+      setFormData({ name: '', email: '', companies: [], accessLevel: 'manager', status: 'active' })
       loadMiniAdmins()
     } catch (error) {
       console.error('Error updating mini admin:', error)
@@ -81,12 +82,27 @@ export default function SuperAdminPanel() {
     }
   }
 
+  const handleToggleStatus = async (admin: MiniAdmin) => {
+    const newStatus = admin.status === 'active' ? 'inactive' : 'active'
+    const action = newStatus === 'active' ? 'активировать' : 'деактивировать'
+    
+    if (window.confirm(`Вы уверены, что хотите ${action} этого мини-админа?`)) {
+      try {
+        await updateMiniAdmin(admin.id, { status: newStatus })
+        loadMiniAdmins()
+      } catch (error) {
+        console.error('Error updating mini admin status:', error)
+      }
+    }
+  }
+
   const openEditModal = (admin: MiniAdmin) => {
     setEditingAdmin(admin)
     setFormData({
       name: admin.name,
       email: admin.email,
       companies: admin.companies,
+      accessLevel: admin.accessLevel,
       status: admin.status
     })
     setIsEditModalOpen(true)
@@ -104,6 +120,23 @@ export default function SuperAdminPanel() {
         companies: prev.companies.filter(c => c !== company)
       }))
     }
+  }
+
+  // Вспомогательные функции для форматирования
+  const formatAccessLevel = (level: string) => {
+    return level === 'senior_admin' ? 'Старший админ' : 'Менеджер'
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  const getStatusColor = (status: string) => {
+    return status === 'active' ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
   }
 
   if (!isSuperAdmin) {
@@ -180,6 +213,17 @@ export default function SuperAdminPanel() {
                 </div>
               </div>
               <div>
+                <label className="block text-sm font-medium mb-1">Уровень доступа</label>
+                <select
+                  value={formData.accessLevel}
+                  onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="manager">Менеджер</option>
+                  <option value="senior_admin">Старший админ</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium mb-1">Статус</label>
                 <select
                   value={formData.status}
@@ -212,53 +256,78 @@ export default function SuperAdminPanel() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4">Имя</th>
-                    <th className="text-left py-3 px-4">Email</th>
-                    <th className="text-left py-3 px-4">Компании</th>
-                    <th className="text-left py-3 px-4">Статус</th>
-                    <th className="text-left py-3 px-4">Действия</th>
+                  <tr className="border-b bg-gray-50">
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Имя</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Email</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Назначенные компании</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Уровень доступа</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Статус</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Дата создания</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-700">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {miniAdmins.map(admin => (
-                    <tr key={admin.id} className="border-b">
-                      <td className="py-3 px-4">{admin.name}</td>
-                      <td className="py-3 px-4">{admin.email}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex gap-1">
+                  {miniAdmins.map((admin, index) => (
+                    <tr key={admin.id} className={`border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                      <td className="py-4 px-6 font-medium text-gray-900">{admin.name}</td>
+                      <td className="py-4 px-6 text-gray-700">{admin.email}</td>
+                      <td className="py-4 px-6">
+                        <div className="flex flex-wrap gap-1">
                           {admin.companies.map(company => (
-                            <span key={company} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                            <span key={company} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
                               {company}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-6">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          admin.accessLevel === 'senior_admin' 
+                            ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {formatAccessLevel(admin.accessLevel)}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
-                          {admin.status === 'active' ? (
-                            <UserCheck className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <UserX className="w-4 h-4 text-red-600" />
-                          )}
-                          <span className={admin.status === 'active' ? 'text-green-600' : 'text-red-600'}>
+                          <div className={`w-2 h-2 rounded-full ${
+                            admin.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                          }`}></div>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(admin.status)}`}>
                             {admin.status === 'active' ? 'Активен' : 'Неактивен'}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-4 px-6 text-gray-600 text-sm">
+                        {formatDate(admin.created_at)}
+                      </td>
+                      <td className="py-4 px-6">
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => openEditModal(admin)}
+                            className="text-blue-600 hover:text-blue-700"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => handleToggleStatus(admin)}
+                            className={admin.status === 'active' 
+                              ? 'text-orange-600 hover:text-orange-700' 
+                              : 'text-green-600 hover:text-green-700'
+                            }
+                          >
+                            {admin.status === 'active' ? 'Деактивировать' : 'Активировать'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleDeleteAdmin(admin.id)}
+                            className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -315,6 +384,17 @@ export default function SuperAdminPanel() {
                   </label>
                 ))}
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Уровень доступа</label>
+              <select
+                value={formData.accessLevel}
+                onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="manager">Менеджер</option>
+                <option value="senior_admin">Старший админ</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Статус</label>

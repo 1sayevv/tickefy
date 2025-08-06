@@ -35,6 +35,7 @@ export interface MiniAdmin {
   name: string
   email: string
   companies: string[]
+  accessLevel: 'manager' | 'senior_admin'
   status: 'active' | 'inactive'
   created_at: string
 }
@@ -46,6 +47,7 @@ export let mockMiniAdmins: MiniAdmin[] = [
     name: 'Nike Manager',
     email: 'nike.admin@example.com',
     companies: ['Nike'],
+    accessLevel: 'manager',
     status: 'active',
     created_at: '2024-01-15T00:00:00Z'
   },
@@ -54,8 +56,18 @@ export let mockMiniAdmins: MiniAdmin[] = [
     name: 'Adidas Manager',
     email: 'adidas.admin@example.com',
     companies: ['Adidas'],
+    accessLevel: 'manager',
     status: 'active',
     created_at: '2024-01-16T00:00:00Z'
+  },
+  {
+    id: '3',
+    name: 'Senior Admin',
+    email: 'senior.admin@example.com',
+    companies: ['Nike', 'Adidas'],
+    accessLevel: 'senior_admin',
+    status: 'active',
+    created_at: '2024-01-17T00:00:00Z'
   }
 ]
 
