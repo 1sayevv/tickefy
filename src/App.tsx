@@ -14,6 +14,8 @@ import SuperAdminPanel from '@/pages/SuperAdminPanel'
 import CreateCustomer from '@/pages/CreateCustomer'
 import ManageUsers from '@/pages/ManageUsers'
 import CreateUser from '@/pages/CreateUser'
+import CreateRegularUser from '@/pages/CreateRegularUser'
+import CustomerTickets from '@/pages/CustomerTickets'
 import Test from '@/pages/Test'
 import TestFileUpload from '@/pages/TestFileUpload'
 import LanguageTest from '@/components/LanguageTest'
@@ -45,8 +47,9 @@ function App() {
       <Route path="/admin/tickets" element={<AdminRoute><AdminTickets /></AdminRoute>} />
       <Route path="/super-admin" element={<SuperAdminRoute><SuperAdminPanel /></SuperAdminRoute>} />
       <Route path="/customers/create" element={<SuperAdminRoute><CreateCustomer /></SuperAdminRoute>} />
+      <Route path="/tickets" element={<CustomerRoute><CustomerTickets /></CustomerRoute>} />
       <Route path="/users" element={<CustomerRoute><ManageUsers /></CustomerRoute>} />
-      <Route path="/users/create" element={<CustomerRoute><CreateUser /></CustomerRoute>} />
+      <Route path="/users/create" element={<CustomerRoute><CreateRegularUser /></CustomerRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

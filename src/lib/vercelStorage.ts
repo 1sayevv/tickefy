@@ -43,7 +43,7 @@ const TICKETS_STORAGE_KEY = 'tickefy_tickets'
 // Получить все тикеты из localStorage
 export const getTicketsFromStorage = async (): Promise<any[]> => {
   try {
-    const stored = localStorage.getItem('tickets')
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
     if (stored) {
       const tickets = JSON.parse(stored)
       console.log('📦 Retrieved tickets from localStorage:', tickets.length)
@@ -64,6 +64,7 @@ export const createTicketInStorage = async (ticketData: {
   image_url?: string
   user_id: string
   company: string
+  user_email?: string
 }): Promise<any> => {
   try {
     const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
@@ -75,6 +76,7 @@ export const createTicketInStorage = async (ticketData: {
       description: ticketData.description,
       image_url: ticketData.image_url,
       user_id: ticketData.user_id,
+      user_email: ticketData.user_email || 'unknown@example.com',
       company: ticketData.company,
       status: 'open',
       created_at: new Date().toISOString()
@@ -117,9 +119,38 @@ export const updateTicketStatusInStorage = async (id: string, status: string): P
 // Очистить все тикеты (для отладки)
 export const clearTicketsStorage = () => {
   try {
-    localStorage.removeItem('tickets')
+    localStorage.removeItem(TICKETS_STORAGE_KEY)
     console.log('🗑️ Cleared tickets from localStorage')
   } catch (error) {
     console.error('❌ Error clearing tickets from localStorage:', error)
+  }
+}
+
+// Отладочная функция для проверки тикетов
+export const debugTicketsStorage = () => {
+  try {
+    const stored = localStorage.getItem(TICKETS_STORAGE_KEY)
+    if (stored) {
+      const tickets = JSON.parse(stored)
+      console.log('🔍 Debug: All tickets in localStorage:', tickets)
+      console.log('🔍 Debug: Tickets count:', tickets.length)
+      tickets.forEach((ticket: any, index: number) => {
+        console.log(`🔍 Debug: Ticket ${index + 1}:`, {
+          id: ticket.id,
+          title: ticket.title,
+          company: ticket.company,
+          user_email: ticket.user_email,
+          status: ticket.status,
+          created_at: ticket.created_at
+        })
+      })
+      return tickets
+    } else {
+      console.log('🔍 Debug: No tickets found in localStorage')
+      return []
+    }
+  } catch (error) {
+    console.error('❌ Error debugging tickets from localStorage:', error)
+    return []
   }
 } 

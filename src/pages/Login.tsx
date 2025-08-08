@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
-import { authenticateCustomer } from '@/lib/localStorage'
+import { authenticateCustomer, authenticateRegularUser, debugCustomers, debugRegularUsers } from '@/lib/localStorage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import MainLayout from '@/layouts/MainLayout'
@@ -10,7 +10,7 @@ import MainLayout from '@/layouts/MainLayout'
 export default function Login() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, setUser } = useAuth()
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,10 +31,19 @@ export default function Login() {
       
       if (isLogin) {
         // Сначала проверяем, является ли это customer из localStorage
+        console.log('🔐 Attempting customer authentication with:', { email, password })
+        
+        // Отладочная информация
+        debugCustomers()
+        
         const customer = authenticateCustomer(email, password)
         
         if (customer) {
           console.log('✅ Customer authenticated from localStorage:', customer)
+          
+          // Сохраняем ID customer в localStorage
+          localStorage.setItem('currentCustomerId', customer.id)
+          console.log('💾 Saved currentCustomerId:', customer.id)
           
           // Создаем объект пользователя для customer
           const customerUser = {
@@ -51,13 +60,95 @@ export default function Login() {
           
           // Сохраняем customer в sessionStorage для доступа в приложении
           sessionStorage.setItem('currentCustomer', JSON.stringify(customer))
+          console.log('💾 Saved customer to sessionStorage')
           
           console.log('🚀 Redirecting customer to dashboard')
-          navigate('/dashboard')
+          console.log('🔍 Customer user object:', customerUser)
+          
+          // Устанавливаем пользователя в AuthContext
+          console.log('🔍 Setting user in AuthContext')
+          setUser(customerUser as any)
+          
+          // Перенаправляем на dashboard
+          console.log('🚀 About to navigate to dashboard')
+          navigate('/dashboard', { replace: true })
+          
           return
         }
         
-        // Если это не customer, пробуем обычную авторизацию
+        console.log('🔐 Customer authentication failed, trying regular user auth...')
+        
+        // Проверяем, является ли это regular user из localStorage
+        console.log('🔐 Attempting regular user authentication with:', { email, password })
+        
+        // Отладочная информация
+        debugRegularUsers()
+        
+        const regularUser = authenticateRegularUser(email, password)
+        
+        if (regularUser) {
+          console.log('✅ Regular user authenticated from localStorage:', regularUser)
+          
+          // Сохраняем ID regular user в localStorage
+          localStorage.setItem('currentRegularUserId', regularUser.id)
+          console.log('💾 Saved currentRegularUserId:', regularUser.id)
+          
+          // Создаем объект пользователя для regular user
+          const regularUserObj = {
+            id: regularUser.id,
+            email: regularUser.email,
+            created_at: regularUser.createdAt,
+            user_metadata: {
+              full_name: `${regularUser.firstName} ${regularUser.lastName}`,
+              company: regularUser.companyName,
+              role: 'user',
+              regularUserData: regularUser
+            }
+          }
+          
+          // Сохраняем regular user в sessionStorage для доступа в приложении
+          sessionStorage.setItem('currentRegularUser', JSON.stringify(regularUser))
+          console.log('💾 Saved regular user to sessionStorage')
+          
+          console.log('🚀 Redirecting regular user to dashboard')
+          console.log('🔍 Regular user object:', regularUserObj)
+          
+          // Устанавливаем пользователя в AuthContext
+          console.log('🔍 Setting user in AuthContext')
+          setUser(regularUserObj as any)
+          
+          // Перенаправляем на dashboard
+          console.log('🚀 About to navigate to dashboard')
+          navigate('/dashboard', { replace: true })
+          
+          return
+        }
+        
+        console.log('🔐 Regular user authentication failed, checking for existing users...')
+        
+        // Проверяем, есть ли customers в localStorage
+        const customers = JSON.parse(localStorage.getItem('customers') || '[]')
+        const existingCustomer = customers.find((c: any) => c.username === email)
+        
+        if (existingCustomer) {
+          // Customer найден, но пароль неверный
+          setError('Неверный пароль для customer')
+          setLoading(false)
+          return
+        }
+        
+        // Проверяем, есть ли regular users в localStorage
+        const regularUsers = JSON.parse(localStorage.getItem('regularUsers') || '[]')
+        const existingRegularUser = regularUsers.find((u: any) => u.email === email)
+        
+        if (existingRegularUser) {
+          // Regular user найден, но пароль неверный
+          setError('Неверный пароль для пользователя')
+          setLoading(false)
+          return
+        }
+        
+        // Если это не customer и не regular user, пробуем обычную авторизацию
         result = await signIn(email, password)
         console.log('📝 SignIn result:', result)
       } else {

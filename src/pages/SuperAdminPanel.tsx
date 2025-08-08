@@ -54,6 +54,16 @@ export default function SuperAdminPanel() {
     loadCustomers()
   }, [])
 
+  // Добавляем слушатель для обновления списка при изменении localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadCustomers()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
   const loadCustomers = async () => {
     try {
       setLoading(true)
@@ -98,7 +108,8 @@ export default function SuperAdminPanel() {
           firstName: formData.name.split(' ')[0] || '',
           lastName: formData.name.split(' ')[1] || '',
           mobileNumber: formData.phone,
-          username: formData.email,
+          login: formData.email, // Обновляем login (email)
+          username: (editingCustomer as CustomerData).username, // Оставляем username без изменений
           password: formData.password
         })
         
@@ -177,7 +188,7 @@ export default function SuperAdminPanel() {
     if (isLocalStorageCustomer) {
       setFormData({
         name: `${customer.firstName} ${customer.lastName}`,
-        email: customer.username,
+        email: customer.login, // Используем login как email
         password: customer.password, // localStorage customers не шифруют пароли
         phone: customer.mobileNumber,
         company: customer.companyName,
@@ -232,14 +243,31 @@ export default function SuperAdminPanel() {
           </p>
         </div>
 
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6 flex gap-2">
           <Button 
             className="flex items-center gap-2 w-full sm:w-auto"
-                          onClick={() => navigate('/customers/create')}
+            onClick={() => navigate('/customers/create')}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Create Customer</span>
             <span className="sm:hidden">Create</span>
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => {
+              const customers = JSON.parse(localStorage.getItem('customers') || '[]')
+              console.log('🔍 Test: All customers:', customers)
+              if (customers.length > 0) {
+                const lastCustomer = customers[customers.length - 1]
+                console.log('🔍 Test: Last customer:', lastCustomer)
+                showNotification('info', `Last customer: ${lastCustomer.username} / ${lastCustomer.password}`)
+              } else {
+                showNotification('info', 'No customers found')
+              }
+            }}
+          >
+            Test Customer
           </Button>
         </div>
 
@@ -279,7 +307,7 @@ export default function SuperAdminPanel() {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-3 px-4 font-medium">Name</th>
-                      <th className="text-left py-3 px-4 font-medium">Email</th>
+                      <th className="text-left py-3 px-4 font-medium">Username / Email</th>
                       <th className="text-left py-3 px-4 font-medium">Phone</th>
                       <th className="text-left py-3 px-4 font-medium">Company</th>
                       <th className="text-left py-3 px-4 font-medium">Status</th>
@@ -297,7 +325,7 @@ export default function SuperAdminPanel() {
                         : customer.name
                       
                       const customerEmail = isLocalStorageCustomer 
-                        ? customer.username
+                        ? customer.login
                         : customer.email
                       
                       const customerPhone = isLocalStorageCustomer 
@@ -319,7 +347,12 @@ export default function SuperAdminPanel() {
                       return (
                         <tr key={customer.id} className="border-b hover:bg-gray-50">
                           <td className="py-3 px-4">{customerName}</td>
-                          <td className="py-3 px-4">{customerEmail}</td>
+                          <td className="py-3 px-4">
+                          <div>
+                            <div className="font-medium">{isLocalStorageCustomer ? customer.username : customerName}</div>
+                            <div className="text-sm text-gray-500">{customerEmail}</div>
+                          </div>
+                        </td>
                           <td className="py-3 px-4">{customerPhone}</td>
                           <td className="py-3 px-4">
                             <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">

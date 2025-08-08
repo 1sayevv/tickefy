@@ -84,6 +84,7 @@
     "noTickets": "No Tickets",
     "noTicketsDescription": "You don't have any tickets yet. Create your first ticket to get started.",
     "createFirstTicket": "Create First Ticket",
+    "manageTicketsForCompany": "Manage tickets for company",
     "profileInformation": "Profile Information",
     "registrationDate": "Registration Date",
     "welcomeAdmin": "Welcome, Admin!",
@@ -159,6 +160,18 @@
     "customerPanelTitle": "Tickefy Customer Panel",
     "login": "Login/Email",
     "phoneNumber": "Phone Number",
-    "customerSince": "Customer Since"
+    "customerSince": "Customer Since",
+    "createRegularUser": "Create User",
+    "createRegularUserDescription": "Create a new user for your company",
+    "userInformation": "User Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "position": "Position",
+    "company": "Company",
+    "userCreated": "User created successfully!",
+    "errorCreatingUser": "Error creating user",
+    "userExists": "User with this email already exists",
+    "invalidEmail": "Invalid email format"
   }
 } 

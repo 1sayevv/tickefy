@@ -84,6 +84,7 @@
     "noTickets": "Нет тикетов",
     "noTicketsDescription": "У вас пока нет тикетов. Создайте первый тикет для начала работы.",
     "createFirstTicket": "Создать первый тикет",
+    "manageTicketsForCompany": "Управление тикетами для компании",
     "profileInformation": "Информация о профиле",
     "registrationDate": "Дата регистрации",
     "welcomeAdmin": "Добро пожаловать, Админ!",
@@ -151,6 +152,18 @@
     "customerPanelTitle": "Панель клиента Tickefy",
     "login": "Логин/Email",
     "phoneNumber": "Номер телефона",
-    "customerSince": "Клиент с"
+    "customerSince": "Клиент с",
+    "createRegularUser": "Создать пользователя",
+    "createRegularUserDescription": "Создайте нового пользователя для вашей компании",
+    "userInformation": "Информация о пользователе",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Email",
+    "position": "Должность",
+    "company": "Компания",
+    "userCreated": "Пользователь успешно создан!",
+    "errorCreatingUser": "Ошибка создания пользователя",
+    "userExists": "Пользователь с таким email уже существует",
+    "invalidEmail": "Неверный формат email"
   }
 } 

@@ -76,6 +76,36 @@ export default function CreateCustomer() {
       return
     }
 
+    // Дополнительная валидация
+    if (customerData.password.length < 6) {
+      setError('Пароль должен содержать минимум 6 символов')
+      setLoading(false)
+      return
+    }
+
+    if (customerData.username.length < 3) {
+      setError('Имя пользователя должно содержать минимум 3 символа')
+      setLoading(false)
+      return
+    }
+
+    // Проверяем уникальность username
+    const existingCustomers = JSON.parse(localStorage.getItem('customers') || '[]')
+    const isUsernameTaken = existingCustomers.some((c: any) => c.username === customerData.username)
+    if (isUsernameTaken) {
+      setError('Пользователь с таким username уже существует')
+      setLoading(false)
+      return
+    }
+
+    // Проверяем уникальность login (email)
+    const isLoginTaken = existingCustomers.some((c: any) => c.login === customerData.login)
+    if (isLoginTaken) {
+      setError('Пользователь с таким email уже существует')
+      setLoading(false)
+      return
+    }
+
     try {
       // Создаем объект клиента согласно требованиям
       const customerDataToSubmit = {
@@ -86,9 +116,9 @@ export default function CreateCustomer() {
         firstName: customerData.firstName,
         lastName: customerData.lastName,
         mobileNumber: customerData.mobileNumber,
-        login: customerData.login,
+        login: customerData.login, // Email для входа
         position: customerData.position,
-        username: customerData.username,
+        username: customerData.username, // Username для отображения и авторизации
         password: customerData.password
       }
 

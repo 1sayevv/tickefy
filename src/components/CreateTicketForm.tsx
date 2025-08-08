@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { createTicket } from '@/lib/mockTickets'
-import { uploadImageToVercel, createTicketInStorage } from '@/lib/vercelStorage'
+import { uploadImageToVercel, createTicketInStorage, debugTicketsStorage } from '@/lib/vercelStorage'
 
 interface CreateTicketFormProps {
   onTicketCreated?: () => void
@@ -163,12 +163,37 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
 
       console.log('Final image URL:', imageUrl)
 
+      // Определяем email пользователя в зависимости от типа
+      let userEmail = ''
+      if (user.user_metadata?.role === 'customer') {
+        // Для customer получаем email из sessionStorage
+        const customerData = sessionStorage.getItem('currentCustomer')
+        if (customerData) {
+          const customer = JSON.parse(customerData)
+          userEmail = customer.login || user.email
+        } else {
+          userEmail = user.email
+        }
+      } else if (user.user_metadata?.role === 'user') {
+        // Для regular user получаем email из sessionStorage
+        const regularUserData = sessionStorage.getItem('currentRegularUser')
+        if (regularUserData) {
+          const regularUser = JSON.parse(regularUserData)
+          userEmail = regularUser.email || user.email
+        } else {
+          userEmail = user.email
+        }
+      } else {
+        userEmail = user.email
+      }
+
       const ticketData = {
         title,
         description,
         image_url: imageUrl,
         user_id: user.id,
-        company: company as "Nike" | "Adidas"
+        company: company as "Nike" | "Adidas",
+        user_email: userEmail
       }
 
       console.log('Creating ticket with data:', ticketData)
@@ -176,8 +201,12 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       try {
         // Пробуем создать тикет в localStorage
         console.log('Attempting to create ticket in localStorage...')
-        await createTicketInStorage(ticketData)
-        console.log('✅ Ticket created in localStorage')
+        const createdTicket = await createTicketInStorage(ticketData)
+        console.log('✅ Ticket created in localStorage:', createdTicket)
+        
+        // Отладочная информация
+        console.log('🔍 Debugging tickets after creation...')
+        debugTicketsStorage()
       } catch (error) {
         console.log('❌ localStorage failed:', error)
         console.log('Falling back to mock storage...')
@@ -203,7 +232,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             image: ticketData.image_url,
             company: ticketData.company,
             status: 'open',
-            user_email: 'user@example.com' // Добавляем user_email
+            user_email: ticketData.user_email
           })
           console.log('✅ Ticket created in mock storage')
         }
