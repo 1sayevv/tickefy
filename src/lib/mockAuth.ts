@@ -37,6 +37,15 @@ export const mockUsers = [
     company: 'Nike',
     role: 'customer',
     created_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '5',
+    email: 'adidas',
+    password: hashPassword('1234'),
+    full_name: 'Adidas Customer',
+    company: 'Adidas',
+    role: 'customer',
+    created_at: '2024-01-01T00:00:00Z'
   }
 ]
 

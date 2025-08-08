@@ -57,17 +57,24 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
 
   // Подготовка данных для Pie Chart (статусы тикетов)
   const getStatusData = () => {
+    console.log('📊 Filtered tickets for charts:', filteredTickets.length, filteredTickets.map(t => ({ id: t.id, company: t.company, status: t.status })))
+    
     const statusCount = filteredTickets.reduce((acc, ticket) => {
       const status = ticket.status
       acc[status] = (acc[status] || 0) + 1
       return acc
     }, {} as Record<string, number>)
 
-    return [
+    console.log('📊 Status count:', statusCount)
+
+    const data = [
       { name: t('open'), value: statusCount.open || 0, color: '#0088FE' },
       { name: t('inProgress'), value: statusCount['in progress'] || 0, color: '#00C49F' },
       { name: t('done'), value: statusCount.done || 0, color: '#FFBB28' }
     ]
+
+    console.log('📊 Final status data:', data)
+    return data
   }
 
   // Подготовка данных для Line Chart (тикеты по датам)

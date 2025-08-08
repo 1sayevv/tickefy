@@ -58,6 +58,20 @@ export default function Home() {
                   <p className="text-blue-700">Company: Adidas</p>
                   <p className="text-blue-700">Role: User</p>
                 </div>
+                <div className="bg-white p-3 sm:p-4 rounded border border-blue-200 bg-blue-50">
+                  <h4 className="font-medium text-blue-800 mb-2">Customer (Nike)</h4>
+                  <p className="text-blue-700">Email: customer</p>
+                  <p className="text-blue-700">Password: 1234</p>
+                  <p className="text-blue-700">Company: Nike</p>
+                  <p className="text-blue-700">Role: Customer</p>
+                </div>
+                <div className="bg-white p-3 sm:p-4 rounded border border-green-200 bg-green-50">
+                  <h4 className="font-medium text-green-800 mb-2">Customer (Adidas)</h4>
+                  <p className="text-green-700">Email: adidas</p>
+                  <p className="text-green-700">Password: 1234</p>
+                  <p className="text-green-700">Company: Adidas</p>
+                  <p className="text-green-700">Role: Customer</p>
+                </div>
                                   <div className="bg-white p-3 sm:p-4 rounded border border-purple-200 bg-purple-50 sm:col-span-2 lg:col-span-1">
                     <h4 className="font-medium text-purple-800 mb-2">Root Admin</h4>
                     <p className="text-purple-700">Email: admin</p>

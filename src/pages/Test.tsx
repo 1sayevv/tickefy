@@ -95,10 +95,11 @@ export default function Test() {
                </CardHeader>
                <CardContent>
                  <div className="space-y-2 text-sm">
-                   <p><strong>Root Admin:</strong> admin / 1234 (sees all data)</p>
-                   <p><strong>Customer (Nike):</strong> customer / 1234 (sees only Nike data)</p>
-                   <p><strong>Regular User (Nike):</strong> user1 / 1234 (sees only Nike data)</p>
-                   <p><strong>Regular User (Adidas):</strong> user2 / 1234 (sees only Adidas data)</p>
+                           <p><strong>Root Admin:</strong> admin / 1234 (sees all data)</p>
+        <p><strong>Customer (Nike):</strong> customer / 1234 (sees only Nike data)</p>
+        <p><strong>Customer (Adidas):</strong> adidas / 1234 (sees only Adidas data)</p>
+        <p><strong>Regular User (Nike):</strong> user1 / 1234 (sees only Nike data)</p>
+        <p><strong>Regular User (Adidas):</strong> user2 / 1234 (sees only Adidas data)</p>
                  </div>
                </CardContent>
              </Card>

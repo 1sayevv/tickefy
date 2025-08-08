@@ -92,9 +92,11 @@ export default function Login() {
               {t('testAccounts')}:
             </h3>
             <div className="space-y-1 text-xs text-blue-800">
-              <div><strong>user1</strong> / 1234 (Nike)</div>
-              <div><strong>user2</strong> / 1234 (Adidas)</div>
-              <div><strong>admin</strong> / 1234 (Root Admin)</div>
+                              <div><strong>user1</strong> / 1234 (Nike)</div>
+                <div><strong>user2</strong> / 1234 (Adidas)</div>
+                <div><strong>customer</strong> / 1234 (Nike Customer)</div>
+                <div><strong>adidas</strong> / 1234 (Adidas Customer)</div>
+                <div><strong>admin</strong> / 1234 (Root Admin)</div>
             </div>
           </div>
 
