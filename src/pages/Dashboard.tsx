@@ -13,10 +13,6 @@ export default function Dashboard() {
   const { user, profile, signOut, getUserDisplayName, getUserCompany } = useAuth()
   const { tickets, loading, getStatusCount, getTotalCount } = useTickets()
 
-  // Проверяем, является ли пользователь админом
-  const isAdmin = user?.user_metadata?.role === 'admin' || 
-                  user?.email === 'admin'
-
   const handleSignOut = async () => {
     await signOut()
   }
@@ -25,11 +21,6 @@ export default function Dashboard() {
   const getOpenCount = () => getStatusCount('open')
   const getInProgressCount = () => getStatusCount('in progress')
   const getDoneCount = () => getStatusCount('done')
-
-  // Если пользователь админ, не показываем dashboard
-  if (isAdmin) {
-    return null
-  }
 
   return (
     <MainLayout>

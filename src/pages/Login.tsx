@@ -42,7 +42,7 @@ export default function Login() {
       } else if (result.user) {
         console.log('✅ Auth successful:', result.user)
         
-        // Проверяем, является ли пользователь админом (включая супер-админа)
+        // Проверяем, является ли пользователь админом (включая корневого админа)
         const isAdmin = result.user.email === 'admin' || 
                        result.user.user_metadata?.role === 'admin' ||
                        result.user.user_metadata?.role === 'super_admin'
@@ -94,7 +94,7 @@ export default function Login() {
             <div className="space-y-1 text-xs text-blue-800">
               <div><strong>user1</strong> / 1234 (Nike)</div>
               <div><strong>user2</strong> / 1234 (Adidas)</div>
-              <div><strong>admin</strong> / 1234 (Super Admin)</div>
+              <div><strong>admin</strong> / 1234 (Root Admin)</div>
             </div>
           </div>
 

@@ -5,16 +5,20 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useTickets } from '@/contexts/TicketContext'
+import { useAuth } from '@/contexts/AuthContext'
 import TestImage from './TestImage'
 
 export default function AdminTicketTable() {
   const { t } = useTranslation()
   const { tickets, loading, updateTicketStatus } = useTickets()
+  const { user } = useAuth()
   const [filteredTickets, setFilteredTickets] = useState(tickets)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [companyFilter, setCompanyFilter] = useState<string>('all')
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  
+  const isCustomer = user?.user_metadata?.role === 'customer'
 
   useEffect(() => {
     let filtered = tickets
@@ -23,12 +27,18 @@ export default function AdminTicketTable() {
       filtered = filtered.filter(ticket => ticket.status === statusFilter)
     }
 
-    if (companyFilter !== 'all') {
+    // Для Customer автоматически фильтруем по его компании
+    if (isCustomer) {
+      const customerCompany = user?.user_metadata?.company
+      if (customerCompany) {
+        filtered = filtered.filter(ticket => ticket.company === customerCompany)
+      }
+    } else if (companyFilter !== 'all') {
       filtered = filtered.filter(ticket => ticket.company === companyFilter)
     }
 
     setFilteredTickets(filtered)
-  }, [tickets, statusFilter, companyFilter])
+  }, [tickets, statusFilter, companyFilter, isCustomer, user?.user_metadata?.company])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -68,7 +78,10 @@ export default function AdminTicketTable() {
 
   const clearFilters = () => {
     setStatusFilter('all')
-    setCompanyFilter('all')
+    // Для Customer не сбрасываем фильтр компании, так как он должен видеть только свою компанию
+    if (!isCustomer) {
+      setCompanyFilter('all')
+    }
   }
 
   const handleImageClick = (imageUrl: string) => {
@@ -132,25 +145,28 @@ export default function AdminTicketTable() {
           </select>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <label className="text-sm font-medium">{t('company')}:</label>
-          <select
-            value={companyFilter}
-            onChange={(e) => setCompanyFilter(e.target.value)}
-            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">{t('allCompanies')}</option>
-            <option value="Nike">{t('nike')}</option>
-            <option value="Adidas">{t('adidas')}</option>
-          </select>
-        </div>
+        {/* Показываем фильтр компаний только для Root Admin */}
+        {!isCustomer && (
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium">{t('company')}:</label>
+            <select
+              value={companyFilter}
+              onChange={(e) => setCompanyFilter(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">{t('allCompanies')}</option>
+              <option value="Nike">{t('nike')}</option>
+              <option value="Adidas">{t('adidas')}</option>
+            </select>
+          </div>
+        )}
 
         <Button variant="outline" size="sm" onClick={clearFilters}>
           {t('resetFilters')}
         </Button>
 
         <span className="text-sm text-gray-600">
-          {t('showing')}: {filteredTickets.length} {t('of')} {tickets.length}
+          {t('showing')}: {filteredTickets.length} {t('of')} {isCustomer ? filteredTickets.length : tickets.length}
         </span>
       </div>
 

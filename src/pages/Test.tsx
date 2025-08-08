@@ -1,42 +1,108 @@
-import MainLayout from '@/layouts/MainLayout'
+import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function Test() {
+  const { signIn, user } = useAuth()
+  const [loading, setLoading] = useState(false)
+
+  const handleQuickLogin = async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const result = await signIn(email, password)
+      if (result.error) {
+        alert(`Ошибка входа: ${result.error}`)
+      } else {
+        alert('Успешный вход!')
+      }
+    } catch (error) {
+      alert('Ошибка входа')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <MainLayout>
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl font-bold text-green-600 mb-4">
-          ✅ Tickefy работает!
-        </h1>
-        <p className="text-lg text-gray-600 mb-8">
-          React, Vite и TailwindCSS настроены корректно
-        </p>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8">Test Page</h1>
         
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-            <h3 className="text-lg font-semibold text-green-800 mb-2">React 18</h3>
-            <p className="text-green-700">Компоненты работают</p>
-          </div>
-          
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">Vite</h3>
-            <p className="text-blue-700">Сборка работает</p>
-          </div>
-          
-          <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-            <h3 className="text-lg font-semibold text-purple-800 mb-2">TailwindCSS</h3>
-            <p className="text-purple-700">Стили применяются</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Login</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => handleQuickLogin('admin', '1234')}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  Login as Root Admin
+                </Button>
+                <Button 
+                  onClick={() => handleQuickLogin('customer', '1234')}
+                  disabled={loading}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Login as Customer (Nike)
+                </Button>
+                <Button 
+                  onClick={() => handleQuickLogin('user1', '1234')}
+                  disabled={loading}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Login as Regular User (Nike)
+                </Button>
+                <Button 
+                  onClick={() => handleQuickLogin('user2', '1234')}
+                  disabled={loading}
+                  className="w-full"
+                  variant="outline"
+                >
+                  Login as Regular User (Adidas)
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Current User</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {user ? (
+                <div className="space-y-2">
+                  <p><strong>Email:</strong> {user.email}</p>
+                  <p><strong>Role:</strong> {user.user_metadata?.role}</p>
+                  <p><strong>Company:</strong> {user.user_metadata?.company}</p>
+                  <p><strong>Name:</strong> {user.user_metadata?.full_name}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Not logged in</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
-        
-        <div className="mt-8">
-          <a 
-            href="/" 
-            className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Вернуться на главную
-          </a>
-        </div>
+
+                     <Card className="mt-6">
+               <CardHeader>
+                 <CardTitle>Test Accounts</CardTitle>
+               </CardHeader>
+               <CardContent>
+                 <div className="space-y-2 text-sm">
+                   <p><strong>Root Admin:</strong> admin / 1234 (sees all data)</p>
+                   <p><strong>Customer (Nike):</strong> customer / 1234 (sees only Nike data)</p>
+                   <p><strong>Regular User (Nike):</strong> user1 / 1234 (sees only Nike data)</p>
+                   <p><strong>Regular User (Adidas):</strong> user2 / 1234 (sees only Adidas data)</p>
+                 </div>
+               </CardContent>
+             </Card>
       </div>
-    </MainLayout>
+    </div>
   )
 } 

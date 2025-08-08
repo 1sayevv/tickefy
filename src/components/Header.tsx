@@ -15,9 +15,10 @@ export default function Header() {
     setIsMobileMenuOpen(false)
   }
 
-  // Проверяем, является ли пользователь админом
-  const isAdmin = user?.user_metadata?.role === 'admin' || 
-                  user?.email === 'admin'
+  // Проверяем роли пользователя
+  const isSuperAdmin = user?.user_metadata?.role === 'super_admin' || 
+                       user?.email === 'admin'
+  const isCustomer = user?.user_metadata?.role === 'customer'
 
   if (loading) {
     return (
@@ -60,15 +61,23 @@ export default function Header() {
                   {t('hello')}, {getUserDisplayName()}
                 </span>
                 
-                {!isAdmin && (
+                {!isSuperAdmin && !isCustomer && (
                   <Link to="/dashboard">
                     <Button variant="outline" size="sm">
                       {t('dashboard')}
                     </Button>
                   </Link>
                 )}
+
+                {isCustomer && (
+                  <Link to="/users">
+                    <Button variant="outline" size="sm">
+                      {t('manageUsers')}
+                    </Button>
+                  </Link>
+                )}
                 
-                {isAdmin && (
+                {isSuperAdmin && (
                   <Link to="/admin">
                     <Button variant="outline" size="sm" className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
                       {t('adminPanel')}
@@ -124,15 +133,23 @@ export default function Header() {
                     </span>
                   </div>
                   
-                  {!isAdmin && (
+                  {!isSuperAdmin && !isCustomer && (
                     <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button variant="outline" size="sm" className="w-full">
                         {t('dashboard')}
                       </Button>
                     </Link>
                   )}
+
+                  {isCustomer && (
+                    <Link to="/users" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        {t('manageUsers')}
+                      </Button>
+                    </Link>
+                  )}
                   
-                  {isAdmin && (
+                  {isSuperAdmin && (
                     <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
                       <Button variant="outline" size="sm" className="w-full bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
                         {t('adminPanel')}

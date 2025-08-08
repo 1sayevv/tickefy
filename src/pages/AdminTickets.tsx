@@ -4,10 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import AdminTicketTable from '@/components/AdminTicketTable'
 import { useTickets } from '@/contexts/TicketContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AdminTickets() {
   const { t } = useTranslation()
   const { getStatusCount, getTotalCount } = useTickets()
+  const { user } = useAuth()
+  
+  const isCustomer = user?.user_metadata?.role === 'customer'
 
   // Функции для подсчета тикетов по статусам
   const getOpenCount = () => getStatusCount('open')
@@ -19,7 +23,9 @@ export default function AdminTickets() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('allTickets')}</h2>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">{t('manageAllTickets')}</p>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            {isCustomer ? `${t('manageAllTickets')} - ${user?.user_metadata?.company}` : t('manageAllTickets')}
+          </p>
         </div>
 
         {/* Статистика */}

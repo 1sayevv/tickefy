@@ -23,12 +23,13 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/login" replace />
   }
 
-  // Проверяем роль пользователя (админ или нет)
-  const isAdmin = user.user_metadata?.role === 'admin' || 
-                  user.email === 'admin'
+  // Проверяем роль пользователя (корневой админ или клиент)
+  const isSuperAdmin = user.user_metadata?.role === 'super_admin' || 
+                       user.email === 'admin'
+  const isCustomer = user.user_metadata?.role === 'customer'
 
-  // Если пользователь не админ, показываем сообщение об отсутствии доступа
-  if (!isAdmin) {
+  // Если пользователь не имеет нужных прав, показываем сообщение об отсутствии доступа
+  if (!isSuperAdmin && !isCustomer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">

@@ -59,12 +59,12 @@ export default function Home() {
                   <p className="text-blue-700">Role: User</p>
                 </div>
                                   <div className="bg-white p-3 sm:p-4 rounded border border-purple-200 bg-purple-50 sm:col-span-2 lg:col-span-1">
-                    <h4 className="font-medium text-purple-800 mb-2">Super Admin</h4>
+                    <h4 className="font-medium text-purple-800 mb-2">Root Admin</h4>
                     <p className="text-purple-700">Email: admin</p>
                     <p className="text-purple-700">Password: 1234</p>
                     <p className="text-purple-700">Company: Tickefy</p>
-                    <p className="text-purple-700">Role: Super Admin</p>
-                    <p className="text-purple-700 text-sm mt-1">Доступ: Админ-панель + Управление мини-админами</p>
+                    <p className="text-purple-700">Role: Root Admin</p>
+                                          <p className="text-purple-700 text-sm mt-1">Доступ: Админ-панель + Управление клиентами</p>
                   </div>
               </div>
               <p className="text-blue-600 text-xs sm:text-sm mt-4">💡 Используйте эти аккаунты для тестирования системы авторизации</p>

@@ -15,15 +15,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Проверяем, является ли пользователь супер-админом
+  // Проверяем, является ли пользователь корневым админом
   const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
+  const isCustomer = user?.user_metadata?.role === 'customer'
 
   const handleSignOut = async () => {
     await signOut()
     setIsMobileMenuOpen(false)
   }
 
-  const menuItems = [
+  // Базовые пункты меню для всех ролей
+  const baseMenuItems = [
     {
       title: t('dashboard'),
       href: '/admin',
@@ -45,14 +47,30 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   ]
 
-  // Добавляем пункт меню для супер-админа
+  // Создаем финальный массив меню в зависимости от роли
+  let menuItems = [...baseMenuItems]
+
+  // Добавляем пункт меню для корневого админа
   if (isSuperAdmin) {
     menuItems.push({
-      title: t('manageMiniAdmins'),
+      title: t('manageCustomers'),
       href: '/super-admin',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+        </svg>
+      )
+    })
+  }
+
+  // Меню для Customer
+  if (isCustomer) {
+    menuItems.push({
+      title: t('manageUsers'),
+      href: '/users',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-6 0" />
         </svg>
       )
     })
@@ -68,8 +86,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <span className="text-white font-bold text-sm">T</span>
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">{t('adminPanelTitle')}</h1>
-              <p className="text-xs sm:text-sm text-gray-500">{t('systemManagement')}</p>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                {isCustomer ? t('customerPanelTitle') : t('adminPanelTitle')}
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500">
+                {isCustomer ? t('customerPanelDescription') : t('systemManagement')}
+              </p>
             </div>
           </div>
           

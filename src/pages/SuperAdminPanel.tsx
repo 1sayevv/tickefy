@@ -1,29 +1,29 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { getMiniAdmins, createMiniAdmin, updateMiniAdmin, deleteMiniAdmin, MiniAdmin } from '@/lib/mockAuth'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { getCustomers, updateCustomer, deleteCustomer, Customer } from '@/lib/mockAuth'
 import { decryptPassword } from '@/lib/encryption'
 import { Edit, Trash2, Plus, UserCheck, UserX, CheckCircle, AlertCircle } from 'lucide-react'
 import AdminLayout from '@/layouts/AdminLayout'
 
 export default function SuperAdminPanel() {
+  const navigate = useNavigate()
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [miniAdmins, setMiniAdmins] = useState<MiniAdmin[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingAdmin, setEditingAdmin] = useState<MiniAdmin | null>(null)
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     phone: '',
-    companies: [] as string[],
-    accessLevel: 'manager' as 'manager' | 'senior_admin',
+    company: '',
     status: 'active' as 'active' | 'inactive'
   })
 
@@ -41,88 +41,76 @@ export default function SuperAdminPanel() {
   // Состояние для модального окна подтверждения удаления
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
     show: boolean
-    adminId: string | null
-    adminName: string
+    customerId: string | null
+    customerName: string
   }>({
     show: false,
-    adminId: null,
-    adminName: ''
+    customerId: null,
+    customerName: ''
   })
 
   useEffect(() => {
-    loadMiniAdmins()
+    loadCustomers()
   }, [])
 
-  const loadMiniAdmins = async () => {
+  const loadCustomers = async () => {
     try {
       setLoading(true)
-      const admins = await getMiniAdmins()
-      setMiniAdmins(admins)
+      const customersData = await getCustomers()
+      setCustomers(customersData)
     } catch (error) {
-      console.error('Error loading mini admins:', error)
+      console.error('Error loading customers:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCreateAdmin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await createMiniAdmin(formData)
-      setIsCreateModalOpen(false)
-      setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
-      loadMiniAdmins()
-      showNotification('success', '✅ Mini-admin created successfully')
-    } catch (error) {
-      console.error('Error creating mini admin:', error)
-      showNotification('error', '❌ Error creating mini-admin')
-    }
-  }
 
-  const handleEditAdmin = async (e: React.FormEvent) => {
+
+  const handleEditCustomer = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!editingAdmin) return
+    if (!editingCustomer) return
     
     try {
-      await updateMiniAdmin(editingAdmin.id, formData)
+      await updateCustomer(editingCustomer.id, formData)
       setIsEditModalOpen(false)
-      setEditingAdmin(null)
-      setFormData({ name: '', email: '', password: '', phone: '', companies: [], accessLevel: 'manager', status: 'active' })
-      loadMiniAdmins()
+      setEditingCustomer(null)
+      setFormData({ name: '', email: '', password: '', phone: '', company: '', status: 'active' })
+      loadCustomers()
       showNotification('success', '✅ Changes saved')
     } catch (error) {
-      console.error('Error updating mini admin:', error)
+      console.error('Error updating customer:', error)
       showNotification('error', '❌ Error saving changes')
     }
   }
 
-  const handleDeleteAdmin = async (id: string, name: string) => {
+  const handleDeleteCustomer = async (id: string, name: string) => {
     setDeleteConfirmModal({
       show: true,
-      adminId: id,
-      adminName: name
+      customerId: id,
+      customerName: name
     })
   }
 
   const confirmDelete = async () => {
-    if (!deleteConfirmModal.adminId) return
+    if (!deleteConfirmModal.customerId) return
     
     try {
-      await deleteMiniAdmin(deleteConfirmModal.adminId)
-      setDeleteConfirmModal({ show: false, adminId: null, adminName: '' })
-      loadMiniAdmins()
-      showNotification('success', '✅ Mini-admin deleted')
+      await deleteCustomer(deleteConfirmModal.customerId)
+      setDeleteConfirmModal({ show: false, customerId: null, customerName: '' })
+      loadCustomers()
+      showNotification('success', '✅ Customer deleted')
     } catch (error) {
-      console.error('Error deleting mini admin:', error)
-      showNotification('error', '❌ Error deleting mini-admin')
+      console.error('Error deleting customer:', error)
+      showNotification('error', '❌ Error deleting customer')
     }
   }
 
-  const handleToggleStatus = async (admin: MiniAdmin) => {
+  const handleToggleStatus = async (customer: Customer) => {
     try {
-      const newStatus = admin.status === 'active' ? 'inactive' : 'active'
-      await updateMiniAdmin(admin.id, { status: newStatus })
-      loadMiniAdmins()
+      const newStatus = customer.status === 'active' ? 'inactive' : 'active'
+      await updateCustomer(customer.id, { status: newStatus })
+      loadCustomers()
       showNotification('success', `✅ Status changed to ${newStatus === 'active' ? 'active' : 'inactive'}`)
     } catch (error) {
       console.error('Error toggling status:', error)
@@ -130,32 +118,20 @@ export default function SuperAdminPanel() {
     }
   }
 
-  const openEditModal = (admin: MiniAdmin) => {
-    setEditingAdmin(admin)
+  const openEditModal = (customer: Customer) => {
+    setEditingCustomer(customer)
     setFormData({
-      name: admin.name,
-      email: admin.email,
-      password: decryptPassword(admin.password),
-      phone: admin.phone,
-      companies: admin.companies,
-      accessLevel: admin.accessLevel,
-      status: admin.status
+      name: customer.name,
+      email: customer.email,
+      password: decryptPassword(customer.password),
+      phone: customer.phone,
+      company: customer.company,
+      status: customer.status
     })
     setIsEditModalOpen(true)
   }
 
-  const handleCompanyChange = (company: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      companies: checked 
-        ? [...prev.companies, company]
-        : prev.companies.filter(c => c !== company)
-    }))
-  }
 
-  const formatAccessLevel = (level: string) => {
-    return level === 'manager' ? 'Manager' : 'Senior Admin'
-  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -184,115 +160,21 @@ export default function SuperAdminPanel() {
     <AdminLayout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Manage Mini-Admins</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Manage Customers</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Create and manage mini-admins for various companies
+            Create and manage customers for various companies
           </p>
         </div>
 
         <div className="mb-4 sm:mb-6">
-          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 w-full sm:w-auto">
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Create Mini-Admin</span>
-                <span className="sm:hidden">Create</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md w-[95vw] sm:w-full">
-              <DialogHeader>
-                <DialogTitle>Create Mini-Admin</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateAdmin} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Password</label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                    placeholder="+7 (999) 123-45-67"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Companies</label>
-                  <div className="space-y-2">
-                    {['Nike', 'Adidas'].map(company => (
-                      <label key={company} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.companies.includes(company)}
-                          onChange={(e) => handleCompanyChange(company, e.target.checked)}
-                          className="mr-2"
-                        />
-                        {company}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Access Level</label>
-                  <select
-                    value={formData.accessLevel}
-                    onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                  >
-                    <option value="manager">Manager</option>
-                    <option value="senior_admin">Senior Admin</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">
-                    Create
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="flex items-center gap-2 w-full sm:w-auto"
+                          onClick={() => navigate('/customers/create')}
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Create Customer</span>
+            <span className="sm:hidden">Create</span>
+          </Button>
         </div>
 
         {/* Уведомления */}
@@ -306,12 +188,12 @@ export default function SuperAdminPanel() {
           </div>
         )}
 
-        {/* Таблица мини-админов */}
+        {/* Таблица клиентов */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserCheck className="w-5 h-5" />
-              Mini-Admins ({miniAdmins.length})
+              Customers ({customers.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -320,10 +202,10 @@ export default function SuperAdminPanel() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
                 <p className="mt-2 text-gray-600">Loading...</p>
               </div>
-            ) : miniAdmins.length === 0 ? (
+            ) : customers.length === 0 ? (
               <div className="text-center py-8">
                 <UserX className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No mini-admins</p>
+                <p className="text-gray-600">No customers</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -333,62 +215,52 @@ export default function SuperAdminPanel() {
                       <th className="text-left py-3 px-4 font-medium">Name</th>
                       <th className="text-left py-3 px-4 font-medium">Email</th>
                       <th className="text-left py-3 px-4 font-medium">Phone</th>
-                      <th className="text-left py-3 px-4 font-medium">Companies</th>
-                      <th className="text-left py-3 px-4 font-medium">Level</th>
+                      <th className="text-left py-3 px-4 font-medium">Company</th>
                       <th className="text-left py-3 px-4 font-medium">Status</th>
                       <th className="text-left py-3 px-4 font-medium">Created</th>
                       <th className="text-left py-3 px-4 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {miniAdmins.map((admin) => (
-                      <tr key={admin.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">{admin.name}</td>
-                        <td className="py-3 px-4">{admin.email}</td>
-                        <td className="py-3 px-4">{admin.phone}</td>
+                    {customers.map((customer) => (
+                      <tr key={customer.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">{customer.name}</td>
+                        <td className="py-3 px-4">{customer.email}</td>
+                        <td className="py-3 px-4">{customer.phone}</td>
                         <td className="py-3 px-4">
-                          <div className="flex flex-wrap gap-1">
-                            {admin.companies.map(company => (
-                              <span key={company} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                {company}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
-                            {formatAccessLevel(admin.accessLevel)}
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                            {customer.company}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(admin.status)}`}>
-                            {admin.status === 'active' ? 'Active' : 'Inactive'}
+                          <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(customer.status)}`}>
+                            {customer.status === 'active' ? 'Active' : 'Inactive'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
-                          {formatDate(admin.created_at)}
+                          {formatDate(customer.created_at)}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => openEditModal(admin)}
+                              onClick={() => openEditModal(customer)}
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleToggleStatus(admin)}
-                              className={admin.status === 'active' ? 'text-red-600' : 'text-green-600'}
+                              onClick={() => handleToggleStatus(customer)}
+                              className={customer.status === 'active' ? 'text-red-600' : 'text-green-600'}
                             >
-                              {admin.status === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                              {customer.status === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDeleteAdmin(admin.id, admin.name)}
+                              onClick={() => handleDeleteCustomer(customer.id, customer.name)}
                               className="text-red-600"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -408,9 +280,9 @@ export default function SuperAdminPanel() {
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="max-w-md w-[95vw] sm:w-full">
             <DialogHeader>
-              <DialogTitle>Edit Mini-Admin</DialogTitle>
+              <DialogTitle>Edit Customer</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleEditAdmin} className="space-y-4">
+            <form onSubmit={handleEditCustomer} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Name</label>
                 <input
@@ -448,35 +320,18 @@ export default function SuperAdminPanel() {
                   value={formData.phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                   className="w-full px-3 py-2 border rounded-md"
-                  placeholder="+7 (999) 123-45-67"
+                                      placeholder="+994 (50) 123-45-67"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Companies</label>
-                <div className="space-y-2">
-                  {['Nike', 'Adidas'].map(company => (
-                    <label key={company} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.companies.includes(company)}
-                        onChange={(e) => handleCompanyChange(company, e.target.checked)}
-                        className="mr-2"
-                      />
-                      {company}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Access Level</label>
-                <select
-                  value={formData.accessLevel}
-                  onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'manager' | 'senior_admin' }))}
+                <label className="block text-sm font-medium mb-1">Company</label>
+                <input
+                  type="text"
+                  value={formData.company}
+                  onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
                   className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="manager">Manager</option>
-                  <option value="senior_admin">Senior Admin</option>
-                </select>
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Status</label>
@@ -509,7 +364,7 @@ export default function SuperAdminPanel() {
             </DialogHeader>
             <div className="space-y-4">
               <p>
-                Are you sure you want to delete mini-admin <strong>{deleteConfirmModal.adminName}</strong>?
+                Are you sure you want to delete customer <strong>{deleteConfirmModal.customerName}</strong>?
               </p>
               <p className="text-sm text-gray-600">
                 This action cannot be undone.

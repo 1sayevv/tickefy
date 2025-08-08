@@ -24,60 +24,110 @@ export const mockUsers = [
     id: '3',
     email: 'admin',
     password: hashPassword('1234'),
-    full_name: 'Super Administrator',
+    full_name: 'Root Administrator',
     company: 'Tickefy',
     role: 'super_admin',
+    created_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: '4',
+    email: 'customer',
+    password: hashPassword('1234'),
+    full_name: 'Nike Customer',
+    company: 'Nike',
+    role: 'customer',
     created_at: '2024-01-01T00:00:00Z'
   }
 ]
 
-// Интерфейс для мини-админа
-export interface MiniAdmin {
+// Интерфейс для клиента (заменяет мини-админа)
+export interface Customer {
   id: string
   name: string
   email: string
   password: string
   phone: string
-  companies: string[]
-  accessLevel: 'manager' | 'senior_admin'
+  company: string
   status: 'active' | 'inactive'
   created_at: string
 }
 
-// Массив мини-админов с зашифрованными паролями
-export let mockMiniAdmins: MiniAdmin[] = [
+// Новый интерфейс для обычного пользователя компании (Regular User)
+export interface RegularUser {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  position: string
+  username: string
+  password: string
+  status: 'active' | 'inactive'
+  company: string
+  created_at: string
+}
+
+// Массив клиентов с зашифрованными паролями
+export let mockCustomers: Customer[] = [
   {
     id: '1',
-    name: 'Nike Manager',
-    email: 'nike.admin@example.com',
+    name: 'Nike Customer',
+    email: 'nike.customer@example.com',
     password: hashPassword('nike123'),
-    phone: '+7 (999) 123-45-67',
-    companies: ['Nike'],
-    accessLevel: 'manager',
+    phone: '+994 (50) 123-45-67',
+    company: 'Nike',
     status: 'active',
     created_at: '2024-01-15T00:00:00Z'
   },
   {
     id: '2',
-    name: 'Adidas Manager',
-    email: 'adidas.admin@example.com',
+    name: 'Adidas Customer',
+    email: 'adidas.customer@example.com',
     password: hashPassword('adidas123'),
-    phone: '+7 (999) 234-56-78',
-    companies: ['Adidas'],
-    accessLevel: 'manager',
+    phone: '+994 (50) 234-56-78',
+    company: 'Adidas',
     status: 'active',
     created_at: '2024-01-16T00:00:00Z'
   },
   {
     id: '3',
-    name: 'Senior Admin',
-    email: 'senior.admin@example.com',
-    password: hashPassword('senior123'),
-    phone: '+7 (999) 345-67-89',
-    companies: ['Nike', 'Adidas'],
-    accessLevel: 'senior_admin',
+    name: 'Premium Customer',
+    email: 'premium.customer@example.com',
+    password: hashPassword('premium123'),
+    phone: '+994 (50) 345-67-89',
+    company: 'Premium Corp',
     status: 'active',
     created_at: '2024-01-17T00:00:00Z'
+  }
+]
+
+// Начальные мок-пользователи компаний
+export let mockCompanyUsers: RegularUser[] = [
+  {
+    id: '101',
+    firstName: 'Elvin',
+    lastName: 'Aliyev',
+    email: 'elvin.nike@example.com',
+    phone: '+994 (50) 111-22-33',
+    position: 'Engineer',
+    username: 'elvin',
+    password: hashPassword('1234'),
+    status: 'active',
+    company: 'Nike',
+    created_at: '2024-02-01T00:00:00Z'
+  },
+  {
+    id: '102',
+    firstName: 'Aynur',
+    lastName: 'Huseynova',
+    email: 'aynur.adidas@example.com',
+    phone: '+994 (50) 222-33-44',
+    position: 'Support',
+    username: 'aynur',
+    password: hashPassword('1234'),
+    status: 'active',
+    company: 'Adidas',
+    created_at: '2024-02-02T00:00:00Z'
   }
 ]
 
@@ -246,45 +296,115 @@ export const mockGetProfile = async (userId: string) => {
 }
 
 // Функции для управления мини-админами
-export const getMiniAdmins = async (): Promise<MiniAdmin[]> => {
+export const getCustomers = async (): Promise<Customer[]> => {
   await new Promise(resolve => setTimeout(resolve, 300))
-  return mockMiniAdmins
+  return mockCustomers
 }
 
-export const createMiniAdmin = async (miniAdminData: Omit<MiniAdmin, 'id' | 'created_at'>): Promise<MiniAdmin> => {
+export const createCustomer = async (customerData: Omit<Customer, 'id' | 'created_at'>): Promise<Customer> => {
   await new Promise(resolve => setTimeout(resolve, 500))
   
-  const newMiniAdmin: MiniAdmin = {
-    id: String(mockMiniAdmins.length + 1),
-    ...miniAdminData,
-    password: hashPassword(miniAdminData.password), // Шифруем пароль
+  const newCustomer: Customer = {
+    id: String(mockCustomers.length + 1),
+    ...customerData,
+    password: hashPassword(customerData.password), // Шифруем пароль
     created_at: new Date().toISOString()
   }
   
-  mockMiniAdmins.push(newMiniAdmin)
-  return newMiniAdmin
+  mockCustomers.push(newCustomer)
+
+  // Также создаем учетную запись для входа как Customer
+  const newAuthUser = {
+    id: String(mockUsers.length + 1),
+    email: newCustomer.email,
+    password: newCustomer.password,
+    full_name: newCustomer.name,
+    company: newCustomer.company,
+    role: 'customer',
+    created_at: newCustomer.created_at
+  }
+  ;(mockUsers as any[]).push(newAuthUser)
+
+  return newCustomer
 }
 
-export const updateMiniAdmin = async (id: string, miniAdminData: Partial<MiniAdmin>): Promise<MiniAdmin | null> => {
+export const updateCustomer = async (id: string, customerData: Partial<Customer>): Promise<Customer | null> => {
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  const index = mockMiniAdmins.findIndex(admin => admin.id === id)
+  const index = mockCustomers.findIndex(customer => customer.id === id)
   if (index !== -1) {
-    mockMiniAdmins[index] = { ...mockMiniAdmins[index], ...miniAdminData }
-    return mockMiniAdmins[index]
+    mockCustomers[index] = { ...mockCustomers[index], ...customerData }
+    return mockCustomers[index]
   }
   
   return null
 }
 
-export const deleteMiniAdmin = async (id: string): Promise<boolean> => {
+export const deleteCustomer = async (id: string): Promise<boolean> => {
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  const index = mockMiniAdmins.findIndex(admin => admin.id === id)
+  const index = mockCustomers.findIndex(customer => customer.id === id)
   if (index !== -1) {
-    mockMiniAdmins.splice(index, 1)
+    mockCustomers.splice(index, 1)
     return true
   }
   
   return false
+} 
+
+// CRUD для пользователей компании (Regular Users)
+export const getUsersByCompany = async (company: string): Promise<RegularUser[]> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  return mockCompanyUsers.filter(u => u.company === company)
+}
+
+export const createRegularUser = async (userData: Omit<RegularUser, 'id' | 'created_at'>): Promise<RegularUser> => {
+  await new Promise(resolve => setTimeout(resolve, 400))
+  const newUser: RegularUser = {
+    id: String(Date.now()),
+    ...userData,
+    password: hashPassword(userData.password),
+    created_at: new Date().toISOString()
+  }
+  mockCompanyUsers.push(newUser)
+
+  // Создаем также учетку для входа
+  ;(mockUsers as any[]).push({
+    id: String(mockUsers.length + 1),
+    email: newUser.email,
+    password: newUser.password,
+    full_name: `${newUser.firstName} ${newUser.lastName}`,
+    company: newUser.company,
+    role: 'user',
+    created_at: newUser.created_at
+  })
+
+  return newUser
+}
+
+export const updateRegularUser = async (id: string, updates: Partial<RegularUser>): Promise<RegularUser | null> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  const idx = mockCompanyUsers.findIndex(u => u.id === id)
+  if (idx === -1) return null
+  const current = mockCompanyUsers[idx]
+  const next: RegularUser = {
+    ...current,
+    ...updates,
+    password: updates.password ? hashPassword(updates.password) : current.password
+  }
+  mockCompanyUsers[idx] = next
+  return next
+}
+
+export const deleteRegularUser = async (id: string): Promise<boolean> => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  const idx = mockCompanyUsers.findIndex(u => u.id === id)
+  if (idx === -1) return false
+  const removed = mockCompanyUsers.splice(idx, 1)[0]
+  // Удаляем и из mockUsers по email
+  const authIdx = (mockUsers as any[]).findIndex((u: any) => u.email === removed.email)
+  if (authIdx !== -1) {
+    ;(mockUsers as any[]).splice(authIdx, 1)
+  }
+  return true
 } 

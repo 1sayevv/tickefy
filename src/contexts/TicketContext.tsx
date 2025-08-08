@@ -28,23 +28,25 @@ export function TicketProvider({ children }: TicketProviderProps) {
     try {
       let allTickets: Ticket[] = []
       
-      // Проверяем, является ли пользователь админом
-      const isAdmin = user?.email === 'admin' || 
-                      user?.user_metadata?.role === 'admin' ||
-                      user?.user_metadata?.role === 'super_admin'
+      // Проверяем роль пользователя
+      const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
+      const isCustomer = user?.user_metadata?.role === 'customer'
+      const isRegularUser = user?.user_metadata?.role === 'user'
       
       console.log('🔍 User info:', { 
         email: user?.email, 
         role: user?.user_metadata?.role, 
-        isAdmin 
+        isSuperAdmin,
+        isCustomer,
+        isRegularUser
       })
       
-      if (isAdmin) {
-        // Для админов всегда используем mockTickets для корректного отображения графиков
-        console.log('👑 Loading all tickets for admin')
+      if (isSuperAdmin) {
+        // Root Admin видит все тикеты
+        console.log('👑 Loading all tickets for root admin')
         allTickets = await getAllTickets()
-      } else {
-        // Для обычных пользователей пробуем localStorage, затем fallback
+      } else if (isCustomer || isRegularUser) {
+        // Customer и Regular User видят только тикеты своей компании
         try {
           const storageTickets = await getTicketsFromStorage()
           console.log('📦 Tickets loaded from localStorage:', storageTickets.length)
@@ -52,6 +54,7 @@ export function TicketProvider({ children }: TicketProviderProps) {
           const company = getUserCompany()
           if (company) {
             allTickets = storageTickets.filter((ticket: any) => ticket.company === company) as Ticket[]
+            console.log(`🔍 Filtered tickets for company "${company}":`, allTickets.length)
           } else {
             allTickets = []
           }
@@ -65,6 +68,10 @@ export function TicketProvider({ children }: TicketProviderProps) {
             allTickets = []
           }
         }
+      } else {
+        // Fallback для других ролей
+        console.log('⚠️ Unknown role, showing empty tickets')
+        allTickets = []
       }
       
       console.log('✅ TicketContext - Loaded tickets:', allTickets.length)
