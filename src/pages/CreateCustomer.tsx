@@ -12,15 +12,31 @@ export default function CreateCustomer() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Состояние для информации о компании
+  const [companyData, setCompanyData] = useState({
+    name: '',
+    address: '',
+    phone: '',
+    clientSince: ''
+  })
+
   // Состояние для информации о клиенте
   const [customerData, setCustomerData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
+    mobileNumber: '',
     email: '',
-    password: '',
-    phone: '',
-    company: '',
-    status: 'active' as 'active' | 'inactive'
+    position: '',
+    username: '',
+    password: ''
   })
+
+  const handleCompanyChange = (field: string, value: string) => {
+    setCompanyData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
 
   const handleCustomerChange = (field: string, value: string) => {
     setCustomerData(prev => ({
@@ -35,7 +51,17 @@ export default function CreateCustomer() {
     setError('')
 
     try {
-      await createCustomer(customerData)
+      // Создаем объект клиента
+      const customerDataToSubmit = {
+        name: `${customerData.firstName} ${customerData.lastName}`,
+        email: customerData.email,
+        password: customerData.password,
+        phone: customerData.mobileNumber,
+        company: companyData.name,
+        status: 'active' as 'active' | 'inactive'
+      }
+
+      await createCustomer(customerDataToSubmit)
       
       // Показываем уведомление об успехе
       showNotification('success', t('customerCreated'))
@@ -73,7 +99,7 @@ export default function CreateCustomer() {
 
   return (
     <AdminLayout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('createCustomer')}</h1>
           <p className="text-muted-foreground mt-2 text-sm sm:text-base">{t('createCustomerDescription')}</p>
@@ -86,44 +112,127 @@ export default function CreateCustomer() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">{t('customerInformation')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Карточка 1 - Информация о компании */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">{t('companyInformation')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                    {t('fullName')} *
+                  <label htmlFor="companyName" className="block text-sm font-medium text-foreground mb-2">
+                    {t('companyName')} *
                   </label>
                   <input
-                    id="name"
+                    id="companyName"
                     type="text"
-                    value={customerData.name}
-                    onChange={(e) => handleCustomerChange('name', e.target.value)}
+                    value={companyData.name}
+                    onChange={(e) => handleCompanyChange('name', e.target.value)}
                     className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder={t('fullName')}
+                    placeholder={t('companyName')}
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="company" className="block text-sm font-medium text-foreground mb-2">
-                    {t('company')} *
+                  <label htmlFor="companyAddress" className="block text-sm font-medium text-foreground mb-2">
+                    {t('companyAddress')} *
                   </label>
                   <input
-                    id="company"
+                    id="companyAddress"
                     type="text"
-                    value={customerData.company}
-                    onChange={(e) => handleCustomerChange('company', e.target.value)}
+                    value={companyData.address}
+                    onChange={(e) => handleCompanyChange('address', e.target.value)}
                     className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder={t('company')}
+                    placeholder={t('companyAddress')}
                     required
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="companyPhone" className="block text-sm font-medium text-foreground mb-2">
+                    {t('companyPhone')} *
+                  </label>
+                  <input
+                    id="companyPhone"
+                    type="tel"
+                    value={companyData.phone}
+                    onChange={(e) => handleCompanyChange('phone', e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="+7 (999) 123-45-67"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="clientSince" className="block text-sm font-medium text-foreground mb-2">
+                    {t('clientSince')} *
+                  </label>
+                  <input
+                    id="clientSince"
+                    type="date"
+                    value={companyData.clientSince}
+                    onChange={(e) => handleCompanyChange('clientSince', e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    required
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Карточка 2 - Информация о клиенте */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl">{t('customerInformation')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-2">
+                      {t('firstName')} *
+                    </label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      value={customerData.firstName}
+                      onChange={(e) => handleCustomerChange('firstName', e.target.value)}
+                      className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                      placeholder={t('firstName')}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-2">
+                      {t('lastName')} *
+                    </label>
+                    <input
+                      id="lastName"
+                      type="text"
+                      value={customerData.lastName}
+                      onChange={(e) => handleCustomerChange('lastName', e.target.value)}
+                      className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                      placeholder={t('lastName')}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="mobileNumber" className="block text-sm font-medium text-foreground mb-2">
+                    {t('mobileNumber')} *
+                  </label>
+                  <input
+                    id="mobileNumber"
+                    type="tel"
+                    value={customerData.mobileNumber}
+                    onChange={(e) => handleCustomerChange('mobileNumber', e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="+7 (999) 123-45-67"
+                    required
+                  />
+                </div>
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                     {t('email')} *
@@ -134,58 +243,63 @@ export default function CreateCustomer() {
                     value={customerData.email}
                     onChange={(e) => handleCustomerChange('email', e.target.value)}
                     className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="customer@company.com"
+                    placeholder="admin@company.com"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
-                    {t('phone')} *
+                  <label htmlFor="position" className="block text-sm font-medium text-foreground mb-2">
+                    {t('position')} *
+                  </label>
+                  <select
+                    id="position"
+                    value={customerData.position}
+                    onChange={(e) => handleCustomerChange('position', e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    required
+                  >
+                    <option value="">{t('position')}</option>
+                    <option value="manager">Manager</option>
+                    <option value="director">Director</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="coordinator">Coordinator</option>
+                    <option value="administrator">Administrator</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-foreground mb-2">
+                    {t('username')} *
                   </label>
                   <input
-                    id="phone"
-                    type="tel"
-                    value={customerData.phone}
-                    onChange={(e) => handleCustomerChange('phone', e.target.value)}
+                    id="username"
+                    type="text"
+                    value={customerData.username}
+                    onChange={(e) => handleCustomerChange('username', e.target.value)}
                     className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder="+994 (50) 123-45-67"
+                    placeholder="username"
                     required
                   />
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-                  {t('password')} *
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={customerData.password}
-                  onChange={(e) => handleCustomerChange('password', e.target.value)}
-                  className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                  placeholder={t('password')}
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-foreground mb-2">
-                  {t('status')}
-                </label>
-                <select
-                  id="status"
-                  value={customerData.status}
-                  onChange={(e) => handleCustomerChange('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                >
-                  <option value="active">{t('active')}</option>
-                  <option value="inactive">{t('inactive')}</option>
-                </select>
-              </div>
-            </CardContent>
-          </Card>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                    {t('password')} *
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={customerData.password}
+                    onChange={(e) => handleCustomerChange('password', e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder={t('password')}
+                    required
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Кнопки */}
           <div className="flex justify-end space-x-4 pt-6">
