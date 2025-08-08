@@ -29,13 +29,13 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
     if (file) {
       console.log('File selected:', file.name, file.type, file.size)
       
-      // Проверяем, что это изображение
+      // Check if it's an image
       if (!file.type.startsWith('image/')) {
         setError(t('pleaseSelectImage'))
         return
       }
 
-      // Проверяем размер файла (максимум 5MB)
+      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setError(t('fileSizeLimit'))
         return
@@ -134,13 +134,13 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
           console.log('❌ Vercel upload failed:', error)
           console.log('Falling back to local storage...')
           
-          // Проверяем, настроен ли Supabase
+          // Check if Supabase is configured
           const isSupabaseConfigured = () => {
             return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
           }
 
           if (isSupabaseConfigured()) {
-            // Если Supabase настроен, загружаем в Storage
+            // If Supabase is configured, upload to Storage
             console.log('Trying Supabase upload...')
             const uploadedUrl = await uploadImageToStorage(selectedFile)
             if (!uploadedUrl) {
@@ -149,24 +149,24 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
             imageUrl = uploadedUrl
             console.log('✅ Image uploaded to Supabase:', imageUrl)
           } else {
-            // Если Supabase не настроен, используем object URL
+            // If Supabase is not configured, use object URL
             console.log('Using object URL as fallback...')
             imageUrl = imagePreview || `https://httpbin.org/image/png?width=400&height=300&seed=${Math.floor(Math.random() * 1000)}`
             console.log('✅ Using fallback image URL:', imageUrl)
           }
         }
       } else {
-        // Если изображение не выбрано, используем заглушку
+        // If no image is selected, use placeholder
         console.log('No file selected, using placeholder')
         imageUrl = `https://httpbin.org/image/png?width=400&height=300&seed=${Math.floor(Math.random() * 1000)}`
       }
 
       console.log('Final image URL:', imageUrl)
 
-      // Определяем email пользователя в зависимости от типа
+      // Determine user email based on type
       let userEmail = ''
       if (user.user_metadata?.role === 'customer') {
-        // Для customer получаем email из sessionStorage
+        // For customer, get email from sessionStorage
         const customerData = sessionStorage.getItem('currentCustomer')
         if (customerData) {
           const customer = JSON.parse(customerData)
@@ -175,7 +175,7 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
           userEmail = user.email
         }
       } else if (user.user_metadata?.role === 'user') {
-        // Для regular user получаем email из sessionStorage
+        // For regular user, get email from sessionStorage
         const regularUserData = sessionStorage.getItem('currentRegularUser')
         if (regularUserData) {
           const regularUser = JSON.parse(regularUserData)
@@ -199,19 +199,19 @@ export default function CreateTicketForm({ onTicketCreated, onCancel }: CreateTi
       console.log('Creating ticket with data:', ticketData)
 
       try {
-        // Пробуем создать тикет в localStorage
+        // Try to create ticket in localStorage
         console.log('Attempting to create ticket in localStorage...')
         const createdTicket = await createTicketInStorage(ticketData)
         console.log('✅ Ticket created in localStorage:', createdTicket)
         
-        // Отладочная информация
+        // Debug information
         console.log('🔍 Debugging tickets after creation...')
         debugTicketsStorage()
       } catch (error) {
         console.log('❌ localStorage failed:', error)
         console.log('Falling back to mock storage...')
         
-        // Проверяем, настроен ли Supabase
+        // Check if Supabase is configured
         const isSupabaseConfigured = () => {
           return (import.meta.env.VITE_SUPABASE_URL as string) && (import.meta.env.VITE_SUPABASE_ANON_KEY as string)
         }

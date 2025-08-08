@@ -29,7 +29,6 @@
     "loadingTickets": "Loading tickets...",
     "welcome": "Welcome to Tickefy",
     "welcomeDescription": "Modern platform for task and project management",
-    "testAccounts": "Test Accounts",
     "user1": "User 1",
     "user2": "User 2",
     "admin": "Administrator",
@@ -172,6 +171,22 @@
     "userCreated": "User created successfully!",
     "errorCreatingUser": "Error creating user",
     "userExists": "User with this email already exists",
-    "invalidEmail": "Invalid email format"
+    "invalidEmail": "Invalid email format",
+    "profile": "Profile",
+    "profileDescription": "View and manage your account information",
+    "personalInformation": "Personal Information",
+    "companyInformation": "Company Information",
+    "accountInformation": "Account Information",
+    "memberSince": "Member Since",
+    "noPosition": "No position specified",
+    "userID": "User ID",
+    "role": "Role",
+    "lastLogin": "Last Login",
+    "accountType": "Account Type",
+    "customerAccount": "Customer Account",
+    "regularUserAccount": "Regular User Account",
+    "adminAccount": "Admin Account",
+    "rootAdminAccount": "Root Admin Account",
+    "backToDashboard": "Back to Dashboard"
   }
 } 

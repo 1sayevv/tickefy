@@ -18,7 +18,7 @@ export default function Admin() {
   const navigate = useNavigate()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  // Проверяем, является ли пользователь корневым админом
+  // Check if user is root admin
   const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
   const isCustomer = user?.user_metadata?.role === 'customer'
   

@@ -15,7 +15,7 @@ export default function Header() {
     setIsMobileMenuOpen(false)
   }
 
-  // Проверяем роли пользователя
+  // Check user roles
   const isSuperAdmin = user?.user_metadata?.role === 'super_admin' || 
                        user?.email === 'admin'
   const isCustomer = user?.user_metadata?.role === 'customer'
@@ -76,6 +76,12 @@ export default function Header() {
                     </Button>
                   </Link>
                 )}
+
+                <Link to="/profile">
+                  <Button variant="outline" size="sm">
+                    {t('profile')}
+                  </Button>
+                </Link>
                 
                 {isSuperAdmin && (
                   <Link to="/admin">
@@ -148,6 +154,12 @@ export default function Header() {
                       </Button>
                     </Link>
                   )}
+
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      {t('profile')}
+                    </Button>
+                  </Link>
                   
                   {isSuperAdmin && (
                     <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)}>

@@ -93,8 +93,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-base sm:text-lg font-semibold">Управление тикетами</h3>
-              <p className="text-muted-foreground text-sm sm:text-base">Создавайте, отслеживайте и управляйте задачами вашей команды</p>
+              <h3 className="text-base sm:text-lg font-semibold">Ticket Management</h3>
+              <p className="text-muted-foreground text-sm sm:text-base">Create, track and manage your team's tasks</p>
             </div>
             
             <div className="text-center space-y-3 sm:space-y-4">
@@ -103,8 +103,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                 </svg>
               </div>
-              <h3 className="text-base sm:text-lg font-semibold">Командная работа</h3>
-              <p className="text-muted-foreground text-sm sm:text-base">Организуйте работу команды и отслеживайте прогресс</p>
+              <h3 className="text-base sm:text-lg font-semibold">Team Collaboration</h3>
+              <p className="text-muted-foreground text-sm sm:text-base">Organize team work and track progress</p>
             </div>
             
             <div className="text-center space-y-3 sm:space-y-4 sm:col-span-2 lg:col-span-1">

@@ -25,37 +25,37 @@ export default function AdminRedirect({ children }: AdminRedirectProps) {
     )
   }
 
-  // Если пользователь не авторизован, перенаправляем на логин
+      // If user is not authenticated, redirect to login
   if (!user) {
     console.log('🔍 AdminRedirect - No user, redirecting to login')
     return <Navigate to="/login" replace />
   }
 
-  // Проверяем, является ли пользователь админом
+      // Check if user is admin
   const isAdmin = user.email === 'admin' || 
                   user.user_metadata?.role === 'admin' ||
                   user.user_metadata?.role === 'super_admin'
 
   console.log('🔍 AdminRedirect - Is admin:', isAdmin)
 
-  // Если пользователь админ, перенаправляем на админ панель
+      // If user is admin, redirect to admin panel
   if (isAdmin) {
     console.log('🔍 AdminRedirect - Redirecting admin to admin panel')
     return <Navigate to="/admin" replace />
   }
 
-  // Проверяем, является ли пользователь customer
+      // Check if user is customer
   const isCustomer = user.user_metadata?.role === 'customer'
 
   console.log('🔍 AdminRedirect - Is customer:', isCustomer)
 
-  // Если пользователь customer, показываем содержимое (dashboard)
+      // If user is customer, show content (dashboard)
   if (isCustomer) {
     console.log('🔍 AdminRedirect - Showing dashboard for customer')
     return <>{children}</>
   }
 
-  // Если обычный пользователь, показываем содержимое
+      // If regular user, show content
   console.log('🔍 AdminRedirect - Showing dashboard for regular user')
   return <>{children}</>
 } 

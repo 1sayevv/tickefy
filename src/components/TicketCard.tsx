@@ -41,7 +41,7 @@ const hasValidImage = (imageUrl: string) => {
     return false
   }
   
-  // Проверяем, что это не placeholder и не пустая строка
+      // Check that it's not a placeholder and not empty string
   const invalidUrls = [
     'https://via.placeholder.com',
     'placeholder.com',
@@ -49,7 +49,7 @@ const hasValidImage = (imageUrl: string) => {
     ''
   ]
   
-  // Проверяем, что это не object URL (blob:)
+      // Check that it's not an object URL (blob:)
   if (imageUrl.startsWith('blob:')) {
     console.log('Valid object URL:', imageUrl)
     return true

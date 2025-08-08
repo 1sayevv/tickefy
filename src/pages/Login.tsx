@@ -78,7 +78,7 @@ export default function Login() {
         
         console.log('🔐 Customer authentication failed, trying regular user auth...')
         
-        // Проверяем, является ли это regular user из localStorage
+        // Check if this is a regular user from localStorage
         console.log('🔐 Attempting regular user authentication with:', { email, password })
         
         // Отладочная информация
@@ -126,23 +126,21 @@ export default function Login() {
         
         console.log('🔐 Regular user authentication failed, checking for existing users...')
         
-        // Проверяем, есть ли customers в localStorage
+        // Check if there's a customer in localStorage with this email
         const customers = JSON.parse(localStorage.getItem('customers') || '[]')
-        const existingCustomer = customers.find((c: any) => c.username === email)
+        const existingCustomer = customers.find((c: any) => c.login === email)
         
         if (existingCustomer) {
-          // Customer найден, но пароль неверный
           setError('Неверный пароль для customer')
           setLoading(false)
           return
         }
         
-        // Проверяем, есть ли regular users в localStorage
+        // Check if there are regular users in localStorage
         const regularUsers = JSON.parse(localStorage.getItem('regularUsers') || '[]')
         const existingRegularUser = regularUsers.find((u: any) => u.email === email)
         
         if (existingRegularUser) {
-          // Regular user найден, но пароль неверный
           setError('Неверный пароль для пользователя')
           setLoading(false)
           return
@@ -151,42 +149,26 @@ export default function Login() {
         // Если это не customer и не regular user, пробуем обычную авторизацию
         result = await signIn(email, password)
         console.log('📝 SignIn result:', result)
-      } else {
-        result = await signUp(email, password, fullName, company)
-        console.log('📝 SignUp result:', result)
-      }
-
-      if (result.error) {
-        console.error('❌ Auth error:', result.error)
-        setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
-      } else if (result.user) {
-        console.log('✅ Auth successful:', result.user)
         
-        // Проверяем, является ли пользователь админом (включая корневого админа)
-        const isAdmin = result.user.email === 'admin' || 
-                       result.user.user_metadata?.role === 'admin' ||
-                       result.user.user_metadata?.role === 'super_admin'
-        
-        console.log('👤 User role check:', {
-          email: result.user.email,
-          role: result.user.user_metadata?.role,
-          isAdmin
-        })
-        
-        // Перенаправляем админа на админ панель, обычных пользователей на dashboard
-        if (isAdmin) {
-          console.log('🚀 Redirecting to admin panel')
-          navigate('/admin')
+        if (result.error) {
+          setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
         } else {
-          console.log('🚀 Redirecting to dashboard')
-          navigate('/dashboard')
+          navigate('/dashboard', { replace: true })
         }
       } else {
-        console.error('❌ No user in result:', result)
-        setError('Неизвестная ошибка авторизации')
+        // Регистрация
+        result = await signUp(email, password, fullName, company)
+        console.log('📝 SignUp result:', result)
+        
+        if (result.error) {
+          setError(typeof result.error === 'string' ? result.error : (result.error as any).message)
+        } else {
+          setIsLogin(true)
+          setError('')
+        }
       }
     } catch (error) {
-      console.error('💥 Exception during auth:', error)
+      console.error('❌ Login error:', error)
       setError(t('authError'))
     } finally {
       setLoading(false)
@@ -195,43 +177,31 @@ export default function Login() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="max-w-md w-full space-y-6 sm:space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
               {isLogin ? t('loginToSystem') : t('registration')}
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground">
               {isLogin ? t('loginToAccount') : t('createNewAccount')}
             </p>
           </div>
 
-          {/* Тестовые аккаунты */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">
-              {t('testAccounts')}:
-            </h3>
-            <div className="space-y-1 text-xs text-blue-800">
-                              <div><strong>user1</strong> / 1234 (Nike)</div>
-                <div><strong>user2</strong> / 1234 (Adidas)</div>
-                <div><strong>customer</strong> / 1234 (Nike Customer)</div>
-                <div><strong>adidas</strong> / 1234 (Adidas Customer)</div>
-                <div><strong>admin</strong> / 1234 (Root Admin)</div>
-            </div>
-          </div>
 
-          <Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-center">
+              <CardTitle className="text-center text-lg sm:text-xl lg:text-2xl">
                 {isLogin ? t('systemLogin') : t('registration')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <CardContent className="p-4 sm:p-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 {!isLogin && (
                   <>
                     <div>
-                      <label htmlFor="fullName" className="block text-sm font-medium text-foreground">
+                      <label htmlFor="fullName" className="block text-sm sm:text-base font-medium text-foreground">
                         {t('fullName')}
                       </label>
                       <input
@@ -239,12 +209,12 @@ export default function Login() {
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
                         required={!isLogin}
                       />
                     </div>
                     <div>
-                      <label htmlFor="company" className="block text-sm font-medium text-foreground">
+                      <label htmlFor="company" className="block text-sm sm:text-base font-medium text-foreground">
                         {t('companyName')}
                       </label>
                       <input
@@ -252,7 +222,7 @@ export default function Login() {
                         type="text"
                         value={company}
                         onChange={(e) => setCompany(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
                         required={!isLogin}
                       />
                     </div>
@@ -260,7 +230,7 @@ export default function Login() {
                 )}
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground">
+                  <label htmlFor="email" className="block text-sm sm:text-base font-medium text-foreground">
                     {t('email')}
                   </label>
                   <input
@@ -268,13 +238,13 @@ export default function Login() {
                     type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                  <label htmlFor="password" className="block text-sm sm:text-base font-medium text-foreground">
                     {t('password')}
                   </label>
                   <input
@@ -282,31 +252,31 @@ export default function Login() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
                     required
                   />
                 </div>
 
                 {error && (
-                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
+                  <div className="text-red-600 text-sm sm:text-base bg-red-50 p-3 sm:p-4 rounded-md">
                     {error}
                   </div>
                 )}
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full py-2 sm:py-3 text-sm sm:text-base"
                   disabled={loading}
                 >
                   {loading ? t('loading') : (isLogin ? t('login') : t('register'))}
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
+              <div className="mt-6 sm:mt-8 text-center">
                 <button
                   type="button"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-primary hover:text-primary/80"
+                  className="text-sm sm:text-base text-primary hover:text-primary/80 transition-colors"
                 >
                   {isLogin ? t('noAccountRegister') : t('haveAccountLogin')}
                 </button>

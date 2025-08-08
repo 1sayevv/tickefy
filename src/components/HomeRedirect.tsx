@@ -15,7 +15,7 @@ export default function HomeRedirect() {
   }
 
   if (user) {
-    // Проверяем, является ли пользователь админом
+    // Check if user is admin
     const isAdmin = user.email === 'admin' || 
                     user.user_metadata?.role === 'admin'
     
@@ -27,6 +27,6 @@ export default function HomeRedirect() {
     }
   }
 
-  // Если пользователь не авторизован, перенаправляем на логин
+      // If user is not authenticated, redirect to login
   return <Navigate to="/login" replace />
 } 

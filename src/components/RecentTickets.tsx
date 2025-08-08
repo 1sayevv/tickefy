@@ -106,7 +106,7 @@ export default function RecentTickets({ selectedCompany }: RecentTicketsProps) {
                 
                 {/* Информация о тикете */}
                 <div className="space-y-2 sm:space-y-3">
-                  {/* Компания и пользователь */}
+                  {/* Company and user */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     <div className="flex items-center space-x-2 min-w-0">
                       <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -29,7 +29,6 @@
     "loadingTickets": "Загрузка тикетов...",
     "welcome": "Добро пожаловать в Tickefy",
     "welcomeDescription": "Современная платформа для управления задачами и проектами",
-    "testAccounts": "Тестовые аккаунты",
     "user1": "Пользователь 1",
     "user2": "Пользователь 2",
     "admin": "Администратор",
@@ -164,6 +163,22 @@
     "userCreated": "Пользователь успешно создан!",
     "errorCreatingUser": "Ошибка создания пользователя",
     "userExists": "Пользователь с таким email уже существует",
-    "invalidEmail": "Неверный формат email"
+    "invalidEmail": "Неверный формат email",
+    "profile": "Профиль",
+    "profileDescription": "Просмотр и управление информацией об аккаунте",
+    "personalInformation": "Личная информация",
+    "companyInformation": "Информация о компании",
+    "accountInformation": "Информация об аккаунте",
+    "memberSince": "Участник с",
+    "noPosition": "Должность не указана",
+    "userID": "ID пользователя",
+    "role": "Роль",
+    "lastLogin": "Последний вход",
+    "accountType": "Тип аккаунта",
+    "customerAccount": "Аккаунт клиента",
+    "regularUserAccount": "Аккаунт обычного пользователя",
+    "adminAccount": "Аккаунт администратора",
+    "rootAdminAccount": "Аккаунт главного администратора",
+    "backToDashboard": "Вернуться к панели"
   }
 } 

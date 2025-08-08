@@ -1,110 +1,100 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import MainLayout from '@/layouts/MainLayout'
+import { uploadImageToVercel } from '@/lib/vercelStorage'
 
 export default function TestFileUpload() {
-  const [_selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [fileInfo, setFileInfo] = useState<string>('')
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      console.log('File selected:', file.name, file.type, file.size)
-      
-      // Проверяем, что это изображение
-      if (!file.type.startsWith('image/')) {
-        alert('Пожалуйста, выберите файл изображения')
-        return
-      }
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
 
-      // Проверяем размер файла (максимум 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Размер файла не должен превышать 5MB')
-        return
-      }
-
-      setSelectedFile(file)
-      
-      // Создаем превью изображения
-      const objectUrl = URL.createObjectURL(file)
-      setImagePreview(objectUrl)
-      
-      setFileInfo(`
-        Имя файла: ${file.name}
-        Тип: ${file.type}
-        Размер: ${(file.size / 1024 / 1024).toFixed(2)} MB
-        Object URL: ${objectUrl}
-      `)
-      
-      console.log('Created object URL:', objectUrl)
+    // Check if it's an image
+    if (!selectedFile.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
     }
+
+    // Check file size (max 5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert('File size should not exceed 5MB')
+      return
+    }
+
+    setFile(selectedFile)
+
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      setPreview(e.target?.result as string)
+    }
+    reader.readAsDataURL(selectedFile)
   }
 
-  const handleClear = () => {
-    setSelectedFile(null)
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview)
-      setImagePreview(null)
+  const handleUpload = async () => {
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const url = await uploadImageToVercel(file)
+      setUploadedUrl(url)
+      alert('File uploaded successfully!')
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Upload failed')
+    } finally {
+      setUploading(false)
     }
-    setFileInfo('')
   }
 
   return (
-    <MainLayout>
-      <div className="max-w-4xl mx-auto py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Тест загрузки файлов</h1>
-          <p className="text-muted-foreground mt-2">Проверка функциональности загрузки изображений</p>
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">File Upload Test</h1>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">Select Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full p-2 border border-gray-300 rounded"
+          />
         </div>
 
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Загрузка изображения</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label htmlFor="test-image" className="block text-sm font-medium text-foreground mb-2">
-                  Выберите изображение
-                </label>
-                <input
-                  id="test-image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                />
-              </div>
+        {preview && (
+          <div>
+            <label className="block text-sm font-medium mb-2">Preview</label>
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-48 object-cover rounded border"
+            />
+          </div>
+        )}
 
-              {imagePreview && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">Превью изображения:</h3>
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-64 h-64 object-cover rounded border"
-                    />
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">Информация о файле:</h3>
-                    <pre className="bg-gray-100 p-3 rounded text-xs overflow-auto">
-                      {fileInfo}
-                    </pre>
-                  </div>
+        <button
+          onClick={handleUpload}
+          disabled={!file || uploading}
+          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-gray-300"
+        >
+          {uploading ? 'Uploading...' : 'Upload'}
+        </button>
 
-                  <Button onClick={handleClear} variant="outline">
-                    Очистить
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {uploadedUrl && (
+          <div>
+            <label className="block text-sm font-medium mb-2">Uploaded URL</label>
+            <input
+              type="text"
+              value={uploadedUrl}
+              readOnly
+              className="w-full p-2 border border-gray-300 rounded bg-gray-50"
+            />
+          </div>
+        )}
       </div>
-    </MainLayout>
+    </div>
   )
 } 

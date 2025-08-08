@@ -28,7 +28,7 @@ export function TicketProvider({ children }: TicketProviderProps) {
     try {
       let allTickets: Ticket[] = []
       
-      // Проверяем роль пользователя
+      // Check user role
       const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
       const isCustomer = user?.user_metadata?.role === 'customer' || !!sessionStorage.getItem('currentCustomer')
       const isRegularUser = user?.user_metadata?.role === 'user'

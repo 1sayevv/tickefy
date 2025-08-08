@@ -98,7 +98,7 @@ export default function SuperAdminPanel() {
     if (!editingCustomer) return
     
     try {
-      // Проверяем, является ли это customer из localStorage
+              // Check if this is a customer from localStorage
       const isLocalStorageCustomer = 'companyName' in editingCustomer
       
       if (isLocalStorageCustomer) {

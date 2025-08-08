@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
-    // Проверяем текущую сессию при загрузке
+    // Check current session on load
     const checkUser = async () => {
       try {
         console.log('🔍 AuthContext: checkUser started')
@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return
         }
         
-        // Проверяем, есть ли regular user в sessionStorage
+        // Check if there's a regular user in sessionStorage
         const regularUserData = sessionStorage.getItem('currentRegularUser')
         console.log('🔍 AuthContext: regularUserData from sessionStorage:', regularUserData)
         if (regularUserData) {
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return
         }
         
-        // Проверяем, есть ли customer ID в localStorage
+        // Check if there's a customer ID in localStorage
         const currentCustomerId = localStorage.getItem('currentCustomerId')
         console.log('🔍 AuthContext: Checking currentCustomerId:', currentCustomerId)
         
@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
         
-        // Проверяем, есть ли regular user ID в localStorage
+        // Check if there's a regular user ID in localStorage
         const currentRegularUserId = localStorage.getItem('currentRegularUserId')
         console.log('🔍 AuthContext: Checking currentRegularUserId:', currentRegularUserId)
         
@@ -274,19 +274,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const getUserDisplayName = () => {
     if (!user) return ''
-    return user.user_metadata?.full_name || user.email || 'Пользователь'
+    return user.user_metadata?.full_name || user.email || 'User'
   }
 
   const getUserCompany = () => {
     if (!user) {
-      // Проверяем, есть ли customer в sessionStorage
+              // Check if there's a customer in sessionStorage
       const customerData = sessionStorage.getItem('currentCustomer')
       if (customerData) {
         const customer = JSON.parse(customerData)
         return customer.companyName || ''
       }
       
-      // Проверяем, есть ли customer ID в localStorage
+              // Check if there's a customer ID in localStorage
       const currentCustomerId = localStorage.getItem('currentCustomerId')
       if (currentCustomerId) {
         const customers = JSON.parse(localStorage.getItem('customers') || '[]')

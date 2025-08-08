@@ -65,40 +65,40 @@ export default function CreateCustomer() {
       password: customerData.password
     }
 
-    // Проверяем, что все поля заполнены
+    // Check that all fields are filled
     const emptyFields = Object.entries(requiredFields)
       .filter(([key, value]) => !value.trim())
       .map(([key]) => key)
 
     if (emptyFields.length > 0) {
-      setError(`Пожалуйста, заполните все обязательные поля: ${emptyFields.join(', ')}`)
+      setError(`Please fill in all required fields: ${emptyFields.join(', ')}`)
       setLoading(false)
       return
     }
 
-    // Дополнительная валидация
+    // Additional validation
     if (customerData.password.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов')
+      setError('Password must be at least 6 characters')
       setLoading(false)
       return
     }
 
     if (customerData.username.length < 3) {
-      setError('Имя пользователя должно содержать минимум 3 символа')
+      setError('Username must be at least 3 characters')
       setLoading(false)
       return
     }
 
-    // Проверяем уникальность username
+    // Check username uniqueness
     const existingCustomers = JSON.parse(localStorage.getItem('customers') || '[]')
     const isUsernameTaken = existingCustomers.some((c: any) => c.username === customerData.username)
     if (isUsernameTaken) {
-      setError('Пользователь с таким username уже существует')
+      setError('User with this username already exists')
       setLoading(false)
       return
     }
 
-    // Проверяем уникальность login (email)
+    // Check login (email) uniqueness
     const isLoginTaken = existingCustomers.some((c: any) => c.login === customerData.login)
     if (isLoginTaken) {
       setError('Пользователь с таким email уже существует')

@@ -95,7 +95,7 @@ export default function AdminTicketTable() {
       return false
     }
     
-    // Проверяем, что это не placeholder и не пустая строка
+    // Check that it's not a placeholder and not empty string
     const invalidUrls = [
       'https://via.placeholder.com',
       'placeholder.com',
@@ -103,7 +103,7 @@ export default function AdminTicketTable() {
       ''
     ]
     
-    // Проверяем, что это не object URL (blob:)
+    // Check that it's not an object URL (blob:)
     if (imageUrl.startsWith('blob:')) {
       console.log('Admin table - Valid object URL:', imageUrl)
       return true
@@ -128,9 +128,9 @@ export default function AdminTicketTable() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Фильтры */}
-      <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-50 rounded-lg">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
         <div className="flex items-center space-x-2">
           <label className="text-sm font-medium">{t('status')}:</label>
           <select
@@ -165,25 +165,26 @@ export default function AdminTicketTable() {
           {t('resetFilters')}
         </Button>
 
-        <span className="text-sm text-gray-600">
+        <span className="text-xs sm:text-sm text-gray-600">
           {t('showing')}: {filteredTickets.length} {t('of')} {isCustomer ? filteredTickets.length : tickets.length}
         </span>
       </div>
 
-      {/* Таблица */}
+      {/* Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">ID</TableHead>
-              <TableHead className="w-24">{t('photo')}</TableHead>
-              <TableHead>{t('title')}</TableHead>
-              <TableHead className="w-32">{t('company')}</TableHead>
-              <TableHead className="w-32">{t('status')}</TableHead>
-              <TableHead className="w-40">{t('date')}</TableHead>
-              <TableHead className="w-40">{t('changeStatus')}</TableHead>
-            </TableRow>
-          </TableHeader>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 sm:w-16 text-xs sm:text-sm">ID</TableHead>
+                <TableHead className="w-16 sm:w-24 text-xs sm:text-sm">{t('photo')}</TableHead>
+                <TableHead className="text-xs sm:text-sm">{t('title')}</TableHead>
+                <TableHead className="w-24 sm:w-32 text-xs sm:text-sm">{t('company')}</TableHead>
+                <TableHead className="w-24 sm:w-32 text-xs sm:text-sm">{t('status')}</TableHead>
+                <TableHead className="w-32 sm:w-40 text-xs sm:text-sm">{t('date')}</TableHead>
+                <TableHead className="w-32 sm:w-40 text-xs sm:text-sm">{t('changeStatus')}</TableHead>
+              </TableRow>
+            </TableHeader>
           <TableBody>
             {filteredTickets.length === 0 ? (
               <TableRow>
@@ -243,9 +244,10 @@ export default function AdminTicketTable() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
-      {/* Модальное окно для изображения */}
+      {/* Image Modal */}
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
           <DialogHeader>

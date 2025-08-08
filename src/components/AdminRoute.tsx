@@ -18,17 +18,17 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     )
   }
 
-  // Если пользователь не авторизован, перенаправляем на логин
+      // If user is not authenticated, redirect to login
   if (!user) {
     return <Navigate to="/login" replace />
   }
 
-  // Проверяем роль пользователя (корневой админ или клиент)
+      // Check user role (root admin or customer)
   const isSuperAdmin = user.user_metadata?.role === 'super_admin' || 
                        user.email === 'admin'
   const isCustomer = user.user_metadata?.role === 'customer'
 
-  // Если пользователь не имеет нужных прав, показываем сообщение об отсутствии доступа
+      // If user doesn't have required permissions, show access denied message
   if (!isSuperAdmin && !isCustomer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

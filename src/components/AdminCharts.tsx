@@ -102,7 +102,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
 
     // Группируем тикеты по дате создания
     const ticketsByDate = filteredTickets.reduce((acc, ticket) => {
-      // Проверяем валидность даты
+      // Check date validity
       const ticketDate = new Date(ticket.createdAt)
       if (isNaN(ticketDate.getTime())) {
         console.warn('❌ Invalid date for ticket:', ticket.id, ticket.createdAt)
@@ -144,18 +144,18 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
   const dateData = getDateData()
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Pie Chart - Статусы тикетов */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+    <div className="grid gap-4 sm:gap-6 lg:gap-8 grid-cols-1 xl:grid-cols-2">
+      {/* Pie Chart - Ticket Statuses */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">
           {t('ticketsByStatus')}
           {selectedCompany !== 'all' && (
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-xs sm:text-sm lg:text-base font-normal text-gray-500 ml-1 sm:ml-2">
               ({t(selectedCompany.toLowerCase())})
             </span>
           )}
         </h3>
-        <div className="h-60 sm:h-80 relative">
+        <div className="h-48 sm:h-60 lg:h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -192,17 +192,17 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
         </div>
       </div>
 
-      {/* Line Chart - Тикеты по датам */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+      {/* Line Chart - Tickets by Date */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 lg:p-6">
+        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">
           {t('ticketsByDate')}
           {selectedCompany !== 'all' && (
-            <span className="text-sm font-normal text-gray-500 ml-2">
+            <span className="text-xs sm:text-sm lg:text-base font-normal text-gray-500 ml-1 sm:ml-2">
               ({t(selectedCompany.toLowerCase())})
             </span>
           )}
         </h3>
-        <div className="h-60 sm:h-80 relative">
+        <div className="h-48 sm:h-60 lg:h-80 relative">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={dateData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -223,7 +223,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
                       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
                         <p className="font-semibold text-gray-900">
                           {label}
-                          {data?.isToday && <span className="text-blue-600 ml-2">(Сегодня)</span>}
+                          {data?.isToday && <span className="text-blue-600 ml-2">({t('today')})</span>}
                         </p>
                         <p className="text-sm text-gray-600">
                           {data?.fullDate}

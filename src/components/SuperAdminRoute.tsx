@@ -12,7 +12,7 @@ export default function SuperAdminRoute({ children }: SuperAdminRouteProps) {
   const { user, loading } = useAuth()
   const { t } = useTranslation()
 
-  // Проверяем, является ли пользователь корневым админом
+  // Check if user is root admin
   const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
 
   if (loading) {
