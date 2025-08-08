@@ -46,6 +46,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Проверяем текущую сессию при загрузке
     const checkUser = async () => {
       try {
+        // Сначала проверяем, есть ли customer в sessionStorage
+        const customerData = sessionStorage.getItem('currentCustomer')
+        if (customerData) {
+          const customer = JSON.parse(customerData)
+          console.log('AuthContext - Customer from sessionStorage:', customer)
+          
+          // Создаем объект пользователя для customer
+          const customerUser = {
+            id: customer.id,
+            email: customer.username,
+            created_at: customer.createdAt,
+            user_metadata: {
+              full_name: `${customer.firstName} ${customer.lastName}`,
+              company: customer.companyName,
+              role: 'customer',
+              customerData: customer
+            }
+          }
+          
+          setUser(customerUser as any)
+          setLoading(false)
+          return
+        }
+        
         const currentUser = await getCurrentUser()
         console.log('AuthContext - Current user:', currentUser)
         setUser(currentUser)
@@ -123,6 +147,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await signOut()
       setUser(null)
       setProfile(null)
+      
+      // Очищаем sessionStorage для customers
+      sessionStorage.removeItem('currentCustomer')
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -134,7 +161,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const getUserCompany = () => {
-    if (!user) return ''
+    if (!user) {
+      // Проверяем, есть ли customer в sessionStorage
+      const customerData = sessionStorage.getItem('currentCustomer')
+      if (customerData) {
+        const customer = JSON.parse(customerData)
+        return customer.companyName || ''
+      }
+      return ''
+    }
     return user.user_metadata?.company || profile?.company || ''
   }
 

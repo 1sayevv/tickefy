@@ -30,7 +30,7 @@ export function TicketProvider({ children }: TicketProviderProps) {
       
       // Проверяем роль пользователя
       const isSuperAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin'
-      const isCustomer = user?.user_metadata?.role === 'customer'
+      const isCustomer = user?.user_metadata?.role === 'customer' || !!sessionStorage.getItem('currentCustomer')
       const isRegularUser = user?.user_metadata?.role === 'user'
       
       console.log('🔍 User info:', { 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
+import { authenticateCustomer } from '@/lib/localStorage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import MainLayout from '@/layouts/MainLayout'
@@ -29,6 +30,34 @@ export default function Login() {
       let result
       
       if (isLogin) {
+        // Сначала проверяем, является ли это customer из localStorage
+        const customer = authenticateCustomer(email, password)
+        
+        if (customer) {
+          console.log('✅ Customer authenticated from localStorage:', customer)
+          
+          // Создаем объект пользователя для customer
+          const customerUser = {
+            id: customer.id,
+            email: customer.username, // Используем username как email для совместимости
+            created_at: customer.createdAt,
+            user_metadata: {
+              full_name: `${customer.firstName} ${customer.lastName}`,
+              company: customer.companyName,
+              role: 'customer',
+              customerData: customer // Сохраняем полные данные customer
+            }
+          }
+          
+          // Сохраняем customer в sessionStorage для доступа в приложении
+          sessionStorage.setItem('currentCustomer', JSON.stringify(customer))
+          
+          console.log('🚀 Redirecting customer to dashboard')
+          navigate('/dashboard')
+          return
+        }
+        
+        // Если это не customer, пробуем обычную авторизацию
         result = await signIn(email, password)
         console.log('📝 SignIn result:', result)
       } else {

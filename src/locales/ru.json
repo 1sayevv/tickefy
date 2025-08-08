@@ -148,6 +148,9 @@
     "customerAccessDenied": "Доступ запрещен. Эта страница доступна только для клиентов.",
     "rootAdminAccessDenied": "Доступ запрещен. Эта страница доступна только для корневых администраторов.",
     "customerPanelDescription": "Вы находитесь в панели управления клиента. Здесь вы можете управлять пользователями и тикетами для вашей компании.",
-    "customerPanelTitle": "Панель клиента Tickefy"
+    "customerPanelTitle": "Панель клиента Tickefy",
+    "login": "Логин/Email",
+    "phoneNumber": "Номер телефона",
+    "customerSince": "Клиент с"
   }
 } 

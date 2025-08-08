@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createCustomer } from '@/lib/mockAuth'
+import { saveCustomerToStorage } from '@/lib/localStorage'
 import AdminLayout from '@/layouts/AdminLayout'
 
 export default function CreateCustomer() {
@@ -25,7 +25,7 @@ export default function CreateCustomer() {
     firstName: '',
     lastName: '',
     mobileNumber: '',
-    email: '',
+    login: '',
     position: '',
     username: '',
     password: ''
@@ -50,18 +50,52 @@ export default function CreateCustomer() {
     setLoading(true)
     setError('')
 
+    // Валидация всех полей
+    const requiredFields = {
+      companyName: companyData.name,
+      address: companyData.address,
+      phoneNumber: companyData.phone,
+      customerSince: companyData.clientSince,
+      firstName: customerData.firstName,
+      lastName: customerData.lastName,
+      mobileNumber: customerData.mobileNumber,
+      login: customerData.login,
+      position: customerData.position,
+      username: customerData.username,
+      password: customerData.password
+    }
+
+    // Проверяем, что все поля заполнены
+    const emptyFields = Object.entries(requiredFields)
+      .filter(([key, value]) => !value.trim())
+      .map(([key]) => key)
+
+    if (emptyFields.length > 0) {
+      setError(`Пожалуйста, заполните все обязательные поля: ${emptyFields.join(', ')}`)
+      setLoading(false)
+      return
+    }
+
     try {
-      // Создаем объект клиента
+      // Создаем объект клиента согласно требованиям
       const customerDataToSubmit = {
-        name: `${customerData.firstName} ${customerData.lastName}`,
-        email: customerData.email,
-        password: customerData.password,
-        phone: customerData.mobileNumber,
-        company: companyData.name,
-        status: 'active' as 'active' | 'inactive'
+        companyName: companyData.name,
+        address: companyData.address,
+        phoneNumber: companyData.phone,
+        customerSince: companyData.clientSince,
+        firstName: customerData.firstName,
+        lastName: customerData.lastName,
+        mobileNumber: customerData.mobileNumber,
+        login: customerData.login,
+        position: customerData.position,
+        username: customerData.username,
+        password: customerData.password
       }
 
-      await createCustomer(customerDataToSubmit)
+      // Сохраняем в localStorage
+      const savedCustomer = saveCustomerToStorage(customerDataToSubmit)
+      
+      console.log('✅ Customer created and saved:', savedCustomer)
       
       // Показываем уведомление об успехе
       showNotification('success', t('customerCreated'))
@@ -234,14 +268,14 @@ export default function CreateCustomer() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                    {t('email')} *
+                  <label htmlFor="login" className="block text-sm font-medium text-foreground mb-2">
+                    {t('login')} *
                   </label>
                   <input
-                    id="email"
+                    id="login"
                     type="email"
-                    value={customerData.email}
-                    onChange={(e) => handleCustomerChange('email', e.target.value)}
+                    value={customerData.login}
+                    onChange={(e) => handleCustomerChange('login', e.target.value)}
                     className="w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                     placeholder="admin@company.com"
                     required

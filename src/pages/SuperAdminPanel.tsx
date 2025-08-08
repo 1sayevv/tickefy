@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { getCustomers, updateCustomer, deleteCustomer, Customer } from '@/lib/mockAuth'
+import { getCustomersFromStorage, updateCustomerInStorage, deleteCustomerFromStorage, CustomerData } from '@/lib/localStorage'
 import { decryptPassword } from '@/lib/encryption'
 import { Edit, Trash2, Plus, UserCheck, UserX, CheckCircle, AlertCircle } from 'lucide-react'
 import AdminLayout from '@/layouts/AdminLayout'
@@ -14,10 +15,10 @@ export default function SuperAdminPanel() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [customers, setCustomers] = useState<Customer[]>([])
+  const [customers, setCustomers] = useState<(Customer | CustomerData)[]>([])
   const [loading, setLoading] = useState(true)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [editingCustomer, setEditingCustomer] = useState<Customer | CustomerData | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,8 +57,23 @@ export default function SuperAdminPanel() {
   const loadCustomers = async () => {
     try {
       setLoading(true)
-      const customersData = await getCustomers()
-      setCustomers(customersData)
+      
+      // Загружаем customers из mockAuth (старые)
+      const mockCustomers = await getCustomers()
+      
+      // Загружаем customers из localStorage (новые)
+      const localStorageCustomers = getCustomersFromStorage()
+      
+      // Объединяем все customers
+      const allCustomers = [...mockCustomers, ...localStorageCustomers]
+      
+      console.log('📊 Loaded customers:', {
+        mock: mockCustomers.length,
+        localStorage: localStorageCustomers.length,
+        total: allCustomers.length
+      })
+      
+      setCustomers(allCustomers)
     } catch (error) {
       console.error('Error loading customers:', error)
     } finally {
@@ -72,7 +88,28 @@ export default function SuperAdminPanel() {
     if (!editingCustomer) return
     
     try {
-      await updateCustomer(editingCustomer.id, formData)
+      // Проверяем, является ли это customer из localStorage
+      const isLocalStorageCustomer = 'companyName' in editingCustomer
+      
+      if (isLocalStorageCustomer) {
+        // Обновляем customer в localStorage
+        const updatedCustomer = updateCustomerInStorage(editingCustomer.id, {
+          companyName: formData.company,
+          firstName: formData.name.split(' ')[0] || '',
+          lastName: formData.name.split(' ')[1] || '',
+          mobileNumber: formData.phone,
+          username: formData.email,
+          password: formData.password
+        })
+        
+        if (!updatedCustomer) {
+          throw new Error('Failed to update customer in localStorage')
+        }
+      } else {
+        // Обновляем customer в mockAuth
+        await updateCustomer(editingCustomer.id, formData)
+      }
+      
       setIsEditModalOpen(false)
       setEditingCustomer(null)
       setFormData({ name: '', email: '', password: '', phone: '', company: '', status: 'active' })
@@ -96,7 +133,20 @@ export default function SuperAdminPanel() {
     if (!deleteConfirmModal.customerId) return
     
     try {
-      await deleteCustomer(deleteConfirmModal.customerId)
+      // Находим customer для определения его типа
+      const customer = customers.find(c => c.id === deleteConfirmModal.customerId)
+      
+      if (customer && 'companyName' in customer) {
+        // Удаляем customer из localStorage
+        const success = deleteCustomerFromStorage(deleteConfirmModal.customerId)
+        if (!success) {
+          throw new Error('Failed to delete customer from localStorage')
+        }
+      } else {
+        // Удаляем customer из mockAuth
+        await deleteCustomer(deleteConfirmModal.customerId)
+      }
+      
       setDeleteConfirmModal({ show: false, customerId: null, customerName: '' })
       loadCustomers()
       showNotification('success', '✅ Customer deleted')
@@ -118,16 +168,32 @@ export default function SuperAdminPanel() {
     }
   }
 
-  const openEditModal = (customer: Customer) => {
+  const openEditModal = (customer: Customer | CustomerData) => {
     setEditingCustomer(customer)
-    setFormData({
-      name: customer.name,
-      email: customer.email,
-      password: decryptPassword(customer.password),
-      phone: customer.phone,
-      company: customer.company,
-      status: customer.status
-    })
+    
+    // Определяем тип customer и заполняем форму соответствующими данными
+    const isLocalStorageCustomer = 'companyName' in customer
+    
+    if (isLocalStorageCustomer) {
+      setFormData({
+        name: `${customer.firstName} ${customer.lastName}`,
+        email: customer.username,
+        password: customer.password, // localStorage customers не шифруют пароли
+        phone: customer.mobileNumber,
+        company: customer.companyName,
+        status: 'active' as 'active' | 'inactive'
+      })
+    } else {
+      setFormData({
+        name: customer.name,
+        email: customer.email,
+        password: decryptPassword(customer.password),
+        phone: customer.phone,
+        company: customer.company,
+        status: customer.status
+      })
+    }
+    
     setIsEditModalOpen(true)
   }
 
@@ -222,24 +288,52 @@ export default function SuperAdminPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {customers.map((customer) => (
-                      <tr key={customer.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4">{customer.name}</td>
-                        <td className="py-3 px-4">{customer.email}</td>
-                        <td className="py-3 px-4">{customer.phone}</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                            {customer.company}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(customer.status)}`}>
-                            {customer.status === 'active' ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-600">
-                          {formatDate(customer.created_at)}
-                        </td>
+                    {customers.map((customer) => {
+                      // Определяем тип customer и извлекаем данные
+                      const isLocalStorageCustomer = 'companyName' in customer
+                      
+                      const customerName = isLocalStorageCustomer 
+                        ? `${customer.firstName} ${customer.lastName}`
+                        : customer.name
+                      
+                      const customerEmail = isLocalStorageCustomer 
+                        ? customer.username
+                        : customer.email
+                      
+                      const customerPhone = isLocalStorageCustomer 
+                        ? customer.mobileNumber
+                        : customer.phone
+                      
+                      const customerCompany = isLocalStorageCustomer 
+                        ? customer.companyName
+                        : customer.company
+                      
+                      const customerStatus = isLocalStorageCustomer 
+                        ? 'active' // localStorage customers всегда активны
+                        : customer.status
+                      
+                      const customerCreatedAt = isLocalStorageCustomer 
+                        ? customer.createdAt
+                        : customer.created_at
+                      
+                      return (
+                        <tr key={customer.id} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4">{customerName}</td>
+                          <td className="py-3 px-4">{customerEmail}</td>
+                          <td className="py-3 px-4">{customerPhone}</td>
+                          <td className="py-3 px-4">
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                              {customerCompany}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 text-xs rounded border ${getStatusColor(customerStatus)}`}>
+                              {customerStatus === 'active' ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-sm text-gray-600">
+                            {formatDate(customerCreatedAt)}
+                          </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
                             <Button
@@ -252,15 +346,15 @@ export default function SuperAdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleToggleStatus(customer)}
-                              className={customer.status === 'active' ? 'text-red-600' : 'text-green-600'}
+                              onClick={() => handleToggleStatus(customer as Customer)}
+                              className={customerStatus === 'active' ? 'text-red-600' : 'text-green-600'}
                             >
-                              {customer.status === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                              {customerStatus === 'active' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleDeleteCustomer(customer.id, customer.name)}
+                              onClick={() => handleDeleteCustomer(customer.id, customerName)}
                               className="text-red-600"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -268,7 +362,8 @@ export default function SuperAdminPanel() {
                           </div>
                         </td>
                       </tr>
-                    ))}
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

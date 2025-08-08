@@ -156,6 +156,9 @@
     "customerAccessDenied": "Access denied. This page is only available to customers.",
     "rootAdminAccessDenied": "Access denied. This page is only available to root administrators.",
     "customerPanelDescription": "You are in the customer management panel. Here you can manage users and tickets for your company.",
-    "customerPanelTitle": "Tickefy Customer Panel"
+    "customerPanelTitle": "Tickefy Customer Panel",
+    "login": "Login/Email",
+    "phoneNumber": "Phone Number",
+    "customerSince": "Customer Since"
   }
 } 
