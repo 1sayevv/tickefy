@@ -47,26 +47,16 @@ export function TicketProvider({ children }: TicketProviderProps) {
         allTickets = await getAllTickets()
       } else if (isCustomer || isRegularUser) {
         // Customer и Regular User видят только тикеты своей компании
-        try {
-          const storageTickets = await getTicketsFromStorage()
-          console.log('📦 Tickets loaded from localStorage:', storageTickets.length)
-          
-          const company = getUserCompany()
-          if (company) {
-            allTickets = storageTickets.filter((ticket: any) => ticket.company === company) as Ticket[]
-            console.log(`🔍 Filtered tickets for company "${company}":`, allTickets.length)
-          } else {
-            allTickets = []
-          }
-        } catch (error) {
-          console.log('❌ localStorage failed, falling back to mock storage')
-          
-          const company = getUserCompany()
-          if (company) {
-            allTickets = await getTicketsByCompany(company)
-          } else {
-            allTickets = []
-          }
+        const company = getUserCompany()
+        console.log(`🔍 Loading tickets for ${isCustomer ? 'customer' : 'regular user'} from company:`, company)
+        
+        if (company) {
+          // Используем mock данные напрямую для customers и regular users
+          allTickets = await getTicketsByCompany(company)
+          console.log(`✅ Loaded ${allTickets.length} tickets for company "${company}"`)
+        } else {
+          console.log('⚠️ No company found for user, showing empty tickets')
+          allTickets = []
         }
       } else {
         // Fallback для других ролей

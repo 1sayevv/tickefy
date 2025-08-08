@@ -50,10 +50,21 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
   const { t } = useTranslation()
   const { tickets } = useTickets()
 
+  console.log('📊 AdminCharts - All tickets from context:', tickets.length)
+  console.log('📊 AdminCharts - Selected company:', selectedCompany)
+  console.log('📊 AdminCharts - Sample tickets:', tickets.slice(0, 3).map(t => ({ 
+    id: t.id, 
+    company: t.company, 
+    status: t.status,
+    createdAt: t.createdAt 
+  })))
+
   // Фильтруем тикеты по выбранной компании
   const filteredTickets = selectedCompany === 'all' 
     ? tickets 
     : tickets.filter(ticket => ticket.company === selectedCompany)
+
+  console.log('📊 AdminCharts - Filtered tickets:', filteredTickets.length)
 
   // Подготовка данных для Pie Chart (статусы тикетов)
   const getStatusData = () => {
