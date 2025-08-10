@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -10,6 +11,7 @@ import TestImage from './TestImage'
 
 export default function AdminTicketTable() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { tickets, loading, updateTicketStatus } = useTickets()
   const { user } = useAuth()
   const [filteredTickets, setFilteredTickets] = useState(tickets)
@@ -87,6 +89,10 @@ export default function AdminTicketTable() {
   const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl)
     setIsImageModalOpen(true)
+  }
+
+  const handleViewHistory = (ticket: any) => {
+    navigate(`/ticket/${ticket.id}/history`)
   }
 
   const hasValidImage = (imageUrl: string) => {
@@ -183,12 +189,13 @@ export default function AdminTicketTable() {
                 <TableHead className="w-24 sm:w-32 text-xs sm:text-sm">{t('status')}</TableHead>
                 <TableHead className="w-32 sm:w-40 text-xs sm:text-sm">{t('date')}</TableHead>
                 <TableHead className="w-32 sm:w-40 text-xs sm:text-sm">{t('changeStatus')}</TableHead>
+                <TableHead className="w-24 sm:w-32 text-xs sm:text-sm">{t('actions')}</TableHead>
               </TableRow>
             </TableHeader>
           <TableBody>
             {filteredTickets.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   {t('noTicketsMatchingFilters')}
                 </TableCell>
               </TableRow>
@@ -238,6 +245,16 @@ export default function AdminTicketTable() {
                       <option value="in progress">{t('inProgress')}</option>
                       <option value="done">{t('done')}</option>
                     </select>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleViewHistory(ticket)}
+                      className="text-xs"
+                    >
+                      {t('viewHistory')}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))

@@ -1,3 +1,12 @@
+export interface TicketHistory {
+  id: string
+  action: string
+  status: string
+  timestamp: string
+  user: string
+  comment?: string
+}
+
 export interface Ticket {
   id: string
   title: string
@@ -7,6 +16,8 @@ export interface Ticket {
   image: string
   createdAt: string
   user_email: string
+  history?: TicketHistory[]
+  isDeactivated?: boolean // New field to track if ticket is deactivated
 }
 
 // Глобальный массив тикетов
@@ -20,7 +31,25 @@ let mockTickets: Ticket[] = [
     status: "in progress",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=1",
     createdAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), // 13 days ago
-    user_email: "user1"
+    user_email: "user1",
+    history: [
+      {
+        id: "1-1",
+        action: "created",
+        status: "open",
+        timestamp: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(),
+        user: "user1",
+        comment: "Initial ticket creation"
+      },
+      {
+        id: "1-2",
+        action: "status_changed",
+        status: "in progress",
+        timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        user: "admin",
+        comment: "Started working on design updates"
+      }
+    ]
   },
   {
     id: "2",
@@ -40,7 +69,33 @@ let mockTickets: Ticket[] = [
     status: "done",
     image: "https://httpbin.org/image/png?width=400&height=300&seed=3",
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-    user_email: "user1"
+    user_email: "user1",
+    history: [
+      {
+        id: "3-1",
+        action: "created",
+        status: "open",
+        timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        user: "user1",
+        comment: "Performance optimization needed"
+      },
+      {
+        id: "3-2",
+        action: "status_changed",
+        status: "in progress",
+        timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        user: "admin",
+        comment: "Started image optimization implementation"
+      },
+      {
+        id: "3-3",
+        action: "status_changed",
+        status: "done",
+        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        user: "admin",
+        comment: "Image optimization completed successfully"
+      }
+    ]
   },
   {
     id: "4",

@@ -3,7 +3,7 @@ import AdminLayout from '@/layouts/AdminLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
-import { getRegularUsersByCompany, deleteRegularUserFromStorage, type RegularUserData } from '@/lib/localStorage'
+import { getRegularUsersByCompany, deleteRegularUserFromStorage, migrateCustomerManagers, getRegularUsersFromStorage, type RegularUserData } from '@/lib/localStorage'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -16,10 +16,36 @@ export default function ManageUsers() {
 
   const load = () => {
     setLoading(true)
+    
+    // Run migration first to update existing users
+    console.log('🔧 Running customer manager migration...')
+    migrateCustomerManagers()
+    
     const company = getUserCompany()
     console.log('🔍 Loading users for company:', company)
+    
+    // Debug: Get all users first to see what's in storage
+    const allUsers = getRegularUsersFromStorage()
+    console.log('🔍 All users in storage:', allUsers.map(u => ({
+      id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      username: u.username,
+      email: u.email,
+      companyName: u.companyName,
+      isCustomerManager: u.isCustomerManager
+    })))
+    
     const data = getRegularUsersByCompany(company)
-    console.log('🔍 Loaded users:', data)
+    console.log('🔍 Filtered users for company:', data.map(u => ({
+      id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      username: u.username,
+      email: u.email,
+      companyName: u.companyName,
+      isCustomerManager: u.isCustomerManager
+    })))
     setUsers(data)
     setLoading(false)
   }
@@ -34,22 +60,35 @@ export default function ManageUsers() {
 
   return (
     <AdminLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full">
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">{t('manageUsers')}</h1>
               <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">{t('usersOfCompany')}</p>
             </div>
-            <Button 
-              onClick={() => navigate('/users/create')}
-              className="w-full sm:w-auto"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              {t('createUser')}
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => {
+                  console.log('🔧 Manual migration triggered')
+                  migrateCustomerManagers()
+                  load()
+                }}
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                🔧 Migrate Users
+              </Button>
+              <Button 
+                onClick={() => navigate('/users/create')}
+                className="w-full sm:w-auto"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {t('createUser')}
+              </Button>
+            </div>
           </div>
         </div>
 

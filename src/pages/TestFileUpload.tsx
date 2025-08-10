@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { uploadImageToVercel } from '@/lib/vercelStorage'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function TestFileUpload() {
+  const { showSuccess, showError } = useToast()
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -13,13 +15,13 @@ export default function TestFileUpload() {
 
     // Check if it's an image
     if (!selectedFile.type.startsWith('image/')) {
-      alert('Please select an image file')
+      showError('Invalid File', 'Please select an image file')
       return
     }
 
     // Check file size (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
-      alert('File size should not exceed 5MB')
+      showError('File Too Large', 'File size should not exceed 5MB')
       return
     }
 
@@ -40,10 +42,10 @@ export default function TestFileUpload() {
     try {
       const url = await uploadImageToVercel(file)
       setUploadedUrl(url)
-      alert('File uploaded successfully!')
+      showSuccess('Success!', 'File uploaded successfully!')
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Upload failed')
+      showError('Upload Failed', 'Failed to upload file')
     } finally {
       setUploading(false)
     }

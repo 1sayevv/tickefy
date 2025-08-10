@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import MainLayout from '@/layouts/MainLayout'
+import AdminLayout from '@/layouts/AdminLayout'
+import CustomerManagerLayout from '@/layouts/CustomerManagerLayout'
+import { getRegularUsersFromStorage } from '@/lib/localStorage'
 import { Link } from 'react-router-dom'
 
 interface UserProfile {
@@ -29,6 +32,46 @@ export default function Profile() {
   const { user, getUserDisplayName, getUserCompany } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Determine which layout to use based on user role
+  const getLayout = () => {
+    if (!user) return MainLayout
+    
+    const userRole = user.user_metadata?.role
+    const isSuperAdmin = user?.email === 'admin' || userRole === 'super_admin'
+    const isCustomer = userRole === 'customer'
+    
+    // Check if user is a customer manager by looking in localStorage
+    const allUsers = getRegularUsersFromStorage()
+    const isCustomerManager = allUsers.some(manager => 
+      (manager.username === user.email || manager.email === user.email) && 
+      manager.isCustomerManager === true
+    )
+    
+    if (isSuperAdmin || isCustomer) {
+      return AdminLayout
+    } else if (isCustomerManager) {
+      return CustomerManagerLayout
+    } else {
+      return MainLayout
+    }
+  }
+
+  const Layout = getLayout()
+  
+  console.log('🔍 Profile - Layout selected:', Layout.name)
+  console.log('🔍 Profile - User email:', user?.email)
+  console.log('🔍 Profile - User role:', user?.user_metadata?.role)
+  
+  // Debug customer manager detection
+  if (user) {
+    const allUsers = getRegularUsersFromStorage()
+    const isCustomerManager = allUsers.some(manager => 
+      manager.username === user.email || manager.email === user.email
+    )
+    console.log('🔍 Profile - Is customer manager:', isCustomerManager)
+    console.log('🔍 Profile - All users:', allUsers.map(u => ({ username: u.username, email: u.email, isCustomerManager: u.isCustomerManager })))
+  }
 
   useEffect(() => {
     const loadProfile = () => {
@@ -141,8 +184,8 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <MainLayout>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Layout>
+        <div className="w-full">
           <div className="flex items-center justify-center py-12 sm:py-16">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-gray-900 mx-auto"></div>
@@ -150,29 +193,29 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      </MainLayout>
+      </Layout>
     )
   }
 
   if (!profile) {
     return (
-      <MainLayout>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Layout>
+        <div className="w-full">
           <div className="text-center py-12 sm:py-16">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Profile Not Found</h1>
             <p className="text-gray-600 mb-6">Unable to load profile information.</p>
             <Button asChild>
-              <Link to="/dashboard">Back to Dashboard</Link>
+              <Link to={user?.user_metadata?.role === 'customer_manager' ? '/customer-manager/dashboard' : '/admin'}>Back to Dashboard</Link>
             </Button>
           </div>
         </div>
-      </MainLayout>
+      </Layout>
     )
   }
 
   return (
-    <MainLayout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Layout>
+      <div className="w-full">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -189,7 +232,7 @@ export default function Profile() {
                 {profile.companyName}
               </Badge>
               <Button asChild variant="outline">
-                <Link to="/dashboard">
+                <Link to={user?.user_metadata?.role === 'customer_manager' ? '/customer-manager/dashboard' : '/admin'}>
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
@@ -200,49 +243,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Profile Card */}
-          <div className="lg:col-span-1">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-4">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-2xl sm:text-3xl lg:text-4xl">
-                    {profile.firstName.charAt(0)}{profile.lastName.charAt(0)}
-                  </span>
-                </div>
-                <CardTitle className="text-lg sm:text-xl lg:text-2xl">
-                  {profile.firstName} {profile.lastName}
-                </CardTitle>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  {profile.position || t('noPosition')}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-center space-x-2">
-                  <Badge className={`text-xs sm:text-sm ${getRoleColor(profile.role)}`}>
-                    {getRoleDisplayName(profile.role)}
-                  </Badge>
-                  {profile.status && (
-                    <Badge className={`text-xs sm:text-sm ${getStatusColor(profile.status)}`}>
-                      {profile.status === 'active' ? t('active') : t('inactive')}
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="text-center">
-                  <p className="text-sm sm:text-base text-muted-foreground">
-                    {t('memberSince')}
-                  </p>
-                  <p className="text-sm sm:text-base font-medium">
-                    {new Date(profile.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Profile Details */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
             {/* Personal Information */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -418,9 +419,8 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
-          </div>
         </div>
       </div>
-    </MainLayout>
+    </Layout>
   )
 } 

@@ -20,7 +20,7 @@ export default function AdminTickets() {
 
   return (
     <AdminLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full">
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('allTickets')}</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">

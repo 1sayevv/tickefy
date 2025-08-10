@@ -7,6 +7,8 @@ interface TicketContextType {
   tickets: Ticket[]
   loading: boolean
   updateTicketStatus: (ticketId: string, newStatus: Ticket['status']) => void
+  deactivateTicket: (ticketId: string) => void
+  activateTicket: (ticketId: string) => void
   refreshTickets: () => Promise<void>
   getStatusCount: (status: Ticket['status']) => number
   getTotalCount: () => number
@@ -169,7 +171,69 @@ export function TicketProvider({ children }: TicketProviderProps) {
     setTickets(prevTickets =>
       prevTickets.map(ticket =>
         ticket.id === ticketId
-          ? { ...ticket, status: newStatus }
+          ? { 
+              ...ticket, 
+              status: newStatus,
+              history: [
+                ...(ticket.history || []),
+                {
+                  id: `${ticketId}-${Date.now()}`,
+                  action: 'status_changed',
+                  status: newStatus,
+                  timestamp: new Date().toISOString(),
+                  user: user?.email || 'admin',
+                  comment: `Status changed to ${newStatus}`
+                }
+              ]
+            }
+          : ticket
+      )
+    )
+  }
+
+  const deactivateTicket = (ticketId: string) => {
+    setTickets(prevTickets =>
+      prevTickets.map(ticket =>
+        ticket.id === ticketId
+          ? { 
+              ...ticket, 
+              isDeactivated: true,
+              history: [
+                ...(ticket.history || []),
+                {
+                  id: `${ticketId}-${Date.now()}`,
+                  action: 'deactivated',
+                  status: ticket.status,
+                  timestamp: new Date().toISOString(),
+                  user: user?.email || 'customer',
+                  comment: 'Ticket deactivated by customer'
+                }
+              ]
+            }
+          : ticket
+      )
+    )
+  }
+
+  const activateTicket = (ticketId: string) => {
+    setTickets(prevTickets =>
+      prevTickets.map(ticket =>
+        ticket.id === ticketId
+          ? { 
+              ...ticket, 
+              isDeactivated: false,
+              history: [
+                ...(ticket.history || []),
+                {
+                  id: `${ticketId}-${Date.now()}`,
+                  action: 'activated',
+                  status: ticket.status,
+                  timestamp: new Date().toISOString(),
+                  user: user?.email || 'customer',
+                  comment: 'Ticket activated by customer'
+                }
+              ]
+            }
           : ticket
       )
     )
@@ -192,6 +256,8 @@ export function TicketProvider({ children }: TicketProviderProps) {
     tickets,
     loading,
     updateTicketStatus,
+    deactivateTicket,
+    activateTicket,
     refreshTickets,
     getStatusCount,
     getTotalCount

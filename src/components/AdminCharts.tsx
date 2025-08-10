@@ -144,7 +144,7 @@ export default function AdminCharts({ selectedCompany }: AdminChartsProps) {
   const dateData = getDateData()
 
   return (
-    <div className="grid gap-4 sm:gap-6 lg:gap-8 grid-cols-1 xl:grid-cols-2">
+    <div className="space-y-4 sm:space-y-6">
       {/* Pie Chart - Ticket Statuses */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 lg:p-6">
         <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">

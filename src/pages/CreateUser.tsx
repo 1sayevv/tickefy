@@ -36,7 +36,7 @@ export default function CreateUser() {
 
   return (
     <AdminLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold">{t('createUser')}</h1>
         </div>

@@ -18,7 +18,7 @@ export default function CreateTicket() {
 
   return (
     <MainLayout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="w-full py-4 sm:py-6 lg:py-8">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('createTicket')}</h1>
           <p className="text-muted-foreground mt-2 text-sm sm:text-base">{t('createTicketDescription')}</p>

@@ -2,7 +2,12 @@ import { useTranslation } from 'react-i18next'
 import { Ticket } from '@/lib/mockTickets'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import TestImage from './TestImage'
+import { useAuth } from '@/contexts/AuthContext'
+import { useTickets } from '@/contexts/TicketContext'
+import { useNavigate } from 'react-router-dom'
+import { getRegularUsersFromStorage } from '@/lib/localStorage'
 
 interface TicketCardProps {
   ticket: Ticket
@@ -62,6 +67,22 @@ const hasValidImage = (imageUrl: string) => {
 
 export default function TicketCard({ ticket }: TicketCardProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const { deactivateTicket, activateTicket } = useTickets()
+  const navigate = useNavigate()
+  
+  // Check if user is admin (root admin or customer)
+  const isAdmin = user?.email === 'admin' || user?.user_metadata?.role === 'super_admin' || user?.user_metadata?.role === 'customer'
+  
+  // Check if user is a customer manager
+  const allUsers = getRegularUsersFromStorage()
+  const isCustomerManager = allUsers.some(manager => 
+    (manager.username === user?.email || manager.email === user?.email) && 
+    manager.isCustomerManager === true
+  )
+  
+  // Check if user is a customer (not customer manager)
+  const isCustomer = user?.user_metadata?.role === 'customer' && !isCustomerManager
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
@@ -74,7 +95,8 @@ export default function TicketCard({ ticket }: TicketCardProps) {
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+    <>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <CardTitle className="text-sm sm:text-lg font-semibold line-clamp-2 flex-1 mr-2">
@@ -84,6 +106,11 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             <Badge className={`text-xs ${getStatusColor(ticket.status)}`}>
               {t(getStatusText(ticket.status))}
             </Badge>
+            {ticket.isDeactivated && (
+              <Badge className="text-xs bg-red-100 text-red-800">
+                Deactivated
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -114,11 +141,94 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                 <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                   #{ticket.id}
                 </span>
+                {isAdmin && ticket.history && ticket.history.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/ticket/${ticket.id}/history`)
+                    }}
+                    className="text-xs"
+                  >
+                    {t('viewHistory')}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
         </div>
+        
+                {/* Action Buttons */}
+        <div className="mt-4 flex gap-2">
+          {/* Customer Manager Actions - Can change status */}
+          {isCustomerManager && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate(`/ticket/${ticket.id}/history`)
+                }}
+                className="text-xs"
+              >
+                {t('viewHistory')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Navigate to status change page or open modal
+                  navigate(`/ticket/${ticket.id}/edit`)
+                }}
+                className="text-xs"
+              >
+                Change Status
+              </Button>
+            </div>
+          )}
+          
+          {/* Customer Actions - Can only deactivate/activate open tickets */}
+          {isCustomer && (
+            <div className="flex gap-2">
+              {ticket.status === 'open' && !ticket.isDeactivated && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    deactivateTicket(ticket.id)
+                  }}
+                  className="text-xs"
+                >
+                  Deactivate
+                </Button>
+              )}
+              {ticket.status === 'open' && ticket.isDeactivated && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    activateTicket(ticket.id)
+                  }}
+                  className="text-xs"
+                >
+                  Activate
+                </Button>
+              )}
+              {ticket.status !== 'open' && (
+                <span className="text-xs text-muted-foreground px-2 py-1">
+                  Cannot deactivate non-open tickets
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
+    </>
   )
 } 

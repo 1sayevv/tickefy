@@ -179,6 +179,22 @@
     "regularUserAccount": "Аккаунт обычного пользователя",
     "adminAccount": "Аккаунт администратора",
     "rootAdminAccount": "Аккаунт главного администратора",
-    "backToDashboard": "Вернуться к панели"
+    "backToDashboard": "Вернуться к панели",
+    "ticketHistory": "История тикета",
+    "ticketCreated": "Тикет создан",
+    "statusChanged": "Статус изменен",
+    "commentAdded": "Комментарий добавлен",
+    "noHistoryAvailable": "История для этого тикета недоступна",
+    "viewHistory": "Просмотр истории",
+    "actions": "Действия",
+    "ticketDetails": "Детали тикета",
+    "completed": "Завершен",
+    "deactivate": "Деактивировать",
+    "activate": "Активировать",
+    "changeStatus": "Изменить статус",
+    "editTicket": "Редактировать тикет",
+    "updateStatus": "Обновить статус",
+    "cannotDeactivateNonOpen": "Нельзя деактивировать неоткрытые тикеты",
+    "deactivated": "Деактивирован"
   }
 } 

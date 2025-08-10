@@ -17,16 +17,6 @@ export default function SuperAdminPanel() {
   const { user } = useAuth()
   const [customers, setCustomers] = useState<(Customer | CustomerData)[]>([])
   const [loading, setLoading] = useState(true)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingCustomer, setEditingCustomer] = useState<Customer | CustomerData | null>(null)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    company: '',
-    status: 'active' as 'active' | 'inactive'
-  })
 
   // Состояния для уведомлений
   const [notification, setNotification] = useState<{
@@ -93,44 +83,7 @@ export default function SuperAdminPanel() {
 
 
 
-  const handleEditCustomer = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!editingCustomer) return
-    
-    try {
-              // Check if this is a customer from localStorage
-      const isLocalStorageCustomer = 'companyName' in editingCustomer
-      
-      if (isLocalStorageCustomer) {
-        // Обновляем customer в localStorage
-        const updatedCustomer = updateCustomerInStorage(editingCustomer.id, {
-          companyName: formData.company,
-          firstName: formData.name.split(' ')[0] || '',
-          lastName: formData.name.split(' ')[1] || '',
-          mobileNumber: formData.phone,
-          login: formData.email, // Обновляем login (email)
-          username: (editingCustomer as CustomerData).username, // Оставляем username без изменений
-          password: formData.password
-        })
-        
-        if (!updatedCustomer) {
-          throw new Error('Failed to update customer in localStorage')
-        }
-      } else {
-        // Обновляем customer в mockAuth
-        await updateCustomer(editingCustomer.id, formData)
-      }
-      
-      setIsEditModalOpen(false)
-      setEditingCustomer(null)
-      setFormData({ name: '', email: '', password: '', phone: '', company: '', status: 'active' })
-      loadCustomers()
-      showNotification('success', '✅ Changes saved')
-    } catch (error) {
-      console.error('Error updating customer:', error)
-      showNotification('error', '❌ Error saving changes')
-    }
-  }
+
 
   const handleDeleteCustomer = async (id: string, name: string) => {
     setDeleteConfirmModal({
@@ -179,34 +132,7 @@ export default function SuperAdminPanel() {
     }
   }
 
-  const openEditModal = (customer: Customer | CustomerData) => {
-    setEditingCustomer(customer)
-    
-    // Определяем тип customer и заполняем форму соответствующими данными
-    const isLocalStorageCustomer = 'companyName' in customer
-    
-    if (isLocalStorageCustomer) {
-      setFormData({
-        name: `${customer.firstName} ${customer.lastName}`,
-        email: customer.login, // Используем login как email
-        password: customer.password, // localStorage customers не шифруют пароли
-        phone: customer.mobileNumber,
-        company: customer.companyName,
-        status: 'active' as 'active' | 'inactive'
-      })
-    } else {
-      setFormData({
-        name: customer.name,
-        email: customer.email,
-        password: decryptPassword(customer.password),
-        phone: customer.phone,
-        company: customer.company,
-        status: customer.status
-      })
-    }
-    
-    setIsEditModalOpen(true)
-  }
+
 
 
 
@@ -235,7 +161,7 @@ export default function SuperAdminPanel() {
 
   return (
     <AdminLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Manage Customers</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
@@ -243,7 +169,7 @@ export default function SuperAdminPanel() {
           </p>
         </div>
 
-        <div className="mb-4 sm:mb-6 flex gap-2">
+        <div className="mb-4 sm:mb-6 flex gap-2 flex-wrap">
           <Button 
             className="flex items-center gap-2 w-full sm:w-auto"
             onClick={() => navigate('/customers/create')}
@@ -252,6 +178,8 @@ export default function SuperAdminPanel() {
             <span className="hidden sm:inline">Create Customer</span>
             <span className="sm:hidden">Create</span>
           </Button>
+          
+
           
           <Button 
             variant="outline"
@@ -268,6 +196,20 @@ export default function SuperAdminPanel() {
             }}
           >
             Test Customer
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={() => {
+              if (typeof window !== 'undefined' && (window as any).debugMockAuth) {
+                (window as any).debugMockAuth()
+                showNotification('info', 'Check console for mockAuth debug info')
+              } else {
+                showNotification('error', 'Debug function not available')
+              }
+            }}
+          >
+            Debug MockAuth
           </Button>
         </div>
 
@@ -372,7 +314,7 @@ export default function SuperAdminPanel() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => openEditModal(customer)}
+                              onClick={() => navigate(`/customers/${customer.id}/edit`)}
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -404,85 +346,7 @@ export default function SuperAdminPanel() {
           </CardContent>
         </Card>
 
-        {/* Модальное окно редактирования */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-md w-[95vw] sm:w-full">
-            <DialogHeader>
-              <DialogTitle>Edit Customer</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleEditCustomer} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Password</label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                                      placeholder="+994 (50) 123-45-67"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Company</label>
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Save
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+
 
         {/* Модальное окно подтверждения удаления */}
         <Dialog open={deleteConfirmModal.show} onOpenChange={(open) => !open && setDeleteConfirmModal(prev => ({ ...prev, show: false }))}>

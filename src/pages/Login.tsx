@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { authenticateCustomer, authenticateRegularUser, debugCustomers, debugRegularUsers } from '@/lib/localStorage'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import MainLayout from '@/layouts/MainLayout'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -176,115 +175,111 @@ export default function Login() {
   }
 
   return (
-    <MainLayout>
-      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="max-w-md w-full space-y-6 sm:space-y-8">
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
-              {isLogin ? t('loginToSystem') : t('registration')}
-            </h2>
-            <p className="mt-2 text-sm sm:text-base text-muted-foreground">
-              {isLogin ? t('loginToAccount') : t('createNewAccount')}
-            </p>
-          </div>
-
-
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="text-center text-lg sm:text-xl lg:text-2xl">
-                {isLogin ? t('systemLogin') : t('registration')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                {!isLogin && (
-                  <>
-                    <div>
-                      <label htmlFor="fullName" className="block text-sm sm:text-base font-medium text-foreground">
-                        {t('fullName')}
-                      </label>
-                      <input
-                        id="fullName"
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
-                        required={!isLogin}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="company" className="block text-sm sm:text-base font-medium text-foreground">
-                        {t('companyName')}
-                      </label>
-                      <input
-                        id="company"
-                        type="text"
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
-                        required={!isLogin}
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label htmlFor="email" className="block text-sm sm:text-base font-medium text-foreground">
-                    {t('email')}
-                  </label>
-                  <input
-                    id="email"
-                    type="text"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="block text-sm sm:text-base font-medium text-foreground">
-                    {t('password')}
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-red-600 text-sm sm:text-base bg-red-50 p-3 sm:p-4 rounded-md">
-                    {error}
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  className="w-full py-2 sm:py-3 text-sm sm:text-base"
-                  disabled={loading}
-                >
-                  {loading ? t('loading') : (isLogin ? t('login') : t('register'))}
-                </Button>
-              </form>
-
-              <div className="mt-6 sm:mt-8 text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm sm:text-base text-primary hover:text-primary/80 transition-colors"
-                >
-                  {isLogin ? t('noAccountRegister') : t('haveAccountLogin')}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            {isLogin ? t('loginToSystem') : t('registration')}
+          </h2>
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+            {isLogin ? t('loginToAccount') : t('createNewAccount')}
+          </p>
         </div>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-center text-lg sm:text-xl lg:text-2xl">
+              {isLogin ? t('systemLogin') : t('registration')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              {!isLogin && (
+                <>
+                  <div>
+                    <label htmlFor="fullName" className="block text-sm sm:text-base font-medium text-foreground">
+                      {t('fullName')}
+                    </label>
+                    <input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
+                      required={!isLogin}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="company" className="block text-sm sm:text-base font-medium text-foreground">
+                      {t('companyName')}
+                    </label>
+                    <input
+                      id="company"
+                      type="text"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
+                      required={!isLogin}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-sm sm:text-base font-medium text-foreground">
+                  {t('email')}
+                </label>
+                <input
+                  id="email"
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm sm:text-base font-medium text-foreground">
+                  {t('password')}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 sm:py-3 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm sm:text-base"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="text-red-600 text-sm sm:text-base bg-red-50 p-3 sm:p-4 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full py-2 sm:py-3 text-sm sm:text-base"
+                disabled={loading}
+              >
+                {loading ? t('loading') : (isLogin ? t('login') : t('register'))}
+              </Button>
+            </form>
+
+            <div className="mt-6 sm:mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm sm:text-base text-primary hover:text-primary/80 transition-colors"
+              >
+                {isLogin ? t('noAccountRegister') : t('haveAccountLogin')}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </MainLayout>
+    </div>
   )
 } 

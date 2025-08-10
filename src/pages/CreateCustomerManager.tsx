@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
-import { saveRegularUserToStorage, getRegularUsersByCompany } from '@/lib/localStorage'
+import { saveRegularUserToStorage, getRegularUsersFromStorage, getCustomersFromStorage } from '@/lib/localStorage'
 import { useToast } from '@/contexts/ToastContext'
-import MainLayout from '@/layouts/MainLayout'
+import AdminLayout from '@/layouts/AdminLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function CreateRegularUser() {
+export default function CreateCustomerManager() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -21,17 +21,15 @@ export default function CreateRegularUser() {
     phoneNumber: '',
     position: '',
     username: '',
-    password: ''
+    password: '',
+    selectedCompany: ''
   })
   
   const [loading, setLoading] = useState(false)
 
-  const getCurrentCompany = () => {
-    if (user?.user_metadata?.role === 'customer') {
-      return user.user_metadata.company || ''
-    }
-    return ''
-  }
+  // Get all customers/companies for the dropdown
+  const customers = getCustomersFromStorage()
+  const companies = customers.map(customer => customer.companyName).filter((company, index, arr) => arr.indexOf(company) === index)
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -50,6 +48,7 @@ export default function CreateRegularUser() {
     if (!formData.position.trim()) errors.push('Position is required')
     if (!formData.username.trim()) errors.push('Username is required')
     if (!formData.password.trim()) errors.push('Password is required')
+    if (!formData.selectedCompany.trim()) errors.push('Company selection is required')
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (formData.email && !emailRegex.test(formData.email)) {
@@ -64,14 +63,15 @@ export default function CreateRegularUser() {
       errors.push('Password must be at least 6 characters')
     }
     
-    const existingUsers = getRegularUsersByCompany(getCurrentCompany())
-    const isEmailExists = existingUsers.some(user => user.email === formData.email)
+    // Check if user already exists
+    const allUsers = getRegularUsersFromStorage()
+    const isEmailExists = allUsers.some(user => user.email === formData.email)
     if (isEmailExists) {
       errors.push('User with this email already exists')
     }
     
     // Check username uniqueness
-    const isUsernameExists = existingUsers.some(user => user.username === formData.username)
+    const isUsernameExists = allUsers.some(user => user.username === formData.username)
     if (isUsernameExists) {
       errors.push('User with this username already exists')
     }
@@ -84,7 +84,7 @@ export default function CreateRegularUser() {
     setLoading(true)
 
     try {
-      console.log('🔍 Creating regular user with data:', formData)
+      console.log('🔍 Creating customer manager with data:', formData)
       
       const errors = validateForm()
       if (errors.length > 0) {
@@ -93,11 +93,10 @@ export default function CreateRegularUser() {
         return
       }
 
-      const currentCompany = getCurrentCompany()
-      const currentCustomerId = user?.id || localStorage.getItem('currentCustomerId')
-      
-      if (!currentCompany || !currentCustomerId) {
-        showError('Error', 'Could not determine company')
+      // Find the customer ID for the selected company
+      const selectedCustomer = customers.find(customer => customer.companyName === formData.selectedCompany)
+      if (!selectedCustomer) {
+        showError('Error', 'Could not find customer for selected company')
         setLoading(false)
         return
       }
@@ -110,19 +109,19 @@ export default function CreateRegularUser() {
         position: formData.position.trim(),
         username: formData.username.trim(),
         password: formData.password.trim(),
-        companyName: currentCompany,
-        createdBy: currentCustomerId,
+        companyName: formData.selectedCompany,
+        createdBy: selectedCustomer.id, // Use the customer ID as createdBy
         status: 'active' as const,
-        isCustomerManager: false // Explicitly mark as regular user
+        isCustomerManager: true // Mark as customer manager
       }
 
-      console.log('🔍 Saving regular user:', userData)
+      console.log('🔍 Saving customer manager:', userData)
       
       const savedUser = saveRegularUserToStorage(userData)
       
-      console.log('✅ Regular user created successfully:', savedUser)
+      console.log('✅ Customer manager created successfully:', savedUser)
       
-      showSuccess('Success!', 'User created successfully!')
+      showSuccess('Success!', 'Customer manager created successfully!')
       
       setFormData({
         firstName: '',
@@ -131,14 +130,15 @@ export default function CreateRegularUser() {
         phoneNumber: '',
         position: '',
         username: '',
-        password: ''
+        password: '',
+        selectedCompany: ''
       })
       
-      navigate('/users')
+      navigate('/customer-managers')
       
     } catch (error) {
-      console.error('❌ Error creating regular user:', error)
-      showError('Error!', 'Failed to create user')
+      console.error('❌ Error creating customer manager:', error)
+      showError('Error!', 'Failed to create customer manager')
     } finally {
       setLoading(false)
     }
@@ -150,14 +150,14 @@ export default function CreateRegularUser() {
   ]
 
   return (
-    <MainLayout>
+    <AdminLayout>
       <div className="w-full">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
-            Create User
+            Create Customer Manager
           </h1>
           <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mt-2">
-            Create a new user for your company
+            Create a new user who can manage tickets for a specific customer company
           </p>
         </div>
 
@@ -275,24 +275,45 @@ export default function CreateRegularUser() {
 
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg sm:text-xl lg:text-2xl">Company Information</CardTitle>
+              <CardTitle className="text-lg sm:text-xl lg:text-2xl">Company Assignment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm sm:text-base font-medium">Company</label>
-                <input
-                  type="text"
-                  value={getCurrentCompany()}
-                  disabled
-                  className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md bg-gray-50 text-sm sm:text-base"
-                />
+                <label htmlFor="selectedCompany" className="block text-sm sm:text-base font-medium">Select Company *</label>
+                <select
+                  id="selectedCompany"
+                  value={formData.selectedCompany}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleInputChange('selectedCompany', e.target.value)}
+                  required
+                  className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                >
+                  <option value="">Choose a company</option>
+                  {companies.map((company) => (
+                    <option key={company} value={company}>
+                      {company}
+                    </option>
+                  ))}
+                </select>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  User will be created for company: {getCurrentCompany()}
+                  This user will manage tickets for the selected company
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm sm:text-base font-medium">Created</label>
+                <label className="block text-sm sm:text-base font-medium">Created By</label>
+                <input
+                  type="text"
+                  value="Root Admin"
+                  disabled
+                  className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-md bg-gray-50 text-sm sm:text-base"
+                />
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Created by: Root Administrator
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm sm:text-base font-medium">Creation Date</label>
                 <input
                   type="text"
                   value={new Date().toLocaleDateString()}
@@ -308,7 +329,7 @@ export default function CreateRegularUser() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate('/users')}
+                  onClick={() => navigate('/customer-managers')}
                   disabled={loading}
                   className="w-full sm:w-auto"
                 >
@@ -318,15 +339,15 @@ export default function CreateRegularUser() {
                   type="submit" 
                   disabled={loading}
                   onClick={handleSubmit}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
                 >
-                  {loading ? 'Creating...' : 'Create User'}
+                  {loading ? 'Creating...' : 'Create Customer Manager'}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
-    </MainLayout>
+    </AdminLayout>
   )
 } 

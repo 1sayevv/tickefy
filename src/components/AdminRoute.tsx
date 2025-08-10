@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useEffect, useState } from 'react'
 
 interface AdminRouteProps {
   children: React.ReactNode
@@ -7,9 +8,80 @@ interface AdminRouteProps {
 
 export default function AdminRoute({ children }: AdminRouteProps) {
   const { user, loading } = useAuth()
+  const [localUser, setLocalUser] = useState<any>(null)
+  const [localLoading, setLocalLoading] = useState(true)
+
+  // Check localStorage directly for session persistence
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      try {
+        // Check for mockAuth user
+        const mockAuthUser = localStorage.getItem('mockAuthUser')
+        if (mockAuthUser) {
+          const parsedUser = JSON.parse(mockAuthUser)
+          setLocalUser(parsedUser)
+          setLocalLoading(false)
+          return
+        }
+
+        // Check for customer in sessionStorage
+        const customerData = sessionStorage.getItem('currentCustomer')
+        if (customerData) {
+          const customer = JSON.parse(customerData)
+          const customerUser = {
+            id: customer.id,
+            email: customer.username,
+            created_at: customer.createdAt,
+            user_metadata: {
+              full_name: `${customer.firstName} ${customer.lastName}`,
+              company: customer.companyName,
+              role: 'customer',
+              customerData: customer
+            }
+          }
+          setLocalUser(customerUser)
+          setLocalLoading(false)
+          return
+        }
+
+        setLocalLoading(false)
+      } catch (error) {
+        console.error('Error checking localStorage:', error)
+        setLocalLoading(false)
+      }
+    }
+
+    checkLocalStorage()
+
+    // Listen for storage changes (logout events)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mockAuthUser' || e.key === 'currentCustomer' || e.key === 'currentRegularUser') {
+        checkLocalStorage()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    // Also listen for custom logout event
+    const handleLogout = () => {
+      setLocalUser(null)
+      setLocalLoading(false)
+    }
+
+    window.addEventListener('logout', handleLogout)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('logout', handleLogout)
+    }
+  }, [])
+
+  // Use local user if AuthContext user is not available
+  const effectiveUser = user || localUser
+  const effectiveLoading = loading || localLoading
 
   // Показываем загрузку пока проверяем авторизацию
-  if (loading) {
+  if (effectiveLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -19,14 +91,14 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   }
 
       // If user is not authenticated, redirect to login
-  if (!user) {
+  if (!effectiveUser) {
     return <Navigate to="/login" replace />
   }
 
       // Check user role (root admin or customer)
-  const isSuperAdmin = user.user_metadata?.role === 'super_admin' || 
-                       user.email === 'admin'
-  const isCustomer = user.user_metadata?.role === 'customer'
+  const isSuperAdmin = effectiveUser.user_metadata?.role === 'super_admin' || 
+                       effectiveUser.email === 'admin'
+  const isCustomer = effectiveUser.user_metadata?.role === 'customer'
 
       // If user doesn't have required permissions, show access denied message
   if (!isSuperAdmin && !isCustomer) {

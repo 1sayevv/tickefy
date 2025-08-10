@@ -101,6 +101,15 @@
     "manageCustomers": "Manage Customers",
     "refreshData": "Refresh Data",
     "improveProductSearch": "Improve product search",
+    "ticketHistory": "Ticket History",
+    "ticketCreated": "Ticket Created",
+    "statusChanged": "Status Changed",
+    "commentAdded": "Comment Added",
+    "noHistoryAvailable": "No history available for this ticket",
+    "viewHistory": "View History",
+    "actions": "Actions",
+    "ticketDetails": "Ticket Details",
+    "completed": "Completed",
     "addSmartSearch": "Adding smart search with autocomplete, filters by size, color and price for customer convenience",
     "personalRecommendationSystem": "Personal recommendation system",
     "implementMLAlgorithm": "Implementing machine learning algorithm for personal product recommendations based on purchase history",
@@ -187,6 +196,13 @@
     "regularUserAccount": "Regular User Account",
     "adminAccount": "Admin Account",
     "rootAdminAccount": "Root Admin Account",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "changeStatus": "Change Status",
+    "editTicket": "Edit Ticket",
+    "updateStatus": "Update Status",
+    "cannotDeactivateNonOpen": "Cannot deactivate non-open tickets",
+    "deactivated": "Deactivated"
   }
 } 

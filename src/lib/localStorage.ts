@@ -162,6 +162,7 @@ export interface RegularUserData {
   createdBy: string // Customer ID who created this user
   status: 'active' | 'inactive'
   createdAt: string
+  isCustomerManager?: boolean // Flag to distinguish customer managers from regular users
 }
 
 const REGULAR_USERS_STORAGE_KEY = 'regularUsers'
@@ -181,7 +182,11 @@ export const getRegularUsersFromStorage = (): RegularUserData[] => {
 export const getRegularUsersByCompany = (companyName: string): RegularUserData[] => {
   try {
     const users = getRegularUsersFromStorage()
-    return users.filter(user => user.companyName === companyName)
+    // Filter out customer managers and only return regular users for the company
+    return users.filter(user => 
+      user.companyName === companyName && 
+      !user.isCustomerManager // Exclude customer managers
+    )
   } catch (error) {
     console.error('Error getting regular users by company:', error)
     return []
@@ -249,6 +254,45 @@ export const deleteRegularUserFromStorage = (id: string): boolean => {
   }
 }
 
+// Migration function to update existing customer managers
+export const migrateCustomerManagers = () => {
+  try {
+    const users = getRegularUsersFromStorage()
+    let updated = false
+    
+    users.forEach((user, index) => {
+      // If user doesn't have isCustomerManager flag, check if they should be a customer manager
+      if (user.isCustomerManager === undefined) {
+        // Check if this user is a customer manager by looking at their username pattern
+        // Customer managers typically have "manager" in their username or position
+        const isCustomerManager = user.username.toLowerCase().includes('manager') || 
+                                 user.position.toLowerCase().includes('manager') ||
+                                 user.email.toLowerCase().includes('manager')
+        
+        if (isCustomerManager) {
+          users[index] = { ...user, isCustomerManager: true }
+          updated = true
+          console.log('🔧 Migrated user to customer manager:', user.username)
+        } else {
+          users[index] = { ...user, isCustomerManager: false }
+          updated = true
+          console.log('🔧 Migrated user to regular user:', user.username)
+        }
+      }
+    })
+    
+    if (updated) {
+      localStorage.setItem(REGULAR_USERS_STORAGE_KEY, JSON.stringify(users))
+      console.log('✅ Migration completed successfully')
+    }
+    
+    return users
+  } catch (error) {
+    console.error('Error migrating customer managers:', error)
+    return []
+  }
+}
+
 // Отладочная функция для проверки всех regular users
 export const debugRegularUsers = () => {
   try {
@@ -264,7 +308,8 @@ export const debugRegularUsers = () => {
         username: user.username,
         password: user.password,
         companyName: user.companyName,
-        createdBy: user.createdBy
+        createdBy: user.createdBy,
+        isCustomerManager: user.isCustomerManager
       })
     })
     return users

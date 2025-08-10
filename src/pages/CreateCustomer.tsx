@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { saveCustomerToStorage } from '@/lib/localStorage'
 import AdminLayout from '@/layouts/AdminLayout'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function CreateCustomer() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { showSuccess, showError } = useToast()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   // Состояние для информации о компании
   const [companyData, setCompanyData] = useState({
@@ -48,7 +49,6 @@ export default function CreateCustomer() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
 
     // Валидация всех полей
     const requiredFields = {
@@ -71,20 +71,20 @@ export default function CreateCustomer() {
       .map(([key]) => key)
 
     if (emptyFields.length > 0) {
-      setError(`Please fill in all required fields: ${emptyFields.join(', ')}`)
+      showError('Validation Error', `Please fill in all required fields: ${emptyFields.join(', ')}`)
       setLoading(false)
       return
     }
 
     // Additional validation
     if (customerData.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      showError('Validation Error', 'Password must be at least 6 characters')
       setLoading(false)
       return
     }
 
     if (customerData.username.length < 3) {
-      setError('Username must be at least 3 characters')
+      showError('Validation Error', 'Username must be at least 3 characters')
       setLoading(false)
       return
     }
@@ -93,7 +93,7 @@ export default function CreateCustomer() {
     const existingCustomers = JSON.parse(localStorage.getItem('customers') || '[]')
     const isUsernameTaken = existingCustomers.some((c: any) => c.username === customerData.username)
     if (isUsernameTaken) {
-      setError('User with this username already exists')
+      showError('Validation Error', 'User with this username already exists')
       setLoading(false)
       return
     }
@@ -101,7 +101,7 @@ export default function CreateCustomer() {
     // Check login (email) uniqueness
     const isLoginTaken = existingCustomers.some((c: any) => c.login === customerData.login)
     if (isLoginTaken) {
-      setError('Пользователь с таким email уже существует')
+      showError('Validation Error', 'User with this email already exists')
       setLoading(false)
       return
     }
@@ -128,7 +128,7 @@ export default function CreateCustomer() {
       console.log('✅ Customer created and saved:', savedCustomer)
       
       // Показываем уведомление об успехе
-      showNotification('success', t('customerCreated'))
+      showSuccess('Success!', t('customerCreated'))
       
       // Перенаправляем обратно на список клиентов
       setTimeout(() => {
@@ -137,7 +137,7 @@ export default function CreateCustomer() {
 
     } catch (error) {
       console.error('Error creating customer:', error)
-      setError(t('errorCreatingCustomer'))
+      showError('Error!', t('errorCreatingCustomer'))
     } finally {
       setLoading(false)
     }
@@ -147,33 +147,17 @@ export default function CreateCustomer() {
     navigate('/super-admin')
   }
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    // Создаем временное уведомление
-    const notification = document.createElement('div')
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-      type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`
-    notification.textContent = message
-    document.body.appendChild(notification)
 
-    setTimeout(() => {
-      document.body.removeChild(notification)
-    }, 3000)
-  }
 
   return (
     <AdminLayout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="w-full py-4 sm:py-6 lg:py-8">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('createCustomer')}</h1>
           <p className="text-muted-foreground mt-2 text-sm sm:text-base">{t('createCustomerDescription')}</p>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
-          </div>
-        )}
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

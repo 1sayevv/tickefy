@@ -1,93 +1,61 @@
+import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTickets } from '@/contexts/TicketContext'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
+import { getRegularUsersFromStorage } from '@/lib/localStorage'
+import CustomerManagerLayout from '@/layouts/CustomerManagerLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import TicketCard from '@/components/TicketCard'
-import MainLayout from '@/layouts/MainLayout'
-import AdminLayout from '@/layouts/AdminLayout'
-import CustomerManagerLayout from '@/layouts/CustomerManagerLayout'
-import { getRegularUsersFromStorage } from '@/lib/localStorage'
-import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
-export default function Dashboard() {
+export default function CustomerManagerDashboard() {
   const { t } = useTranslation()
-  const { user, profile, signOut, getUserDisplayName, getUserCompany } = useAuth()
-  const { tickets, loading, getStatusCount, getTotalCount } = useTickets()
+  const { user, getUserDisplayName } = useAuth()
+  const { tickets, loading } = useTickets()
+  const [assignedCompany, setAssignedCompany] = useState<string>('')
+  const [companyTickets, setCompanyTickets] = useState<any[]>([])
 
-  console.log('🔍 Dashboard - User:', user)
-  console.log('🔍 Dashboard - User role:', user?.user_metadata?.role)
-  console.log('🔍 Dashboard - Tickets count:', tickets.length)
-  console.log('🔍 Dashboard - Loading:', loading)
-  console.log('🔍 Dashboard - Profile:', profile)
-
-  // Determine which layout to use based on user role
-  const getLayout = () => {
-    if (!user) return MainLayout
-    
-    const userRole = user.user_metadata?.role
-    const isSuperAdmin = user?.email === 'admin' || userRole === 'super_admin'
-    const isCustomer = userRole === 'customer'
-    
-    // Check if user is a customer manager by looking in localStorage
+  useEffect(() => {
+    // Find the customer manager and their assigned company
     const allUsers = getRegularUsersFromStorage()
-    const isCustomerManager = allUsers.some(manager => 
-      (manager.username === user.email || manager.email === user.email) && 
-      manager.isCustomerManager === true
+    const customerManager = allUsers.find(manager => 
+      manager.username === user?.email || manager.email === user?.email
     )
     
-    if (isSuperAdmin || isCustomer) {
-      return AdminLayout
-    } else if (isCustomerManager) {
-      return CustomerManagerLayout
-    } else {
-      return MainLayout
+    if (customerManager) {
+      setAssignedCompany(customerManager.companyName)
+      // Filter tickets for the assigned company
+      const filteredTickets = tickets.filter(ticket => ticket.company === customerManager.companyName)
+      setCompanyTickets(filteredTickets)
     }
+  }, [user, tickets])
+
+  // Functions for counting tickets by status
+  const getStatusCount = (status: string) => {
+    return companyTickets.filter(ticket => ticket.status === status).length
   }
 
-  const Layout = getLayout()
-  
-  console.log('🔍 Dashboard - Layout selected:', Layout.name)
-  console.log('🔍 Dashboard - User email:', user?.email)
-  console.log('🔍 Dashboard - User role:', user?.user_metadata?.role)
-  
-  // Debug customer manager detection
-  if (user) {
-    const allUsers = getRegularUsersFromStorage()
-    const isCustomerManager = allUsers.some(manager => 
-      manager.username === user.email || manager.email === user.email
-    )
-    console.log('🔍 Dashboard - Is customer manager:', isCustomerManager)
-    console.log('🔍 Dashboard - All users:', allUsers.map(u => ({ username: u.username, email: u.email, isCustomerManager: u.isCustomerManager })))
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
-  }
-
-  // Функции для подсчета тикетов по статусам
+  const getTotalCount = () => companyTickets.length
   const getOpenCount = () => getStatusCount('open')
   const getInProgressCount = () => getStatusCount('in progress')
   const getDoneCount = () => getStatusCount('done')
 
-  // Подготовка данных для Pie Chart (статусы тикетов)
+  // Prepare data for Pie Chart (ticket statuses)
   const getStatusData = () => {
-    const statusCount = tickets.reduce((acc, ticket) => {
+    const statusCount = companyTickets.reduce((acc, ticket) => {
       const status = ticket.status
       acc[status] = (acc[status] || 0) + 1
       return acc
     }, {} as Record<string, number>)
 
     return [
-      { name: t('open'), value: statusCount.open || 0, color: '#0088FE' },
-      { name: t('inProgress'), value: statusCount['in progress'] || 0, color: '#00C49F' },
-      { name: t('done'), value: statusCount.done || 0, color: '#FFBB28' }
+      { name: 'Open', value: statusCount.open || 0, color: '#0088FE' },
+      { name: 'In Progress', value: statusCount['in progress'] || 0, color: '#00C49F' },
+      { name: 'Done', value: statusCount.done || 0, color: '#FFBB28' }
     ]
   }
 
-  // Подготовка данных для Line Chart (тикеты по датам)
+  // Prepare data for Line Chart (tickets by date)
   const getDateData = () => {
     const today = new Date()
     const last14Days = Array.from({ length: 14 }, (_, i) => {
@@ -96,7 +64,7 @@ export default function Dashboard() {
       return date
     })
 
-    const ticketsByDate = tickets.reduce((acc, ticket) => {
+    const ticketsByDate = companyTickets.reduce((acc, ticket) => {
       const ticketDate = new Date(ticket.createdAt)
       if (isNaN(ticketDate.getTime())) {
         return acc
@@ -127,35 +95,35 @@ export default function Dashboard() {
   const statusData = getStatusData()
   const dateData = getDateData()
 
-  // Кастомный компонент для тултипа
+  // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      // Для Pie Chart тултипа
-      if (payload[0]?.name === t('open') || payload[0]?.name === t('inProgress') || payload[0]?.name === t('done')) {
+      // For Pie Chart tooltip
+      if (payload[0]?.name === 'Open' || payload[0]?.name === 'In Progress' || payload[0]?.name === 'Done') {
         return (
           <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
             <p className="font-semibold text-gray-900">{label}</p>
             {payload.map((entry: any, index: number) => (
               <p key={index} className="text-sm" style={{ color: entry.color }}>
-                {entry.name}: {entry.value} {t('tickets')} ({((entry.value / payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(0)}%)
+                {entry.name}: {entry.value} tickets ({((entry.value / payload.reduce((sum: number, item: any) => sum + item.value, 0)) * 100).toFixed(0)}%)
               </p>
             ))}
           </div>
         )
       }
-      // Для Line Chart тултипа
+      // For Line Chart tooltip
       const data = payload[0]?.payload
       return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
           <p className="font-semibold text-gray-900">
             {label}
-            {data?.isToday && <span className="text-blue-600 ml-2">({t('today')})</span>}
+            {data?.isToday && <span className="text-blue-600 ml-2">(Today)</span>}
           </p>
           <p className="text-sm text-gray-600">
             {data?.fullDate}
           </p>
           <p className="text-sm" style={{ color: payload[0]?.color }}>
-            {t('tickets')}: {payload[0]?.value}
+            Tickets: {payload[0]?.value}
           </p>
         </div>
       )
@@ -164,43 +132,32 @@ export default function Dashboard() {
   }
 
   return (
-    <Layout>
+    <CustomerManagerLayout>
       <div className="w-full">
-        {/* Header с информацией о пользователе */}
+        {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                {t('dashboard')}
+                Dashboard
               </h1>
               <p className="text-muted-foreground mt-2">
-                {t('welcome')}, {getUserDisplayName()}!
+                Welcome, {getUserDisplayName()}!
               </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <Badge variant="secondary" className="text-sm w-fit">
-                {getUserCompany()}
-              </Badge>
-              <Button asChild variant="outline" size="sm">
-                <Link to="/profile">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  {t('profile')}
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                {t('logout')}
-              </Button>
+              {assignedCompany && (
+                <Badge variant="secondary" className="mt-2">
+                  Managing: {assignedCompany}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Статистика */}
+        {/* Statistics Cards */}
         <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">{t('totalTickets')}</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Tickets</CardTitle>
               <svg className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
@@ -212,7 +169,7 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">{t('open')}</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Open</CardTitle>
               <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
                 {getOpenCount()}
               </Badge>
@@ -224,7 +181,7 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">{t('inProgress')}</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">In Progress</CardTitle>
               <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
                 {getInProgressCount()}
               </Badge>
@@ -236,7 +193,7 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">{t('done')}</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Done</CardTitle>
               <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
                 {getDoneCount()}
               </Badge>
@@ -247,13 +204,13 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Графики */}
-        {tickets.length > 0 && (
+        {/* Charts */}
+        {companyTickets.length > 0 && (
           <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-            {/* Pie Chart - Статусы тикетов */}
+            {/* Pie Chart - Ticket Statuses */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 lg:p-6">
               <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">
-                {t('ticketsByStatus')}
+                Tickets by Status
               </h3>
               <div className="h-48 sm:h-60 lg:h-80 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -292,10 +249,10 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Line Chart - Тикеты по датам */}
+            {/* Line Chart - Tickets by Date */}
             <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-4 lg:p-6">
               <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">
-                {t('ticketsByDate')}
+                Tickets by Date
               </h3>
               <div className="h-48 sm:h-60 lg:h-80 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -332,26 +289,18 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Секция тикетов */}
+        {/* Recent Tickets */}
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-            <h2 className="text-xl sm:text-2xl font-bold">{t('myTickets')}</h2>
-            <Link to="/create-ticket">
-              <Button className="w-full sm:w-auto">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                {t('createTicket')}
-              </Button>
-            </Link>
+            <h2 className="text-xl sm:text-2xl font-bold">Recent Tickets</h2>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-2 text-muted-foreground">{t('loadingTickets')}</span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              <span className="ml-2 text-muted-foreground">Loading tickets...</span>
             </div>
-          ) : tickets.length === 0 ? (
+          ) : companyTickets.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mb-4">
@@ -359,60 +308,48 @@ export default function Dashboard() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">{t('noTickets')}</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">No Tickets</h3>
                 <p className="text-muted-foreground text-center mb-4 text-sm sm:text-base">
-                  {t('noTicketsDescription')}
+                  No tickets have been created for {assignedCompany} yet.
                 </p>
-                <Link to="/create-ticket">
-                  <Button className="w-full sm:w-auto">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    {t('createFirstTicket')}
-                  </Button>
-                </Link>
               </CardContent>
             </Card>
           ) : (
             <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {tickets.map((ticket) => (
-                <TicketCard key={ticket.id} ticket={ticket} />
+              {companyTickets.slice(0, 6).map((ticket) => (
+                <Card key={ticket.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm sm:text-base">{ticket.title}</CardTitle>
+                      <Badge 
+                        variant="secondary" 
+                        className={
+                          ticket.status === 'open' ? 'bg-blue-100 text-blue-800' :
+                          ticket.status === 'in progress' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-green-100 text-green-800'
+                        }
+                      >
+                        {ticket.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      {ticket.description}
+                    </p>
+                    <div className="text-xs text-gray-500">
+                      Created: {new Date(ticket.createdAt).toLocaleDateString()}
+                      {ticket.status === 'done' && ticket.updatedAt && (
+                        <div>Completed: {new Date(ticket.updatedAt).toLocaleDateString()}</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </div>
-
-        {/* Информация о профиле */}
-        {profile && (
-          <div className="mt-8 sm:mt-12">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg sm:text-xl">{t('profileInformation')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('email')}</label>
-                    <p className="text-xs sm:text-sm">{profile.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('fullName')}</label>
-                    <p className="text-xs sm:text-sm">{profile.full_name}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('companyName')}</label>
-                    <p className="text-xs sm:text-sm">{profile.company}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs sm:text-sm font-medium text-muted-foreground">{t('registrationDate')}</label>
-                    <p className="text-xs sm:text-sm">{new Date(profile.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
-    </Layout>
+    </CustomerManagerLayout>
   )
 } 

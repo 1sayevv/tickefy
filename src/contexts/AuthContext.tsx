@@ -16,13 +16,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const useAuth = () => {
+const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
 }
+
+export { useAuth }
 
 interface AuthProviderProps {
   children: React.ReactNode
@@ -32,6 +34,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Debug user state changes
+  useEffect(() => {
+    console.log('🔍 User state changed:', user ? user.email : 'null', 'Loading:', loading)
+  }, [user, loading])
 
   // Загрузка профиля пользователя
   const loadProfile = async (userId: string) => {
@@ -47,14 +54,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check current session on load
     const checkUser = async () => {
       try {
-        console.log('🔍 AuthContext: checkUser started')
+        // Сначала проверяем mockAuth user в localStorage
+        const mockAuthUser = localStorage.getItem('mockAuthUser')
+        
+        if (mockAuthUser) {
+          try {
+            const parsedUser = JSON.parse(mockAuthUser)
+            console.log('🔍 Restoring mockAuth user:', parsedUser.email)
+            setUser(parsedUser as any)
+            setLoading(false)
+            return
+          } catch (error) {
+            console.error('Error parsing mockAuth user:', error)
+            localStorage.removeItem('mockAuthUser')
+          }
+        }
         
         // Сначала проверяем, есть ли customer в sessionStorage
         const customerData = sessionStorage.getItem('currentCustomer')
-        console.log('🔍 AuthContext: customerData from sessionStorage:', customerData)
         if (customerData) {
           const customer = JSON.parse(customerData)
-          console.log('AuthContext - Customer from sessionStorage:', customer)
           
           // Создаем объект пользователя для customer
           const customerUser = {
@@ -76,10 +95,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Check if there's a regular user in sessionStorage
         const regularUserData = sessionStorage.getItem('currentRegularUser')
-        console.log('🔍 AuthContext: regularUserData from sessionStorage:', regularUserData)
         if (regularUserData) {
           const regularUser = JSON.parse(regularUserData)
-          console.log('AuthContext - Regular User from sessionStorage:', regularUser)
           
           // Создаем объект пользователя для regular user
           const regularUserObj = {
@@ -101,15 +118,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Check if there's a customer ID in localStorage
         const currentCustomerId = localStorage.getItem('currentCustomerId')
-        console.log('🔍 AuthContext: Checking currentCustomerId:', currentCustomerId)
         
         if (currentCustomerId) {
           const customers = JSON.parse(localStorage.getItem('customers') || '[]')
-          console.log('🔍 AuthContext: All customers:', customers)
           const customer = customers.find((c: any) => c.id === currentCustomerId)
           
           if (customer) {
-            console.log('AuthContext - Customer from localStorage ID:', customer)
             
             // Создаем объект пользователя для customer
             const customerUser = {
@@ -127,15 +141,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Сохраняем в sessionStorage для совместимости
             sessionStorage.setItem('currentCustomer', JSON.stringify(customer))
             
-            console.log('🔍 AuthContext: Setting customer user:', customerUser)
             setUser(customerUser as any)
             setLoading(false)
-            console.log('🔍 AuthContext: Customer user set successfully')
             
             return
           } else {
             // Если customer не найден, очищаем currentCustomerId
-            console.log('❌ Customer not found, clearing currentCustomerId')
             localStorage.removeItem('currentCustomerId')
             sessionStorage.removeItem('currentCustomer')
           }
@@ -143,15 +154,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Check if there's a regular user ID in localStorage
         const currentRegularUserId = localStorage.getItem('currentRegularUserId')
-        console.log('🔍 AuthContext: Checking currentRegularUserId:', currentRegularUserId)
         
         if (currentRegularUserId) {
           const regularUsers = JSON.parse(localStorage.getItem('regularUsers') || '[]')
-          console.log('🔍 AuthContext: All regular users:', regularUsers)
           const regularUser = regularUsers.find((u: any) => u.id === currentRegularUserId)
           
           if (regularUser) {
-            console.log('AuthContext - Regular User from localStorage ID:', regularUser)
             
             // Создаем объект пользователя для regular user
             const regularUserObj = {
@@ -169,21 +177,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Сохраняем в sessionStorage для совместимости
             sessionStorage.setItem('currentRegularUser', JSON.stringify(regularUser))
             
-            console.log('🔍 AuthContext: Setting regular user:', regularUserObj)
             setUser(regularUserObj as any)
             setLoading(false)
-            console.log('🔍 AuthContext: Regular user set successfully')
             return
           } else {
             // Если regular user не найден, очищаем currentRegularUserId
-            console.log('❌ Regular user not found, clearing currentRegularUserId')
             localStorage.removeItem('currentRegularUserId')
             sessionStorage.removeItem('currentRegularUser')
           }
         }
         
         const currentUser = await getCurrentUser()
-        console.log('AuthContext - Current user:', currentUser)
         setUser(currentUser)
         
         if (currentUser) {
@@ -196,7 +200,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    checkUser()
+    // Ensure localStorage is available before checking user
+    if (typeof window !== 'undefined') {
+      checkUser()
+    } else {
+      // If window is not available, wait a bit
+      setTimeout(() => {
+        checkUser()
+      }, 50)
+    }
 
     // Слушаем изменения в авторизации (только для Supabase)
     try {
@@ -267,6 +279,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Очищаем ID из localStorage
       localStorage.removeItem('currentCustomerId')
       localStorage.removeItem('currentRegularUserId')
+      
+      // Очищаем mockAuth user из localStorage
+      localStorage.removeItem('mockAuthUser')
+      
+      // Dispatch custom logout event to notify all components
+      window.dispatchEvent(new CustomEvent('logout'))
+      
+      // Force redirect to login page
+      window.location.href = '/login'
     } catch (error) {
       console.error('Error signing out:', error)
     }

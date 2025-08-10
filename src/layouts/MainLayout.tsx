@@ -1,5 +1,5 @@
-import { ReactNode, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { ReactNode, useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -14,11 +14,94 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const { t } = useTranslation()
   const { signOut, getUserDisplayName, user } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [localUser, setLocalUser] = useState<any>(null)
+
+  // Check localStorage directly for session persistence
+  useEffect(() => {
+    const checkLocalStorage = () => {
+      try {
+        // Check for mockAuth user
+        const mockAuthUser = localStorage.getItem('mockAuthUser')
+        if (mockAuthUser) {
+          const parsedUser = JSON.parse(mockAuthUser)
+          setLocalUser(parsedUser)
+          return
+        }
+
+        // Check for customer in sessionStorage
+        const customerData = sessionStorage.getItem('currentCustomer')
+        if (customerData) {
+          const customer = JSON.parse(customerData)
+          const customerUser = {
+            id: customer.id,
+            email: customer.username,
+            created_at: customer.createdAt,
+            user_metadata: {
+              full_name: `${customer.firstName} ${customer.lastName}`,
+              company: customer.companyName,
+              role: 'customer',
+              customerData: customer
+            }
+          }
+          setLocalUser(customerUser)
+          return
+        }
+
+        // Check for regular user in sessionStorage
+        const regularUserData = sessionStorage.getItem('currentRegularUser')
+        if (regularUserData) {
+          const regularUser = JSON.parse(regularUserData)
+          const regularUserObj = {
+            id: regularUser.id,
+            email: regularUser.email,
+            created_at: regularUser.createdAt,
+            user_metadata: {
+              full_name: `${regularUser.firstName} ${regularUser.lastName}`,
+              company: regularUser.companyName,
+              role: 'user',
+              regularUserData: regularUser
+            }
+          }
+          setLocalUser(regularUserObj)
+          return
+        }
+      } catch (error) {
+        console.error('Error checking localStorage:', error)
+      }
+    }
+
+    checkLocalStorage()
+
+    // Listen for storage changes (logout events)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'mockAuthUser' || e.key === 'currentCustomer' || e.key === 'currentRegularUser') {
+        checkLocalStorage()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    // Also listen for custom logout event
+    const handleLogout = () => {
+      setLocalUser(null)
+    }
+
+    window.addEventListener('logout', handleLogout)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('logout', handleLogout)
+    }
+  }, [])
+
+  // Use local user if AuthContext user is not available
+  const effectiveUser = user || localUser
 
   // Check if user is customer
-  const isCustomer = user?.user_metadata?.role === 'customer'
-  const isRegularUser = user?.user_metadata?.role === 'user'
+  const isCustomer = effectiveUser?.user_metadata?.role === 'customer'
+  const isRegularUser = effectiveUser?.user_metadata?.role === 'user'
 
   const handleSignOut = async () => {
     await signOut()
@@ -48,20 +131,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
         )
       },
       {
-        title: t('manageUsers'),
-        href: '/users',
-        icon: (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-6 0" />
-          </svg>
-        )
-      },
-      {
         title: t('profile'),
         href: '/profile',
         icon: (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        )
+      },
+      {
+        title: t('manageUsers'),
+        href: '/users',
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-6 0" />
           </svg>
         )
       }
@@ -87,9 +170,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
             
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <span className="text-xs sm:text-sm text-gray-600 hidden sm:block">
-                {t('hello')}, {getUserDisplayName()}!
-              </span>
               <Button variant="outline" size="sm" onClick={handleSignOut} className="text-xs sm:text-sm">
                 {t('logout')}
               </Button>
@@ -115,19 +195,16 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 px-4 py-4">
-              <div className="flex flex-col space-y-3">
-                <div className="text-center">
-                  <span className="text-sm text-gray-600">
-                    {t('hello')}, {getUserDisplayName()}!
-                  </span>
-                </div>
+                          <div className="flex flex-col space-y-3">
                 {menuItems.map((item) => (
-                  <Link
+                  <button
                     key={item.href}
-                    to={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false)
+                      navigate(item.href)
+                    }}
                     className={cn(
-                      "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "w-full text-left flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       location.pathname === item.href
                         ? "bg-purple-50 text-purple-700 border border-purple-200"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -135,7 +212,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   >
                     {item.icon}
                     <span>{item.title}</span>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
@@ -148,11 +225,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <nav className="mt-8">
               <div className="px-4 space-y-2">
                 {menuItems.map((item) => (
-                  <Link
+                  <button
                     key={item.href}
-                    to={item.href}
+                    onClick={() => {
+                      console.log('Clicked menu item:', item.title, 'href:', item.href)
+                      navigate(item.href)
+                    }}
                     className={cn(
-                      "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "w-full text-left flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       location.pathname === item.href
                         ? "bg-purple-50 text-purple-700 border border-purple-200"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -160,14 +240,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   >
                     {item.icon}
                     <span>{item.title}</span>
-                  </Link>
+                  </button>
                 ))}
               </div>
             </nav>
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full">
             {children}
           </main>
         </div>
@@ -179,7 +259,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-8">
+      <main className="w-full px-4 py-8">
         {children}
       </main>
     </div>

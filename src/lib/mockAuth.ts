@@ -145,34 +145,47 @@ let currentUserInMemory: any = null
 
 // Получаем пользователя из памяти
 const getCurrentUserFromMemory = () => {
+  // Если память пустая, попробуем загрузить из localStorage
+  if (!currentUserInMemory) {
+    try {
+      const storedUser = localStorage.getItem('mockAuthUser')
+      if (storedUser) {
+        currentUserInMemory = JSON.parse(storedUser)
+      }
+    } catch (error) {
+      console.error('Error loading user from localStorage:', error)
+      localStorage.removeItem('mockAuthUser')
+    }
+  }
   return currentUserInMemory
 }
 
-// Сохраняем пользователя в память
+// Сохраняем пользователя в память и localStorage
 const storeUserInMemory = (user: any) => {
   currentUserInMemory = user
+  if (user) {
+    localStorage.setItem('mockAuthUser', JSON.stringify(user))
+    console.log('💾 mockAuth: User saved to localStorage:', user.email)
+  } else {
+    localStorage.removeItem('mockAuthUser')
+    console.log('🗑️ mockAuth: User removed from localStorage')
+  }
 }
 
-// Удаляем пользователя из памяти
+// Удаляем пользователя из памяти и localStorage
 const removeUserFromMemory = () => {
   currentUserInMemory = null
+  localStorage.removeItem('mockAuthUser')
 }
 
 // Мок-функции авторизации
 export const mockSignIn = async (email: string, password: string) => {
-  console.log('🔍 mockSignIn called with:', { email, password })
   await new Promise(resolve => setTimeout(resolve, 500))
   
   const user = mockUsers.find(u => u.email === email)
-  console.log('🔍 Found user:', user)
   
   if (user) {
     const isPasswordValid = verifyPassword(password, user.password)
-    console.log('🔍 Password verification:', { 
-      providedPassword: password, 
-      hashedPassword: user.password, 
-      isValid: isPasswordValid 
-    })
     
     if (isPasswordValid) {
       const userData = {
@@ -186,25 +199,20 @@ export const mockSignIn = async (email: string, password: string) => {
         }
       }
       
-      console.log('✅ Creating user data:', userData)
-      
       // Сохраняем в память
       storeUserInMemory(userData)
-      console.log('💾 User stored in memory')
       
       return {
         user: userData,
         error: null
       }
     } else {
-      console.log('❌ Password verification failed')
       return {
         user: null,
         error: { message: 'Неверный логин или пароль' }
       }
     }
   } else {
-    console.log('❌ User not found')
     return {
       user: null,
       error: { message: 'Неверный логин или пароль' }
@@ -270,16 +278,41 @@ export const clearMockAuth = () => {
   console.log('clearMockAuth - memory cleared')
 }
 
+// Debug function to check localStorage state
+export const debugMockAuth = () => {
+  console.log('🔍 Debug MockAuth State:')
+  console.log('Memory user:', currentUserInMemory)
+  console.log('localStorage mockAuthUser:', localStorage.getItem('mockAuthUser'))
+  console.log('All localStorage keys:', Object.keys(localStorage))
+}
+
+// Make debug function available globally
+if (typeof window !== 'undefined') {
+  (window as any).debugMockAuth = debugMockAuth
+  ;(window as any).testMockAuth = () => {
+    const testUser = {
+      id: '3',
+      email: 'admin',
+      created_at: '2024-01-01T00:00:00Z',
+      user_metadata: {
+        full_name: 'Root Administrator',
+        company: 'Tickefy',
+        role: 'super_admin'
+      }
+    }
+    localStorage.setItem('mockAuthUser', JSON.stringify(testUser))
+    console.log('🧪 Test mockAuth user set:', testUser)
+  }
+}
+
 export const mockGetCurrentUser = async () => {
   await new Promise(resolve => setTimeout(resolve, 200))
   
   // Проверяем память для сохраненной сессии
   const storedUser = getCurrentUserFromMemory()
-  console.log('mockGetCurrentUser - Stored user:', storedUser)
   
   // Если память пустая или поврежден, возвращаем null
   if (!storedUser || !storedUser.id || !storedUser.email) {
-    console.log('mockGetCurrentUser - No valid user found, returning null')
     return null
   }
   
