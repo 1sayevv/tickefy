@@ -96,7 +96,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
   return (
     <>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+      <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/ticket/${ticket.id}`)}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <CardTitle className="text-sm sm:text-lg font-semibold line-clamp-2 flex-1 mr-2">
@@ -147,7 +147,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                     variant="outline"
                     onClick={(e) => {
                       e.stopPropagation()
-                      navigate(`/ticket/${ticket.id}/history`)
+                      navigate(`/ticket/${ticket.id}`)
                     }}
                     className="text-xs"
                   >
@@ -161,6 +161,19 @@ export default function TicketCard({ ticket }: TicketCardProps) {
         
                 {/* Action Buttons */}
         <div className="mt-4 flex gap-2">
+          {/* View Details Button - Available to all users */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/ticket/${ticket.id}`)
+            }}
+            className="text-xs"
+          >
+            {t('viewDetails')}
+          </Button>
+          
           {/* Customer Manager Actions - Can change status */}
           {isCustomerManager && (
             <div className="flex gap-2">
@@ -169,11 +182,12 @@ export default function TicketCard({ ticket }: TicketCardProps) {
                 variant="outline"
                 onClick={(e) => {
                   e.stopPropagation()
-                  navigate(`/ticket/${ticket.id}/history`)
+                  // Navigate to status change page or open modal
+                  navigate(`/ticket/${ticket.id}/edit`)
                 }}
                 className="text-xs"
               >
-                {t('viewHistory')}
+                Change Status
               </Button>
               <Button
                 size="sm"

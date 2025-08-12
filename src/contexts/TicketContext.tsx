@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { getAllTickets, getTicketsByCompany, type Ticket } from '@/lib/mockTickets'
+import { getAllTickets, getTicketsByCompany, type Ticket, type TicketMessage } from '@/lib/mockTickets'
 import { useAuth } from './AuthContext'
 import { getTicketsFromStorage, debugTicketsStorage } from '@/lib/vercelStorage'
 
@@ -9,6 +9,7 @@ interface TicketContextType {
   updateTicketStatus: (ticketId: string, newStatus: Ticket['status']) => void
   deactivateTicket: (ticketId: string) => void
   activateTicket: (ticketId: string) => void
+  addMessage: (ticketId: string, message: TicketMessage) => void
   refreshTickets: () => Promise<void>
   getStatusCount: (status: Ticket['status']) => number
   getTotalCount: () => number
@@ -252,12 +253,26 @@ export function TicketProvider({ children }: TicketProviderProps) {
     return tickets.length
   }
 
+  const addMessage = (ticketId: string, message: TicketMessage) => {
+    setTickets(prevTickets =>
+      prevTickets.map(ticket =>
+        ticket.id === ticketId
+          ? { 
+              ...ticket, 
+              messages: [...(ticket.messages || []), message]
+            }
+          : ticket
+      )
+    )
+  }
+
   const value: TicketContextType = {
     tickets,
     loading,
     updateTicketStatus,
     deactivateTicket,
     activateTicket,
+    addMessage,
     refreshTickets,
     getStatusCount,
     getTotalCount

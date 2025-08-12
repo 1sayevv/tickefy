@@ -25,10 +25,12 @@ import Profile from '@/pages/Profile'
 import Test from '@/pages/Test'
 import TestFileUpload from '@/pages/TestFileUpload'
 import LanguageTest from '@/components/LanguageTest'
-import TicketHistoryPage from '@/pages/TicketHistoryPage'
+import TicketHistoryRedirect from '@/components/TicketHistoryRedirect'
+
 import EditCustomerManager from '@/pages/EditCustomerManager'
 import EditCustomer from '@/pages/EditCustomer'
 import EditTicket from '@/pages/EditTicket'
+import TicketDetails from '@/pages/TicketDetails'
 import NotFound from '@/pages/NotFound'
 
 function App() {
@@ -65,7 +67,8 @@ function App() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/users" element={<CustomerRoute><ManageUsers /></CustomerRoute>} />
       <Route path="/users/create" element={<CustomerRoute><CreateRegularUser /></CustomerRoute>} />
-      <Route path="/ticket/:ticketId/history" element={<AdminRoute><TicketHistoryPage /></AdminRoute>} />
+      <Route path="/ticket/:ticketId/history" element={<TicketDetails />} />
+      <Route path="/ticket/:ticketId" element={<TicketDetails />} />
       <Route path="/ticket/:ticketId/edit" element={<CustomerManagerRoute><EditTicket /></CustomerManagerRoute>} />
       <Route path="/customer-managers/:managerId/edit" element={<SuperAdminRoute><EditCustomerManager /></SuperAdminRoute>} />
       <Route path="/customers/:customerId/edit" element={<SuperAdminRoute><EditCustomer /></SuperAdminRoute>} />

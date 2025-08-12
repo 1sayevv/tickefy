@@ -92,7 +92,7 @@ export default function AdminTicketTable() {
   }
 
   const handleViewHistory = (ticket: any) => {
-    navigate(`/ticket/${ticket.id}/history`)
+    navigate(`/ticket/${ticket.id}`)
   }
 
   const hasValidImage = (imageUrl: string) => {
