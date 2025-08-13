@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
+import AdminLayout from '@/layouts/AdminLayout'
 
 import { ArrowLeft, Send, Paperclip, User, MessageSquare, Clock, Building, X, Upload, FileText, Image } from 'lucide-react'
 
@@ -126,120 +127,118 @@ export default function TicketDetails() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>{t('loading')}</p>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>{t('loading')}</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     )
   }
 
   if (!ticket) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-gray-500 mb-4">{t('ticketNotFound')}</p>
-          <Button onClick={() => navigate('/tickets')}>
-            {t('backToTickets')}
-          </Button>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <p className="text-gray-500 mb-4">{t('ticketNotFound')}</p>
+            <Button onClick={() => navigate('/tickets')}>
+              {t('backToTickets')}
+            </Button>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminLayout>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/tickets')}
-                className="flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>{t('back')}</span>
-              </Button>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">{ticket.title}</h1>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Badge variant="secondary" className={getStatusColor(ticket.status)}>
-                    {ticket.status}
-                  </Badge>
-                  <span className="text-sm text-gray-500">#{ticket.id}</span>
-                </div>
+      <div className="bg-white border-b border-gray-200 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/tickets')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{t('back')}</span>
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900">{ticket.title}</h1>
+              <div className="flex items-center space-x-2 mt-1">
+                <Badge variant="secondary" className={getStatusColor(ticket.status)}>
+                  {ticket.status}
+                </Badge>
+                <span className="text-sm text-gray-500">#{ticket.id}</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">#{ticket.id}</span>
-            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">#{ticket.id}</span>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-6">
         {/* Current Status - Fixed at top */}
-        <div className="mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-700">{t('currentStatus')}:</span>
-                  <Badge variant="secondary" className={getStatusColor(ticket.status)}>
-                    {ticket.status}
-                  </Badge>
-                </div>
-                <div className="text-sm text-gray-500">
-                  #{ticket.id}
-                </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-700">{t('currentStatus')}:</span>
+                <Badge variant="secondary" className={getStatusColor(ticket.status)}>
+                  {ticket.status}
+                </Badge>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="text-sm text-gray-500">
+                #{ticket.id}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Ticket Info - Fixed at top */}
-        <div className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5" />
-                {t('ticketInfo')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center gap-3">
-                  <Building className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">{t('company')}</p>
-                    <p className="text-lg font-semibold text-gray-900">{ticket.company}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <User className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">{t('customer')}</p>
-                    <p className="text-lg font-semibold text-gray-900">{ticket.user_email}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">{t('created')}</p>
-                    <p className="text-lg font-semibold text-gray-900">{formatDate(ticket.createdAt)}</p>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building className="w-5 h-5" />
+              {t('ticketInfo')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex items-center gap-3">
+                <Building className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">{t('company')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{ticket.company}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">{t('customer')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{ticket.user_email}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">{t('created')}</p>
+                  <p className="text-lg font-semibold text-gray-900">{formatDate(ticket.createdAt)}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Conversation - Full width below */}
         <Card>
@@ -470,6 +469,6 @@ export default function TicketDetails() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AdminLayout>
   )
 } 
